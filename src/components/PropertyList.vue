@@ -2,7 +2,7 @@
   <div>{{ props.propertyDic }}</div>
   <div v-for="group in props.propertyDic">
     {{ group.displayName }}
-    <propertyItem v-for="item in group.children" :property="item" :propertyValue="propertyValue" @update:property-value="handlePropertyValueUpdate" />
+    <propertyItem v-for="item in group.children" :propertyDic="item" :propertyValue="propertyValue" @update:property-value="handlePropertyValueUpdate" />
   </div>
 </template>
 <script setup lang="ts">
@@ -11,13 +11,15 @@
 
   interface propInterface {
     propertyDic: any;
-    propertyValue: any;
+    property: any;
   }
 
   const props = withDefaults(defineProps<propInterface>(), {
     propertyDic: [],
-    propertyValue: null,
+    property: {},
   });
+
+  const propertyValue = (group: string, name: string): any => props.property[group][name];
 
   const handlePropertyValueUpdate = (newValue: any) => {
     console.log("update", newValue);

@@ -10,7 +10,7 @@
   import { watch } from "vue";
   // import { PropertyDictionaryItem } from "lib/types/property";
 
-  interface propInterface {~
+  interface propInterface {
     propertyDic: any;
     propertyValue: any;
   }

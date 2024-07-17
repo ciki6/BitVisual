@@ -2,7 +2,7 @@
 import * as d3 from "d3";
 import ComponentBase from "./componentBase";
 import OptionType from "./optionType";
-import { BaseProperty, PropertyDictionary } from "../types/property";
+import { BaseProperty, PropertyDictionaryItem } from "../types/property";
 
 class SVGComponentBase extends ComponentBase {
   property: BaseProperty;
@@ -44,10 +44,11 @@ class SVGComponentBase extends ComponentBase {
       },
     };
 
-    const propertyDictionary: PropertyDictionary[] = [
+    const propertyDictionary: PropertyDictionaryItem[] = [
       {
         name: "svgBasic",
         displayName: "SVG组件基础属性",
+        description: "SVG组件基础属性",
         children: [
           {
             name: "isViewBox",

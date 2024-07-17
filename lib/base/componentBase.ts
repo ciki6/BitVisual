@@ -4,6 +4,10 @@ import * as d3 from "d3";
 
 import PropertyManager from "./property";
 import { BaseProperty, PropertyDictionaryItem } from "../types/property";
+import DataModule from "./compData";
+import SyncModule from "./compSync";
+
+type Constructor<T = {}> = new (...args: any[]) => T;
 
 class ComponentBase {
   id: string;
@@ -40,6 +44,17 @@ class ComponentBase {
       type: string;
     }[];
   }[];
+  defaultData: any;
+  webSocket: any;
+  commandUUID: string | null;
+  onlyRecordData: Boolean;
+  recordData: any;
+  processFunction: Function;
+  isSubscribeData: Boolean;
+  clipRect: number[];
+  public dataModule: { [key: string]: Function } = {};
+  public syncModule: { [key: string]: Function } = {};
+  public animeModule: { [key: string]: Function } = {};
 
   constructor(id: string, code: string, container: Element, workMode: number, option: any = {}, useDefaultOpt: boolean = true) {
     this.id = id;
@@ -59,14 +74,36 @@ class ComponentBase {
     this.getDataScripts = [];
     this.eventFunc = [];
     this.invokeFunc = [];
+    this.defaultData = null;
+    this.webSocket = null;
+    this.commandUUID = null;
+    this.onlyRecordData = false;
+    this.recordData = {};
+    this.processFunction = () => {};
+    this.isSubscribeData = false;
+    this.clipRect = [];
 
     this.propertyDictionary = [] as PropertyDictionaryItem[];
     this.property = {} as BaseProperty;
+
+    this.initMethods(DataModule, this.dataModule);
+    this.initMethods(SyncModule, this.syncModule);
 
     this._initProperty();
     this._initEvents();
     this._initConf(option);
     this._setupDefaultValues();
+  }
+
+  private initMethods<T>(ModuleClass: Constructor<T>, target: { [key: string]: Function }) {
+    const moduleInstance = new ModuleClass(this);
+    const prototype = Object.getPrototypeOf(moduleInstance);
+
+    Object.getOwnPropertyNames(prototype).forEach((method) => {
+      if (method !== "constructor" && typeof prototype[method] === "function") {
+        target[method] = prototype[method].bind(moduleInstance);
+      }
+    });
   }
 
   _initConf(option: any) {
@@ -232,7 +269,6 @@ class ComponentBase {
 
     this.propertyDictionary = this.propertyManager.getPropertyDictionary();
     this.property = this.propertyManager.getPropertyList();
-    // this._addProperty(property, propertyDictionary);
   }
 
   _initEvents() {
@@ -345,23 +381,18 @@ class ComponentBase {
     this.script.data.forEach((scriptObj: any) => {
       console.log(`组件${this.id}绑定脚本${scriptObj.displayName}`);
       switch (scriptObj.trigger) {
-        //点击
         case "click":
           this.clickScript.push(scriptObj.content);
           break;
-        //接收数据
         case "getData":
           this.getDataScripts.push(scriptObj.content);
           break;
-        //绘制组件前
         case "beforeDraw":
           this.beforeDrawScripts.push(scriptObj.content);
           break;
-        //todo 其他触发方式
       }
     });
 
-    //绑定点击事件脚本
     d3.select(this.container).on("click", () => {
       this.clickScript.forEach((s) => {
         eval(s);
@@ -381,6 +412,32 @@ class ComponentBase {
       d3Container.style("transform", "translateZ(0)");
     }
   }
+
+  update(data: any) {}
+
+  cleanup() {
+    this.dataModule.unsubscribeDataSource();
+    if (window.wiscomWebSocket) {
+      this.animeModule._stopAnimate();
+    }
+    if (this.webSocket) {
+      this.webSocket.close();
+      this.webSocket.heartBeatIntervaler && clearInterval(this.webSocket.heartBeatIntervaler);
+      this.webSocket = null;
+    }
+  }
+
+  passiveLoad() {}
+
+  setClipRect(x: number, y: number, w: number, h: number) {
+    this.clipRect = [x, y, w, h];
+    if (this.property.basic.needSync) {
+      this._createClipRect();
+      this.syncModule._initEventSync();
+    }
+  }
+
+  _createClipRect() {}
 }
 
 export default ComponentBase;

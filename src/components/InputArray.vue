@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
   import { ref, watch } from "vue";
-  import { defineProps, defineEmits } from "vue";
 
   const props = defineProps<{ modelValue: number[]; placeholder: string[] }>();
   const emit = defineEmits(["update:modelValue"]);
