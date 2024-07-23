@@ -22,7 +22,6 @@ class ComponentBase {
   animation: any[];
   script: any;
   interact: any;
-  // _foldPath: string;
   resourceId: string | undefined;
   clickScript: string[];
   getDataScripts: string[];
@@ -67,7 +66,6 @@ class ComponentBase {
     this.animation = [];
     this.script = {};
     this.interact = {};
-    // this._foldPath = "";
     this.resourceId = "";
     this.beforeDrawScripts = [];
     this.clickScript = [];
@@ -93,6 +91,7 @@ class ComponentBase {
     this._initEvents();
     this._initConf(option);
     this._setupDefaultValues();
+    this._handlePropertyChange();
   }
 
   private initMethods<T>(ModuleClass: Constructor<T>, target: { [key: string]: Function }) {
@@ -332,13 +331,13 @@ class ComponentBase {
     return {};
   }
 
-  setProperty(property: any, value: any = null) {
-    if (value !== null) {
-      property = this._propertyNameToJson(property, value);
-    }
-    this.property = $.extend(true, this.property, property);
-    this._draw();
-  }
+  // setProperty(property: any, value: any = null) {
+  //   if (value !== null) {
+  //     property = this._propertyNameToJson(property, value);
+  //   }
+  //   this.property = $.extend(true, this.property, property);
+  //   this._draw();
+  // }
 
   _propertyNameToJson(propertyName: string, value: any): Object {
     const propJson = this._findPropertyDictionary(propertyName);
@@ -355,6 +354,10 @@ class ComponentBase {
     } else {
       return {};
     }
+  }
+
+  setProperty(path: string, value: any) {
+    this.propertyManager.set(path, value);
   }
 
   _handlePropertyChange() {

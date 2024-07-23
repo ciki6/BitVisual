@@ -2,7 +2,7 @@
   <div>
     BarChart组件测试
     <div class="comp_container"></div>
-    <PropertyList :property="comp?.property" :property-dic="propertyDic" />
+    <PropertyList :property="property" :property-dic="propertyDic" @update:updateProperty="updateProperty" />
   </div>
 </template>
 
@@ -13,12 +13,17 @@
   import BarChart from "../../../lib/barChart/barChart";
 
   let comp = ref();
-  let propertyDic = ref([]);
+  const propertyDic = ref([]);
+  const property = ref({});
+
+  const updateProperty = (name: string, value: any) => {
+    comp.value.setProperty(name, value);
+  };
 
   onMounted(() => {
     comp.value = new BarChart("asd", "asd", document.getElementsByClassName("comp_container")[0], 0, {});
-    console.log(comp);
-    propertyDic = comp.value.propertyManager.getPropertyDictionary();
+    propertyDic.value = comp.value.propertyManager.getPropertyDictionary();
+    property.value = comp.value.propertyManager.getPropertyList();
   });
 </script>
 

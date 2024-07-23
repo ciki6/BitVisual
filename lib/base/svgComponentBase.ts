@@ -1,22 +1,18 @@
-// import dependencies
 import * as d3 from "d3";
 import ComponentBase from "./componentBase";
 import OptionType from "./optionType";
 import { BaseProperty, PropertyDictionaryItem } from "../types/property";
 
 class SVGComponentBase extends ComponentBase {
-  property: BaseProperty;
-  lockViewBox: boolean;
-  mainSVG: d3.Selection<SVGSVGElement, unknown, null, undefined>;
-  clipRect: [number, number, number, number];
-
+  mainSVG: any;
   constructor(id: string, code: string, container: HTMLElement, workMode: number, option: any, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
+    this.mainSVG = null;
   }
 
   _setupDefaultValues() {
     super._setupDefaultValues();
-    this.lockViewBox = false;
+    // this.lockViewBox = false;
   }
 
   _initProperty() {

@@ -9,9 +9,7 @@
     modelValue: boolean;
   }
 
-  const props = withDefaults(defineProps<propInterface>(), {
-    modelValue: false,
-  });
+  const props = defineProps<propInterface>();
 
   const emit = defineEmits(["update:modelValue"]);
 

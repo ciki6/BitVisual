@@ -57,6 +57,7 @@ class PropertyManager {
       }
     }
     obj[keys[0]] = value;
+    console.log(this.property, "propertyManager");
   }
 
   public getProperty(path: string): any {
