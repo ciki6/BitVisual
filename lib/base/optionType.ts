@@ -1,41 +1,41 @@
-const OptionType = {
+enum OptionType  {
   //输入框
-  string: "String",
+  string= "String",
   //输入框数组
-  stringArray: "StringArray",
+  stringArray= "StringArray",
   //checkBox
-  boolean: "Boolean",
+  boolean= "Boolean",
   //checkBox数组
-  booleanArray: "BooleanArray",
+  booleanArray= "BooleanArray",
   //整数输入框
-  int: "Int",
+  int= "Int",
   //整数输入框数组
-  intArray: "IntArray",
+  intArray= "IntArray",
   //小数输入框
-  double: "Double",
+  double= "Double",
   //小数输入框数组
-  doubleArray: "DoubleArray",
+  doubleArray= "DoubleArray",
   //范围输入
-  range: "Range",
+  range= "Range",
   //颜色选择器
-  color: "Color",
+  color= "Color",
   //渐变色选择器
-  colorGradient: "ColorGradient",
+  colorGradient= "ColorGradient",
   //渐变色选择器数组
-  colorGradientArray: "ColorGradientArray",
+  colorGradientArray= "ColorGradientArray",
   //颜色选择器数组
-  colorArray: "ColorArray",
+  colorArray= "ColorArray",
   //下拉框
-  enum: "Enum",
+  enum= "Enum",
   //多选下拉框
-  multipleEnum: "MultipleEnum",
+  multipleEnum= "MultipleEnum",
   //日期选择器
-  date: "Date",
+  date= "Date",
   //日期选择器数组
-  dateArray: "DateArray",
+  dateArray= "DateArray",
   //json对象
-  jsonModel: "JsonModel",
+  jsonModel= "JsonModel",
   //echarts属性
-  echarts: "ECharts",
+  echarts= "ECharts",
 };
 export default OptionType;

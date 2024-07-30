@@ -1,7 +1,6 @@
 <template>
   <div>{{ props.propertyDic.displayName }}</div>
   <component :is="getInputComponent(props.propertyDic.type)" v-model="value" :propertyDic="props.propertyDic" :propertyValue="props.propertyValue" :disabled="!props.propertyDic.editable" v-if="shouldShowField(props.propertyDic)" @update:modelValue="valueUpdate" />
-  {{ props.propertyDic }}
 </template>
 <script setup lang="ts">
   import InputCheckbox from "./InputCheckbox.vue";
@@ -34,17 +33,17 @@
 
   const getInputComponent = (type: string | undefined) => {
     switch (type) {
-      case "string":
+      case "String":
         return "input";
-      case "boolean":
+      case "Boolean":
         return "input-checkbox";
-      case "int":
+      case "Int":
         return "input-number";
-      case "double":
+      case "Double":
         return "input-number";
-      case "doubleArray":
+      case "DoubleArray":
         return "input-array";
-      case "range":
+      case "Range":
         return "input-range";
       default:
         return "input";

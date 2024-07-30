@@ -1,10 +1,9 @@
 import * as d3 from "d3";
-import ComponentBase from "../base/componentBase";
+import SVGComponentBase from "../base/svgComponentBase";
 
-class BarChart extends ComponentBase {
-  constructor(id: string, code: string, container: Element, workMode: number, option: Object) {
-    super(id, code, container, workMode, option);
-    console.log(id, code, container, workMode, option);
+class BarChart extends SVGComponentBase {
+  constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
+    super(id, code, container, workMode, option, useDefaultOpt);
     this._draw();
   }
 
@@ -42,9 +41,9 @@ class BarChart extends ComponentBase {
     ];
 
     if (container === null) return;
-    const d3Container: any = d3.select(container).append("svg").attr("width", 1920).attr("height", 1080);
-    const width = 928;
-    const height = 500;
+    const d3Container: any = this.mainSVG;
+    const width = 1920;
+    const height = 1080;
     const marginTop = 20;
     const marginRight = 0;
     const marginBottom = 30;

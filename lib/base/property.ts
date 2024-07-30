@@ -60,6 +60,13 @@ class PropertyManager {
     console.log(this.property, "propertyManager");
   }
 
+  public addProperty(property: any, propertyDic?: PropertyDictionaryItem[]) {
+    this.property = this.createProxy({ ...this.property, ...property });
+    if (propertyDic) {
+      this.propertyDic = [...this.propertyDic, ...propertyDic];
+    }
+  }
+
   public getProperty(path: string): any {
     const keys = path.split(".");
     let obj = this.property;

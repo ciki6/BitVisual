@@ -4,6 +4,7 @@ import * as d3 from "d3";
 
 import PropertyManager from "./property";
 import { BaseProperty, PropertyDictionaryItem } from "../types/property";
+import OptionType from "./optionType";
 import DataModule from "./compData";
 import SyncModule from "./compSync";
 
@@ -165,7 +166,7 @@ class ComponentBase {
             name: "code",
             displayName: "组件编码",
             description: "组件编码",
-            type: "string",
+            type: OptionType.string,
             show: true,
             editable: false,
           },
@@ -173,7 +174,7 @@ class ComponentBase {
             name: "displayName",
             displayName: "组件名称",
             description: "组件名称",
-            type: "string",
+            type: OptionType.string,
             show: true,
             editable: true,
           },
@@ -181,7 +182,7 @@ class ComponentBase {
             name: "type",
             displayName: "组件类型",
             description: "组件类型",
-            type: "string",
+            type: OptionType.string,
             show: true,
             editable: false,
           },
@@ -189,7 +190,7 @@ class ComponentBase {
             name: "className",
             displayName: "组件类名",
             description: "组件类名",
-            type: "string",
+            type: OptionType.string,
             show: true,
             editable: false,
           },
@@ -197,7 +198,7 @@ class ComponentBase {
             name: "frame",
             displayName: "组件大小",
             description: "组件位置以及大小",
-            type: "doubleArray",
+            type: OptionType.doubleArray,
             placeholder: ["x", "y", "宽", "高"],
             show: true,
             editable: true,
@@ -206,7 +207,7 @@ class ComponentBase {
             name: "isVisible",
             displayName: "是否可见",
             description: "组件是否可见",
-            type: "boolean",
+            type: OptionType.boolean,
             show: true,
             editable: true,
           },
@@ -214,7 +215,7 @@ class ComponentBase {
             name: "translateZ",
             displayName: "启用Z轴位移",
             description: "是否启用Z轴位移(启用分层渲染)",
-            type: "boolean",
+            type: OptionType.boolean,
             show: true,
             editable: true,
           },
@@ -222,7 +223,7 @@ class ComponentBase {
             name: "needSync",
             displayName: "是否同步",
             description: "跨屏组件是否启动事件同步",
-            type: "boolean",
+            type: OptionType.boolean,
             show: true,
             editable: true,
           },
@@ -230,7 +231,7 @@ class ComponentBase {
             name: "zIndex",
             displayName: "组件层级",
             description: "组件的所在画布的层级",
-            type: "int",
+            type: OptionType.int,
             show: true,
             editable: true,
           },
@@ -238,7 +239,7 @@ class ComponentBase {
             name: "isSendData",
             displayName: "是否发送数据",
             description: "组件在接收到数据后是否发送数据",
-            type: "boolean",
+            type: OptionType.boolean,
             show: true,
             editable: true,
           },
@@ -246,7 +247,7 @@ class ComponentBase {
             name: "isAnimate",
             displayName: "是否有动画",
             description: "当前组件是否绑定动画",
-            type: "boolean",
+            type: OptionType.boolean,
             show: true,
             editable: true,
           },
@@ -254,7 +255,7 @@ class ComponentBase {
             name: "isDataLinked",
             displayName: "是否有组件联动",
             description: "当前组件是否有组件联动",
-            type: "boolean",
+            type: OptionType.boolean,
             show: true,
             editable: true,
           },
@@ -263,8 +264,15 @@ class ComponentBase {
         editable: true,
       },
     ];
+    this._addProperty(property, propertyDictionary);
+  }
 
-    this.propertyManager = new PropertyManager(property, propertyDictionary);
+  _addProperty(property: any, propertyDic: PropertyDictionaryItem[]) {
+    if (this.propertyManager) {
+      this.propertyManager.addProperty(property, propertyDic);
+    } else {
+      this.propertyManager = new PropertyManager(property, propertyDic);
+    }
 
     this.propertyDictionary = this.propertyManager.getPropertyDictionary();
     this.property = this.propertyManager.getPropertyList();
@@ -317,13 +325,6 @@ class ComponentBase {
 
   showComponent(isShow: boolean) {
     d3.select(this.container).style("display", isShow ? "block" : "none");
-  }
-
-  _addProperty(property: BaseProperty, propertyDictionary: PropertyDictionaryItem[] = []) {
-    this.property = $.extend(true, this.property, property);
-    if (propertyDictionary.length > 0) {
-      this.propertyDictionary = this.propertyDictionary.concat(propertyDictionary);
-    }
   }
 
   _findPropertyDictionary(propertyName: string): Object {

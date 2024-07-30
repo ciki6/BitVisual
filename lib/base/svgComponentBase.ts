@@ -5,7 +5,7 @@ import { BaseProperty, PropertyDictionaryItem } from "../types/property";
 
 class SVGComponentBase extends ComponentBase {
   mainSVG: any;
-  constructor(id: string, code: string, container: HTMLElement, workMode: number, option: any, useDefaultOpt: boolean) {
+  constructor(id: string, code: string, container: Element, workMode: number, option: any, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
     this.mainSVG = null;
   }
@@ -82,9 +82,13 @@ class SVGComponentBase extends ComponentBase {
 
   _handlePropertyChange() {
     super._handlePropertyChange();
-    // if (!this.lockViewBox) {
-    //   this.property.svgBasic.viewBox = [0, 0, this.property.basic.frame[2], this.property.basic.frame[3]];
-    // }
+    this.propertyManager.onPropertyChange((path: string, value: any) => {
+      switch (path) {
+        case "svgBasic.viewBox":
+          this.mainSVG.attr("viewBox", value.join(" "));
+          break;
+      }
+    });
   }
 
   _draw() {
@@ -94,8 +98,7 @@ class SVGComponentBase extends ComponentBase {
     // }
     const d3Container = d3.select(this.container);
     d3Container.select("svg").remove();
-    this.mainSVG = d3Container.append("svg").attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", this.property.basic.frame[2]).attr("height", this.property.basic.frame[3]).style("pointer-events", "auto");
-    this.mainSVG.attr("viewBox", this.property.svgBasic.viewBox.join(" "));
+    this.mainSVG = d3Container.append("svg").attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", this.property.basic.frame[2]).attr("height", this.property.basic.frame[3]).style("pointer-events", "auto").attr("viewBox", this.property.svgBasic.viewBox.join(" "));
   }
 
   _createClipRect() {

@@ -1,3 +1,5 @@
+import OptionType from "lib/base/optionType";
+
 type BasicProperty = {
   code: string;
   displayName: string;
@@ -23,7 +25,7 @@ export type PropertyDictionaryItem = {
   name: string;
   displayName: string;
   description: string;
-  type?: string;
+  type?: OptionType;
   show: boolean;
   editable: boolean;
   children?: PropertyDictionaryItem[];

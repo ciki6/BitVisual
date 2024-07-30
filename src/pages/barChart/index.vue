@@ -3,6 +3,7 @@
     BarChart组件测试
     <div class="comp_container"></div>
     <PropertyList :property="property" :property-dic="propertyDic" @update:updateProperty="updateProperty" />
+    <textarea></textarea>
   </div>
 </template>
 
@@ -21,7 +22,7 @@
   };
 
   onMounted(() => {
-    comp.value = new BarChart("asd", "asd", document.getElementsByClassName("comp_container")[0], 0, {});
+    comp.value = new BarChart("asd", "asd", document.getElementsByClassName("comp_container")[0], 0, {}, true);
     propertyDic.value = comp.value.propertyManager.getPropertyDictionary();
     property.value = comp.value.propertyManager.getPropertyList();
   });
