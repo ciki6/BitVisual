@@ -3,20 +3,20 @@ import ComponentBase from "./componentBase";
 import OptionType from "./optionType";
 import { BaseProperty, PropertyDictionaryItem } from "../types/property";
 
-class SVGComponentBase extends ComponentBase {
+abstract class SVGComponentBase extends ComponentBase {
   mainSVG: any;
   constructor(id: string, code: string, container: Element, workMode: number, option: any, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
     this.mainSVG = null;
   }
 
-  _setupDefaultValues() {
-    super._setupDefaultValues();
+  protected setupDefaultValues() {
+    super.setupDefaultValues();
     // this.lockViewBox = false;
   }
 
-  _initProperty() {
-    super._initProperty();
+  protected initProperty() {
+    super.initProperty();
     const property: BaseProperty = {
       basic: {
         code: this.code,
@@ -77,11 +77,11 @@ class SVGComponentBase extends ComponentBase {
       },
     ];
 
-    this._addProperty(property, propertyDictionary);
+    this.addProperty(property, propertyDictionary);
   }
 
-  _handlePropertyChange() {
-    super._handlePropertyChange();
+  protected handlePropertyChange() {
+    super.handlePropertyChange();
     this.propertyManager.onPropertyChange((path: string, value: any) => {
       switch (path) {
         case "svgBasic.viewBox":
@@ -91,8 +91,8 @@ class SVGComponentBase extends ComponentBase {
     });
   }
 
-  _draw() {
-    super._draw();
+  protected draw() {
+    super.draw();
     // if (!this.lockViewBox && (this.property.basic.frame[2] / this.property.basic.frame[3] === 3 / 2 || this.property.svgBasic.viewBox.toString() === [0, 0, this.property.basic.frame[2], this.property.basic.frame[3]].toString())) {
     //   this.property.svgBasic.viewBox = [0, 0, this.property.basic.frame[2], this.property.basic.frame[3]];
     // }
@@ -101,7 +101,7 @@ class SVGComponentBase extends ComponentBase {
     this.mainSVG = d3Container.append("svg").attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", this.property.basic.frame[2]).attr("height", this.property.basic.frame[3]).style("pointer-events", "auto").attr("viewBox", this.property.svgBasic.viewBox.join(" "));
   }
 
-  _createClipRect() {
+  protected createClipRect() {
     const clipID = `${this.id}_clip`;
     this.mainSVG.append("defs").append("svg:clipPath").attr("id", clipID).append("svg:rect").attr("id", "clip-rect").attr("x", this.clipRect[0]).attr("y", this.clipRect[1]).attr("width", this.clipRect[2]).attr("height", this.clipRect[3]);
 

@@ -10,7 +10,7 @@ import SyncModule from "./compSync";
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
-class ComponentBase {
+abstract class ComponentBase {
   id: string;
   code: string;
   container: Element;
@@ -88,14 +88,14 @@ class ComponentBase {
     this.initMethods(DataModule, this.dataModule);
     this.initMethods(SyncModule, this.syncModule);
 
-    this._initProperty();
-    this._initEvents();
-    this._initConf(option);
-    this._setupDefaultValues();
-    this._handlePropertyChange();
+    this.initProperty();
+    this.initEvents();
+    this.initConf(option);
+    this.setupDefaultValues();
+    this.handlePropertyChange();
   }
 
-  private initMethods<T>(ModuleClass: Constructor<T>, target: { [key: string]: Function }) {
+  private initMethods<T>(ModuleClass: Constructor<T>, target: { [key: string]: Function }): void {
     const moduleInstance = new ModuleClass(this);
     const prototype = Object.getPrototypeOf(moduleInstance);
 
@@ -106,7 +106,7 @@ class ComponentBase {
     });
   }
 
-  _initConf(option: any) {
+  protected initConf(option: any): void {
     this.property = $.extend(true, this.property, option.property);
     if (typeof option.compDataBind === "string") {
       try {
@@ -121,23 +121,16 @@ class ComponentBase {
     this.interact = $.extend(true, this.interact, typeof option.compInteract === "string" ? JSON.parse(option.compInteract) : option.compInteract);
     // this._foldPath = WisUtil.scriptPath(this.property.basic.className);
     this.resourceId = option.resourceId;
-    this._initConfHandler();
+    this.initConfHandler();
   }
 
-  _initConfHandler() {
-    this._compScriptHandler();
+  protected initConfHandler(): void {
+    this.compScriptHandler();
   }
 
-  _setupDefaultValues() {
-    // this._foldPath = WisUtil.scriptPath(this.property.basic.className);
-    // this.hasSelectedForDataLink = false;
-    // this.onlyRecordData = true;
-    // this.recordData = "";
-    // this.sessionId = sessionStorage.getItem("sessionID") || "";
-    // this._publicFolderPath = "";
-  }
+  protected setupDefaultValues(): void {}
 
-  _initProperty() {
+  protected initProperty(): void {
     let property: BaseProperty = {
       basic: {
         code: this.code,
@@ -264,10 +257,10 @@ class ComponentBase {
         editable: true,
       },
     ];
-    this._addProperty(property, propertyDictionary);
+    this.addProperty(property, propertyDictionary);
   }
 
-  _addProperty(property: any, propertyDic: PropertyDictionaryItem[]) {
+  protected addProperty(property: any, propertyDic: PropertyDictionaryItem[]): void {
     if (this.propertyManager) {
       this.propertyManager.addProperty(property, propertyDic);
     } else {
@@ -278,7 +271,7 @@ class ComponentBase {
     this.property = this.propertyManager.getPropertyList();
   }
 
-  _initEvents() {
+  protected initEvents(): void {
     this.eventFunc = [
       {
         name: "sendData",
@@ -323,45 +316,37 @@ class ComponentBase {
     ];
   }
 
-  showComponent(isShow: boolean) {
+  public showComponent(isShow: boolean): void {
     d3.select(this.container).style("display", isShow ? "block" : "none");
   }
 
-  _findPropertyDictionary(propertyName: string): Object {
-    // return WisCompUtil.findPropertyDictionary(propertyName, this.propertyDictionary);
-    return {};
-  }
-
-  // setProperty(property: any, value: any = null) {
-  //   if (value !== null) {
-  //     property = this._propertyNameToJson(property, value);
-  //   }
-  //   this.property = $.extend(true, this.property, property);
-  //   this._draw();
+  // _findPropertyDictionary(propertyName: string): Object {
+  //   // return WisCompUtil.findPropertyDictionary(propertyName, this.propertyDictionary);
+  //   return {};
   // }
 
-  _propertyNameToJson(propertyName: string, value: any): Object {
-    const propJson = this._findPropertyDictionary(propertyName);
-    if (propJson) {
-      let json: any = {};
-      let jsonObj = json;
-      const propArr = propertyName.split(".");
-      for (let i = 0; i < propArr.length - 1; i++) {
-        jsonObj[propArr[i]] = {};
-        jsonObj = jsonObj[propArr[i]];
-      }
-      jsonObj[propArr[propArr.length - 1]] = value;
-      return json;
-    } else {
-      return {};
-    }
-  }
+  // _propertyNameToJson(propertyName: string, value: any): Object {
+  //   const propJson = this._findPropertyDictionary(propertyName);
+  //   if (propJson) {
+  //     let json: any = {};
+  //     let jsonObj = json;
+  //     const propArr = propertyName.split(".");
+  //     for (let i = 0; i < propArr.length - 1; i++) {
+  //       jsonObj[propArr[i]] = {};
+  //       jsonObj = jsonObj[propArr[i]];
+  //     }
+  //     jsonObj[propArr[propArr.length - 1]] = value;
+  //     return json;
+  //   } else {
+  //     return {};
+  //   }
+  // }
 
-  setProperty(path: string, value: any) {
+  public setProperty(path: string, value: any): void {
     this.propertyManager.set(path, value);
   }
 
-  _handlePropertyChange() {
+  protected handlePropertyChange(): void {
     this.propertyManager.onPropertyChange((path: string, value: any) => {
       switch (path) {
         case "basic.zIndex":
@@ -371,13 +356,13 @@ class ComponentBase {
     });
   }
 
-  setDataBind(key: string, value: any) {
+  public setDataBind(key: string, value: any): void {
     this.dataBind[key] = value;
   }
 
-  _compAnimationHandler() {}
+  protected compAnimationHandler(): void {}
 
-  _compScriptHandler() {
+  protected compScriptHandler(): void {
     this.getDataScripts = [];
     this.clickScript = [];
     this.beforeDrawScripts = [];
@@ -404,7 +389,7 @@ class ComponentBase {
     });
   }
 
-  _draw() {
+  protected draw(): void {
     if (this.workMode !== 2) {
       this.beforeDrawScripts.forEach((s) => {
         eval(s);
@@ -417,12 +402,12 @@ class ComponentBase {
     }
   }
 
-  update(data: any) {}
+  abstract update(data: any): void;
 
-  cleanup() {
+  public cleanup(): void {
     this.dataModule.unsubscribeDataSource();
     if (window.wiscomWebSocket) {
-      this.animeModule._stopAnimate();
+      this.animeModule.stopAnimate();
     }
     if (this.webSocket) {
       this.webSocket.close();
@@ -431,17 +416,17 @@ class ComponentBase {
     }
   }
 
-  passiveLoad() {}
+  passiveLoad(): void {}
 
-  setClipRect(x: number, y: number, w: number, h: number) {
+  public setClipRect(x: number, y: number, w: number, h: number): void {
     this.clipRect = [x, y, w, h];
     if (this.property.basic.needSync) {
-      this._createClipRect();
-      this.syncModule._initEventSync();
+      this.createClipRect();
+      this.syncModule.initEventSync();
     }
   }
 
-  _createClipRect() {}
+  protected createClipRect(): void {}
 }
 
 export default ComponentBase;

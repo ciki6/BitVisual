@@ -4,13 +4,13 @@ import SVGComponentBase from "../base/svgComponentBase";
 class BarChart extends SVGComponentBase {
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
-    this._draw();
+    this.draw();
   }
 
-  _draw() {
+  protected draw() {
     let container = this.container;
     let id = this.id;
-    super._draw();
+    super.draw();
     const data = [
       { letter: "A", frequency: 0.08167 },
       { letter: "B", frequency: 0.01492 },
@@ -114,6 +114,10 @@ class BarChart extends SVGComponentBase {
 
   printString(str: string) {
     console.log(str);
+  }
+
+  update(data: any) {
+    console.log("bar chart update", data);
   }
 }
 
