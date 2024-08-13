@@ -19,19 +19,7 @@ abstract class SVGComponentBase extends ComponentBase {
     super.initProperty();
     const property: BaseProperty = {
       basic: {
-        code: this.code,
-        displayName: "",
         type: "SVGComponent",
-        className: "",
-        frame: [0, 0, 1920, 1080],
-        isVisible: true,
-        translateZ: true,
-        needSync: false,
-        zIndex: 0,
-        scale: 1,
-        isSendData: false,
-        isAnimate: false,
-        isDataLinked: false,
       },
       svgBasic: {
         isViewBox: true,
@@ -93,12 +81,10 @@ abstract class SVGComponentBase extends ComponentBase {
 
   protected draw() {
     super.draw();
-    // if (!this.lockViewBox && (this.property.basic.frame[2] / this.property.basic.frame[3] === 3 / 2 || this.property.svgBasic.viewBox.toString() === [0, 0, this.property.basic.frame[2], this.property.basic.frame[3]].toString())) {
-    //   this.property.svgBasic.viewBox = [0, 0, this.property.basic.frame[2], this.property.basic.frame[3]];
-    // }
     const d3Container = d3.select(this.container);
     d3Container.select("svg").remove();
-    this.mainSVG = d3Container.append("svg").attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", this.property.basic.frame[2]).attr("height", this.property.basic.frame[3]).style("pointer-events", "auto").attr("viewBox", this.property.svgBasic.viewBox.join(" "));
+    const frame = this.property.basic.frame ?? [0, 0, 1920, 1080];
+    this.mainSVG = d3Container.append("svg").attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", frame[2]).attr("height", frame[3]).style("pointer-events", "auto").attr("viewBox", this.property.svgBasic.viewBox.join(" "));
   }
 
   protected createClipRect() {

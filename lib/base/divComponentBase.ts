@@ -1,4 +1,6 @@
+import * as d3 from "d3";
 import ComponentBase from "./componentBase";
+import { BaseProperty, PropertyDictionaryItem } from "../types/property";
 
 abstract class DIVComponentBase extends ComponentBase {
   mainDIV: any;
@@ -10,6 +12,25 @@ abstract class DIVComponentBase extends ComponentBase {
 
   protected initProperty(): void {
     super.initProperty();
+    const property: BaseProperty = {
+      basic: {
+        type: "DIVComponent",
+      },
+      svgBasic: {
+        isViewBox: true,
+        lockViewBox: false,
+        viewBox: [0, 0, 1920, 1080],
+      },
+    };
+    this.addProperty(property, []);
+  }
+
+  protected draw() {
+    super.draw();
+    const d3Container = d3.select(this.container);
+    const frame = this.property.basic.frame ?? [0, 0, 1920, 1080];
+    d3Container.select(".mainDIV").remove();
+    this.mainDIV = d3Container.append("div").attr("class", "mainDIV").style("position", "absolute").style("left", "0").style("top", "0").style("width", `${frame[2]}px`).style("height", `${frame[3]}px`).style("overflow", "hidden").style("pointer-events", "auto");
   }
 }
 

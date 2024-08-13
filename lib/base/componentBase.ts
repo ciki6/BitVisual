@@ -396,7 +396,7 @@ abstract class ComponentBase {
       });
     }
     let d3Container = d3.select(this.container);
-    d3Container.style("display", this.property.basic.isVisible ? "block" : "none").style("z-index", this.property.basic.zIndex);
+    d3Container.style("display", this.property.basic.isVisible ? "block" : "none").style("z-index", this.property.basic.zIndex ?? 0);
     if (this.property.basic.translateZ) {
       d3Container.style("transform", "translateZ(0)");
     }
