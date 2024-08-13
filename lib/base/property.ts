@@ -21,17 +21,19 @@ class PropertyManager {
 
     return new Proxy(target, {
       get(target, key) {
-        const prop = target[key];
+        const prop = Reflect.get(target, key);
         if (typeof prop === "object" && prop !== null) {
           return self.createProxy(prop, path.concat(String(key)));
         }
         return prop;
       },
       set(target, key, value) {
-        target[key] = value;
-        const fullPath = path.concat(String(key)).join(".");
-        self.triggerCallbacks(fullPath, value);
-        return true;
+        const result = Reflect.set(target, key, value);
+        if (result) {
+          const fullPath = path.concat(String(key)).join(".");
+          self.triggerCallbacks(fullPath, value);
+        }
+        return result;
       },
     });
   }
@@ -93,45 +95,3 @@ class PropertyManager {
 }
 
 export default PropertyManager;
-
-// 使用示例
-// const initialProperty: BaseProperty = {
-//   basic: {
-//     code: "",
-//     displayName: "",
-//     type: "",
-//     className: "",
-//     frame: [0, 0, 1920, 1080],
-//     isVisible: true,
-//     translateZ: true,
-//     needSync: false,
-//     zIndex: 0,
-//     scale: 1,
-//     isSendData: false,
-//     isAnimate: false,
-//     isDataLinked: false,
-//   },
-//   optionalProperty: {
-//     exampleKey: "exampleValue",
-//   },
-// };
-
-// const initialPropertyDic: PropertyDictionary = {
-//   exampleDicKey: "exampleDicValue",
-// };
-
-// const propertyManager = new PropertyManager(initialProperty, initialPropertyDic);
-
-// // 添加属性变化监听
-// propertyManager.onPropertyChange((path, value) => {
-//   console.log(`Property changed: ${path} = ${value}`);
-// });
-
-// // 设置属性
-// propertyManager.set("basic.code", "qwe");
-
-// // 获取属性
-// console.log(propertyManager.getProperty("basic.code")); // 输出: 'qwe'
-
-// // 获取属性字典
-// console.log(propertyManager.getPropertyDictionary()); // 输出: { exampleDicKey: 'exampleDicValue' }
