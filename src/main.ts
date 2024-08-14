@@ -1,7 +1,13 @@
 import "./style.css";
 
-import { createApp } from "vue";
-import App from "./App.vue";
+import React from 'react';
+import ReactDOM from 'react-dom';
 import router from "./router";
+import App from './App';
 
-createApp(App).use(router).mount("#app");
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('app')
+);

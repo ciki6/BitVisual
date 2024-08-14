@@ -47,7 +47,7 @@ onMounted(() => {
 /* 添加样式 */
 </style>
 `;
-      fs.writeFileSync(path.join(pageFolderPath, "index.vue"), vueContent);
+      fs.writeFileSync(path.join(pageFolderPath, "index.tsx"), vueContent);
     }
   });
 }
