@@ -21,6 +21,13 @@ export type BaseProperty = {
   [key: string]: any; // 其他可选属性
 };
 
+type PropertyAction = {
+  text: string;
+  style: "success" | "error";
+  action: string;
+  param: [];
+};
+
 export type PropertyDictionaryItem = {
   name: string;
   displayName: string;
@@ -33,4 +40,5 @@ export type PropertyDictionaryItem = {
   options?: [];
   rules?: string;
   value?: any;
+  action?: PropertyAction[];
 };

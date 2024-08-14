@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import ComponentBase from "./componentBase";
-import { BaseProperty, PropertyDictionaryItem } from "../types/property";
+import { BaseProperty } from "../types/property";
 
 abstract class DIVComponentBase extends ComponentBase {
   mainDIV: any;

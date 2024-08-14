@@ -4,7 +4,9 @@ import OptionType from "./optionType";
 import { BaseProperty, PropertyDictionaryItem } from "../types/property";
 
 abstract class SVGComponentBase extends ComponentBase {
+
   mainSVG: any;
+
   constructor(id: string, code: string, container: Element, workMode: number, option: any, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
     this.mainSVG = null;
@@ -12,7 +14,6 @@ abstract class SVGComponentBase extends ComponentBase {
 
   protected setupDefaultValues() {
     super.setupDefaultValues();
-    // this.lockViewBox = false;
   }
 
   protected initProperty() {
