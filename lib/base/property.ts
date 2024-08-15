@@ -1,4 +1,5 @@
 import { BaseProperty, PropertyDictionaryItem } from "../types/property";
+import * as _ from "lodash";
 
 type Callback = (path: string, value: any) => void;
 
@@ -63,7 +64,7 @@ class PropertyManager {
   }
 
   public addProperty(property: any, propertyDic?: PropertyDictionaryItem[]) {
-    this.property = this.createProxy({ ...this.property, ...property });
+    this.property = this.createProxy(_.merge({}, this.property, property));
     if (propertyDic) {
       this.propertyDic = [...this.propertyDic, ...propertyDic];
     }

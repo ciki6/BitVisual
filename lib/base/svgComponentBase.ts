@@ -65,7 +65,6 @@ abstract class SVGComponentBase extends ComponentBase {
         editable: true,
       },
     ];
-
     this.addProperty(property, propertyDictionary);
   }
 

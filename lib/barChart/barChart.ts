@@ -1,10 +1,47 @@
 import * as d3 from "d3";
 import SVGComponentBase from "../base/svgComponentBase";
 
+import { BaseProperty, PropertyDictionaryItem } from "lib/types/property";
+
+import OptionType from "../base/optionType";
+
 class BarChart extends SVGComponentBase {
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
     this.draw();
+  }
+
+  protected initProperty(): void {
+    super.initProperty();
+    const property: BaseProperty = {
+      basic: {
+        className: "BarChart",
+      },
+      fontSetting: {
+        fontSize: 16,
+      },
+    };
+
+    const propertyDictionary: PropertyDictionaryItem[] = [
+      {
+        name: "fontSetting",
+        displayName: "文字属性",
+        description: "文字属性",
+        children: [
+          {
+            name: "fontSize",
+            displayName: "文字大小",
+            description: "文字大小",
+            type: OptionType.int,
+            show: true,
+            editable: true,
+          },
+        ],
+        show: true,
+        editable: true,
+      },
+    ];
+    this.addProperty(property, propertyDictionary);
   }
 
   protected draw() {
@@ -110,6 +147,18 @@ class BarChart extends SVGComponentBase {
         svg.selectAll(".x-axis").call(xAxis);
       }
     }
+  }
+
+  protected handlePropertyChange(): void {
+    this.propertyManager.onPropertyChange((path: string, value: any) => {
+      switch (path) {
+        case "fontSetting.fontSize":
+          d3.select(this.container)
+            .selectAll("text")
+            .style("font-size", value + "px");
+          break;
+      }
+    });
   }
 
   printString(str: string) {
