@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { h, VNode } from 'snabbdom';
 import SVGComponentBase from "../base/svgComponentBase";
 
 import { BaseProperty, PropertyDictionaryItem } from "lib/types/property";
@@ -45,9 +46,16 @@ class BarChart extends SVGComponentBase {
   }
 
   protected draw() {
-    let container = this.container;
-    let id = this.id;
     super.draw();
+    if (this.workMode !== 2) {
+      const newVNode = this.render() as VNode;
+      this.vnode = this.patch(this.vnode || this.container, newVNode);
+    } else {
+      this.render()
+    }
+  }
+
+  protected render(): VNode | void {
     const data = [
       { letter: "A", frequency: 0.08167 },
       { letter: "B", frequency: 0.01492 },
@@ -76,8 +84,6 @@ class BarChart extends SVGComponentBase {
       { letter: "Y", frequency: 0.01974 },
       { letter: "Z", frequency: 0.00074 },
     ];
-
-    if (container === null) return;
     const d3Container: any = this.mainSVG;
     const width = 1920;
     const height = 1080;
@@ -85,7 +91,7 @@ class BarChart extends SVGComponentBase {
     const marginRight = 0;
     const marginBottom = 30;
     const marginLeft = 40;
-    const g = d3Container.append("g").attr("id", id);
+    const g = d3Container.append("g").attr("id", this.id);
     g.append("g").attr("class", "axis");
     g.append("g").attr("class", "graph");
     const x = d3
@@ -146,6 +152,21 @@ class BarChart extends SVGComponentBase {
           .attr("width", x.bandwidth());
         svg.selectAll(".x-axis").call(xAxis);
       }
+    }
+
+    if (this.workMode !== 2) {
+      return h('div', [
+        h('div', {
+          hook: {
+            insert: (vnode) => {
+              const elm = vnode.elm as HTMLElement;
+              elm.appendChild(this.mainSVG.node());
+            }
+          }
+        })
+      ]);
+    } else {
+      this.container.append(this.mainSVG.node())
     }
   }
 

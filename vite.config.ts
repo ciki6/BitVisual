@@ -21,7 +21,7 @@ export default defineConfig({
     minify: "esbuild",
     copyPublicDir: true,
     rollupOptions: {
-      external: ["d3", "jquery", "lodash"],
+      external: ["d3", "jquery", "lodash", "snabbdom"],
       output: {
         globals: {
           d3: "d3",

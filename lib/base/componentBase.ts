@@ -1,6 +1,7 @@
 import $ from "jquery";
 import _ from "lodash";
 import * as d3 from "d3";
+import { init, h, VNode } from 'snabbdom';
 
 import PropertyManager from "./property";
 import { BaseProperty, PropertyDictionaryItem } from "../types/property";
@@ -19,6 +20,8 @@ abstract class ComponentBase {
   propertyDictionary: PropertyDictionaryItem[];
   property: BaseProperty;
   propertyManager: any;
+  patch: (oldVNode: VNode | Element, vnode: VNode) => VNode;
+  vnode: VNode | null;
   dataBind: any;
   animation: any[];
   script: any;
@@ -63,6 +66,9 @@ abstract class ComponentBase {
     this.workMode = workMode;
     this.useDefaultOpt = useDefaultOpt;
 
+    this.patch = init([]);
+    this.vnode = null;
+
     this.dataBind = {};
     this.animation = [];
     this.script = {};
@@ -78,7 +84,7 @@ abstract class ComponentBase {
     this.commandUUID = null;
     this.onlyRecordData = false;
     this.recordData = {};
-    this.processFunction = () => {};
+    this.processFunction = () => { };
     this.isSubscribeData = false;
     this.clipRect = [];
 
@@ -128,7 +134,7 @@ abstract class ComponentBase {
     this.compScriptHandler();
   }
 
-  protected setupDefaultValues(): void {}
+  protected setupDefaultValues(): void { }
 
   protected initProperty(): void {
     let property: BaseProperty = {
@@ -320,28 +326,6 @@ abstract class ComponentBase {
     d3.select(this.container).style("display", isShow ? "block" : "none");
   }
 
-  // _findPropertyDictionary(propertyName: string): Object {
-  //   // return WisCompUtil.findPropertyDictionary(propertyName, this.propertyDictionary);
-  //   return {};
-  // }
-
-  // _propertyNameToJson(propertyName: string, value: any): Object {
-  //   const propJson = this._findPropertyDictionary(propertyName);
-  //   if (propJson) {
-  //     let json: any = {};
-  //     let jsonObj = json;
-  //     const propArr = propertyName.split(".");
-  //     for (let i = 0; i < propArr.length - 1; i++) {
-  //       jsonObj[propArr[i]] = {};
-  //       jsonObj = jsonObj[propArr[i]];
-  //     }
-  //     jsonObj[propArr[propArr.length - 1]] = value;
-  //     return json;
-  //   } else {
-  //     return {};
-  //   }
-  // }
-
   public setProperty(path: string, value: any): void {
     this.propertyManager.set(path, value);
   }
@@ -360,7 +344,7 @@ abstract class ComponentBase {
     this.dataBind[key] = value;
   }
 
-  protected compAnimationHandler(): void {}
+  protected compAnimationHandler(): void { }
 
   protected compScriptHandler(): void {
     this.getDataScripts = [];
@@ -416,7 +400,7 @@ abstract class ComponentBase {
     }
   }
 
-  passiveLoad(): void {}
+  passiveLoad(): void { }
 
   public setClipRect(x: number, y: number, w: number, h: number): void {
     this.clipRect = [x, y, w, h];
@@ -426,7 +410,7 @@ abstract class ComponentBase {
     }
   }
 
-  protected createClipRect(): void {}
+  protected createClipRect(): void { }
 }
 
 export default ComponentBase;
