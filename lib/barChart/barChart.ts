@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { h, VNode } from 'snabbdom';
+import { h, VNode } from "snabbdom";
 import SVGComponentBase from "../base/svgComponentBase";
 
 import { BaseProperty, PropertyDictionaryItem } from "lib/types/property";
@@ -47,12 +47,7 @@ class BarChart extends SVGComponentBase {
 
   protected draw() {
     super.draw();
-    if (this.workMode !== 2) {
-      const newVNode = this.render() as VNode;
-      this.vnode = this.patch(this.vnode || this.container, newVNode);
-    } else {
-      this.render()
-    }
+    this.render();
   }
 
   protected render(): VNode | void {
@@ -152,21 +147,6 @@ class BarChart extends SVGComponentBase {
           .attr("width", x.bandwidth());
         svg.selectAll(".x-axis").call(xAxis);
       }
-    }
-
-    if (this.workMode !== 2) {
-      return h('div', [
-        h('div', {
-          hook: {
-            insert: (vnode) => {
-              const elm = vnode.elm as HTMLElement;
-              elm.appendChild(this.mainSVG.node());
-            }
-          }
-        })
-      ]);
-    } else {
-      this.container.append(this.mainSVG.node())
     }
   }
 

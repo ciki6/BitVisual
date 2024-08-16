@@ -6,8 +6,6 @@ import { BaseProperty, PropertyDictionaryItem } from "../types/property";
 abstract class SVGComponentBase extends ComponentBase {
 
   mainSVG: any;
-  // patch: (oldVNode: VNode | Element, vnode: VNode) => VNode;
-  // vnode: VNode | null;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: any, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
@@ -85,7 +83,7 @@ abstract class SVGComponentBase extends ComponentBase {
     super.draw();
     this.container.innerHTML = ""
     const frame = this.property.basic.frame ?? [0, 0, 1920, 1080];
-    this.mainSVG = d3.select(document.createElementNS('http://www.w3.org/2000/svg', 'svg')).attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", frame[2]).attr("height", frame[3]).style("pointer-events", "auto").attr("viewBox", this.property.svgBasic.viewBox.join(" "))
+    this.mainSVG = d3.select(this.container).append('svg').attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", frame[2]).attr("height", frame[3]).style("pointer-events", "auto").attr("viewBox", this.property.svgBasic.viewBox.join(" "))
   }
 
   protected createClipRect() {

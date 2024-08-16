@@ -1,7 +1,6 @@
 import $ from "jquery";
 import _ from "lodash";
 import * as d3 from "d3";
-import { init, h, VNode } from 'snabbdom';
 
 import PropertyManager from "./property";
 import { BaseProperty, PropertyDictionaryItem } from "../types/property";
@@ -20,8 +19,6 @@ abstract class ComponentBase {
   propertyDictionary: PropertyDictionaryItem[];
   property: BaseProperty;
   propertyManager: any;
-  patch: (oldVNode: VNode | Element, vnode: VNode) => VNode;
-  vnode: VNode | null;
   dataBind: any;
   animation: any[];
   script: any;
@@ -66,8 +63,6 @@ abstract class ComponentBase {
     this.workMode = workMode;
     this.useDefaultOpt = useDefaultOpt;
 
-    this.patch = init([]);
-    this.vnode = null;
 
     this.dataBind = {};
     this.animation = [];
