@@ -4,14 +4,24 @@ import BarChart from "../../../lib/barChart/barChart";
 
 const BarChartTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
-  const compRef = useRef<any>(null); // 使用 any 或者你在 BarChart 中定义的具体类型
+  const compRef = useRef<any>(null);
+  const [defaultData, setDefaultData] = useState<string>("");
   const [propertyDic, setPropertyDic] = useState([]);
   const [property, setProperty] = useState({});
 
   const updateProperty = (name: string, value: any) => {
-    console.log("updateProperty", name, value);
     if (compRef.current) {
       compRef.current.setProperty(name, value);
+    }
+  };
+
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setDefaultData(e.target.value);
+  };
+
+  const updateData = () => {
+    if (compRef.current) {
+      compRef.current.update(JSON.parse(defaultData));
     }
   };
 
@@ -20,6 +30,7 @@ const BarChartTest: React.FC = () => {
       compRef.current = new BarChart("asd", "asd", compContainerRef.current, 0, {}, true);
       setPropertyDic(compRef.current.propertyManager.getPropertyDictionary());
       setProperty(compRef.current.propertyManager.getPropertyList());
+      setDefaultData(JSON.stringify(compRef.current.defaultData));
     }
   }, []);
 
@@ -28,7 +39,8 @@ const BarChartTest: React.FC = () => {
       BarChart组件测试
       <div className="comp_container" ref={compContainerRef}></div>
       <PropertyList property={property} propertyDic={propertyDic} onUpdateProperty={updateProperty} />
-      <textarea></textarea>
+      <textarea defaultValue={defaultData} onChange={handleTextareaChange}></textarea>
+      <button onClick={updateData}>update data</button>
     </div>
   );
 };

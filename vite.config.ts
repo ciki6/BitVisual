@@ -23,6 +23,8 @@ export default defineConfig({
     rollupOptions: {
       external: ["d3", "jquery", "lodash"],
       output: {
+        format: "es",
+        inlineDynamicImports: false,
         globals: {
           d3: "d3",
           $: "jquery",
@@ -44,6 +46,7 @@ export default defineConfig({
     },
     lib: {
       entry: "./lib/index.ts",
+      formats: ["es"],
       name: "WisChart",
       fileName: "index",
     },
