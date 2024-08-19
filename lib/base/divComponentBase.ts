@@ -16,11 +16,6 @@ abstract class DIVComponentBase extends ComponentBase {
       basic: {
         type: "DIVComponent",
       },
-      svgBasic: {
-        isViewBox: true,
-        lockViewBox: false,
-        viewBox: [0, 0, 1920, 1080],
-      },
     };
     this.addProperty(property, []);
   }

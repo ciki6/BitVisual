@@ -51,7 +51,15 @@ export default defineConfig({
       fileName: "index",
     },
   },
-  plugins: [dts({ include: ["lib"], outDir: "dist/@types" }), react()],
+  plugins: [
+    dts({
+      include: ["lib"],
+      outDir: "dist/@types",
+      staticImport: true,
+      insertTypesEntry: true,
+    }),
+    react(),
+  ],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

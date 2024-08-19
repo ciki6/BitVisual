@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import _ from "lodash";
 import { BaseProperty, PropertyDictionaryItem } from "../types/property";
 import OptionType from "./optionType";
 import DIVComponentBase from "./divComponentBase";
@@ -17,55 +18,7 @@ abstract class DIVContainerBase extends DIVComponentBase {
     super.setupDefaultValues();
   }
 
-  protected initProperty(): void {
-    super.initProperty();
-    const property: BaseProperty = {
-      basic: {
-        type: "container",
-      },
-      basicSetting: {
-        isLazyLoad: false,
-      },
-      panel: {},
-      containerJson: [],
-    };
-    const propertyDictionary: PropertyDictionaryItem[] = [
-      {
-        name: "basicSetting",
-        displayName: "容器组件设置",
-        description: "容器组件基础设置",
-        show: true,
-        editable: true,
-        children: [
-          {
-            name: "isLazyLoad",
-            displayName: "是否动态加载",
-            description: "是否动态加载组件",
-            type: OptionType.boolean,
-            show: true,
-            editable: true,
-          },
-        ],
-      },
-      {
-        name: "panel",
-        displayName: "面板组",
-        description: "面板组基础设置",
-        action: [
-          {
-            text: "新增",
-            style: "success",
-            action: "addPanel",
-            param: [],
-          },
-        ],
-        children: [],
-        show: true,
-        editable: true,
-      },
-    ];
-    this.addProperty(property, propertyDictionary);
-
+  initPanelProperty() {
     this.panelProperty = {
       panelName: "",
       panelFrame: [0, 0, 100, 100],
@@ -101,6 +54,76 @@ abstract class DIVContainerBase extends DIVComponentBase {
     ];
   }
 
+  protected initProperty(): void {
+    super.initProperty();
+    this.initPanelProperty();
+    const property: BaseProperty = {
+      basic: {
+        type: "container",
+      },
+      basicSetting: {
+        isLazyLoad: false,
+      },
+      panel: {
+        panel_0: _.cloneDeep(this.panelProperty),
+      },
+      containerJson: [],
+    };
+    const propertyDictionary: PropertyDictionaryItem[] = [
+      {
+        name: "basicSetting",
+        displayName: "容器组件设置",
+        description: "容器组件基础设置",
+        show: true,
+        editable: true,
+        children: [
+          {
+            name: "isLazyLoad",
+            displayName: "是否动态加载",
+            description: "是否动态加载组件",
+            type: OptionType.boolean,
+            show: true,
+            editable: true,
+          },
+        ],
+      },
+      {
+        name: "panel",
+        displayName: "面板组",
+        description: "面板组基础设置",
+        action: [
+          {
+            text: "新增",
+            style: "success",
+            action: "addPanel",
+            param: [],
+          },
+        ],
+        children: [
+          {
+            name: "panel_0",
+            displayName: "面板0",
+            description: "",
+            action: [
+              {
+                text: "删除组",
+                style: "error",
+                action: "deletePanel",
+                param: ["parentIndex"],
+              },
+            ],
+            children: _.cloneDeep(this.panelPropertyDictionary),
+            show: true,
+            editable: true,
+          },
+        ],
+        show: true,
+        editable: true,
+      },
+    ];
+    this.addProperty(property, propertyDictionary);
+  }
+
   protected draw() {
     super.draw();
     this.initPanelPropertyDictionary();
@@ -117,9 +140,7 @@ abstract class DIVContainerBase extends DIVComponentBase {
     });
   }
 
-  protected initPanelPropertyDictionary(){
-    
-  }
+  protected initPanelPropertyDictionary() {}
 }
 
 export default DIVContainerBase;

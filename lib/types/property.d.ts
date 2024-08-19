@@ -25,7 +25,7 @@ type PropertyAction = {
   text: string;
   style: "success" | "error";
   action: string;
-  param: [];
+  param: any[];
 };
 
 export type PropertyDictionaryItem = {

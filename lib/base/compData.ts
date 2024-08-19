@@ -48,23 +48,25 @@ class DataModule {
   }
 
   updateByRecordData() {
-    if (this.instance.processFunction && this.instance.recordData && JSON.stringify(this.instance.recordData) !== "{}") {
-      Object.values(this.instance.recordData).forEach((each) => {
-        this.instance.processFunction(each);
-      });
+    if (this.instance.recordData && JSON.stringify(this.instance.recordData) !== "{}") {
+      for (const groupId in this.instance.recordData) {
+        this.instance.update(this.instance.recordData[groupId], groupId);
+      }
     }
   }
 
-  subscribeDataSource(processFunction: Function): void {
-    this.instance.processFunction = processFunction;
+  subscribeDataSource(): void {
     if (JSON.stringify(this.instance.dataBind) === "{}" || this.instance.workMode === 4) return;
     window.wiscomWebSocket.subscribeData(this.instance.code, this.instance.resourceId, (data: any) => {
-      if (data.body === "OK") {
+      const dataBody = JSON.parse(data.body);
+      if (dataBody === "OK") {
         this.instance.isSubscribeData = true;
         return;
       }
+      const groupId = dataBody.group;
+      const compData = JSON.parse(dataBody.data);
       if (this.instance.propertyManager.getProperty("basic.isSendData")) {
-        this.postData(JSON.parse(JSON.parse(data.body).data), "sendData");
+        this.postData(compData, "sendData");
       }
       for (let i = 0; i < this.instance.getDataScripts.length; i++) {
         try {
@@ -74,21 +76,17 @@ class DataModule {
         }
       }
       if (!this.instance.onlyRecordData) {
-        let temp = JSON.parse(data.body);
-        this.instance.recordData[temp.group] = data;
+        this.instance.recordData[groupId] = data;
         return;
       }
-      //执行回调方法
-      if (processFunction) {
-        processFunction(data);
-      }
+      this.instance.update(compData, groupId);
       if (this.instance.workMode === 3) {
         this.unsubscribeDataSource();
         this.unsubscribeDataByClient();
       }
       setTimeout(() => {
         if (!this.instance.isSubscribeData) {
-          this.subscribeDataSource(processFunction);
+          this.subscribeDataSource();
         }
       }, 7000);
     });
@@ -102,10 +100,12 @@ class DataModule {
     window.wiscomWebSocket && window.dataSourceStompClients && window.wiscomWebSocket.unsubscribeDataByClient(this.instance.code, this.instance.resourceId);
   }
 
-  setData(data: any) {
-    data.forEach((d: any) => {
-      this.instance.processFunction(d);
-    });
+  setData(data: any, groupId: string) {
+    try {
+      this.instance.update(data, groupId);
+    } catch (e) {
+      console.warn("setData", `set data ${data} to component ${this.instance.id} by groupId: ${groupId} failed!`);
+    }
   }
 
   postData(data: any, eventName: string) {

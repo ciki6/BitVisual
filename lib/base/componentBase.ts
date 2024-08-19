@@ -49,7 +49,6 @@ abstract class ComponentBase {
   commandUUID: string | null;
   onlyRecordData: Boolean;
   recordData: any;
-  processFunction: Function;
   isSubscribeData: Boolean;
   clipRect: number[];
   public dataModule: { [key: string]: Function } = {};
@@ -62,7 +61,6 @@ abstract class ComponentBase {
     this.container = container;
     this.workMode = workMode;
     this.useDefaultOpt = useDefaultOpt;
-
 
     this.dataBind = {};
     this.animation = [];
@@ -79,7 +77,6 @@ abstract class ComponentBase {
     this.commandUUID = null;
     this.onlyRecordData = false;
     this.recordData = {};
-    this.processFunction = () => { };
     this.isSubscribeData = false;
     this.clipRect = [];
 
@@ -120,7 +117,6 @@ abstract class ComponentBase {
     this.animation = _.union(this.animation, typeof option.compAnimation === "string" ? JSON.parse(option.compAnimation) : option.compAnimation);
     this.script = $.extend(true, this.script, typeof option.compScript === "string" ? JSON.parse(option.compScript) : option.compScript);
     this.interact = $.extend(true, this.interact, typeof option.compInteract === "string" ? JSON.parse(option.compInteract) : option.compInteract);
-    // this._foldPath = WisUtil.scriptPath(this.property.basic.className);
     this.resourceId = option.resourceId;
     this.initConfHandler();
   }
@@ -129,7 +125,7 @@ abstract class ComponentBase {
     this.compScriptHandler();
   }
 
-  protected setupDefaultValues(): void { }
+  protected setupDefaultValues(): void {}
 
   protected initProperty(): void {
     let property: BaseProperty = {
@@ -339,7 +335,7 @@ abstract class ComponentBase {
     this.dataBind[key] = value;
   }
 
-  protected compAnimationHandler(): void { }
+  protected compAnimationHandler(): void {}
 
   protected compScriptHandler(): void {
     this.getDataScripts = [];
@@ -381,7 +377,7 @@ abstract class ComponentBase {
     }
   }
 
-  abstract update(data: any): void;
+  abstract update(data: any, groupId: string): void;
 
   public cleanup(): void {
     this.dataModule.unsubscribeDataSource();
@@ -395,7 +391,7 @@ abstract class ComponentBase {
     }
   }
 
-  passiveLoad(): void { }
+  passiveLoad(): void {}
 
   public setClipRect(x: number, y: number, w: number, h: number): void {
     this.clipRect = [x, y, w, h];
@@ -405,7 +401,7 @@ abstract class ComponentBase {
     }
   }
 
-  protected createClipRect(): void { }
+  protected createClipRect(): void {}
 }
 
 export default ComponentBase;

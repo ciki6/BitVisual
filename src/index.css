@@ -1,0 +1,17 @@
+span.btn {
+  cursor: default;
+}
+.comp_prop {
+  display: flex;
+}
+.comp_container,
+.prop_container {
+  width: 50%;
+}
+.comp_data {
+  width: 100%;
+}
+.data_area {
+  width: 100%;
+  min-height: 200px;
+}

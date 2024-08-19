@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropertyList from "@/components/PropertyList";
-import BarChart from "../../../lib/barChart/barChart";
+import TabContainer from "../../../lib/tabContainer/tabContainer";
 
-const BarChartTest: React.FC = () => {
+const TabContainerTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
   const compRef = useRef<any>(null);
   const [defaultData, setDefaultData] = useState<string>("");
@@ -27,7 +27,7 @@ const BarChartTest: React.FC = () => {
 
   useEffect(() => {
     if (compContainerRef.current) {
-      compRef.current = new BarChart(
+      compRef.current = new TabContainer(
         "asd",
         "asd",
         compContainerRef.current,
@@ -49,7 +49,7 @@ const BarChartTest: React.FC = () => {
 
   return (
     <div>
-      BarChart组件测试
+      TabContainer组件测试
       <div className="comp_prop">
         <div className="comp_container" ref={compContainerRef}></div>
         <div className="prop_container">
@@ -64,4 +64,4 @@ const BarChartTest: React.FC = () => {
   );
 };
 
-export default BarChartTest;
+export default TabContainerTest;
