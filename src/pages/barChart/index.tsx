@@ -15,13 +15,23 @@ const BarChartTest: React.FC = () => {
     }
   };
 
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleDataTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDefaultData(e.target.value);
+  };
+
+  const handlePropertyTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setProperty(JSON.parse(e.target.value));
   };
 
   const updateData = () => {
     if (compRef.current) {
       compRef.current.update(JSON.parse(defaultData));
+    }
+  };
+
+  const updatePropertyArea = () => {
+    if (compRef.current) {
+      compRef.current.setPropertyByObject(property);
     }
   };
 
@@ -57,8 +67,10 @@ const BarChartTest: React.FC = () => {
         </div>
       </div>
       <div className="comp_data">
-        <textarea className="data_area" defaultValue={defaultData} onChange={handleTextareaChange}></textarea>
+        <textarea className="data_area" defaultValue={defaultData} onChange={handleDataTextareaChange}></textarea>
         <button onClick={updateData}>update data</button>
+        <textarea className="data_area" defaultValue={JSON.stringify(property)} onChange={handlePropertyTextareaChange}></textarea>
+        <button onClick={updatePropertyArea}>update property</button>
       </div>
     </div>
   );

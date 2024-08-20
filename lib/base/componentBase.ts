@@ -317,7 +317,7 @@ abstract class ComponentBase {
     d3.select(this.container).style("display", isShow ? "block" : "none");
   }
 
-  public setProperty(path: string, value: any): void {
+  public setProperty(path: string | Partial<BaseProperty>, value?: any): void {
     this.propertyManager.set(path, value);
   }
 

@@ -1,10 +1,9 @@
 import * as d3 from "d3";
 import ComponentBase from "./componentBase";
 import OptionType from "./optionType";
-import { BaseProperty, PropertyDictionaryItem } from "../types/property";
+import { ComponentProperty, PropertyDictionaryItem } from "../types/property";
 
 abstract class SVGComponentBase extends ComponentBase {
-
   mainSVG: any;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: any, useDefaultOpt: boolean) {
@@ -18,7 +17,7 @@ abstract class SVGComponentBase extends ComponentBase {
 
   protected initProperty() {
     super.initProperty();
-    const property: BaseProperty = {
+    const property: ComponentProperty = {
       basic: {
         type: "SVGComponent",
       },
@@ -81,9 +80,9 @@ abstract class SVGComponentBase extends ComponentBase {
 
   protected draw() {
     super.draw();
-    this.container.innerHTML = ""
+    this.container.innerHTML = "";
     const frame = this.property.basic.frame ?? [0, 0, 1920, 1080];
-    this.mainSVG = d3.select(this.container).append('svg').attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", frame[2]).attr("height", frame[3]).style("pointer-events", "auto").attr("viewBox", this.property.svgBasic.viewBox.join(" "))
+    this.mainSVG = d3.select(this.container).append("svg").attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", frame[2]).attr("height", frame[3]).style("pointer-events", "auto").attr("viewBox", this.property.svgBasic.viewBox.join(" "));
   }
 
   protected createClipRect() {

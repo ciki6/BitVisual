@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import _ from "lodash";
-import { BaseProperty, PropertyDictionaryItem } from "../types/property";
+import { ComponentProperty, PropertyDictionaryItem } from "../types/property";
 import OptionType from "./optionType";
 import DIVComponentBase from "./divComponentBase";
 
@@ -57,7 +57,7 @@ abstract class DIVContainerBase extends DIVComponentBase {
   protected initProperty(): void {
     super.initProperty();
     this.initPanelProperty();
-    const property: BaseProperty = {
+    const property: ComponentProperty = {
       basic: {
         type: "container",
       },

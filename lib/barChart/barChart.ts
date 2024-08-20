@@ -1,8 +1,6 @@
 import * as d3 from "d3";
 import SVGComponentBase from "../base/svgComponentBase";
-
-import { BaseProperty, PropertyDictionaryItem } from "lib/types/property";
-
+import { ComponentProperty, PropertyDictionaryItem } from "lib/types/property";
 import OptionType from "../base/optionType";
 
 interface dataType {
@@ -67,7 +65,7 @@ class BarChart extends SVGComponentBase {
 
   protected initProperty(): void {
     super.initProperty();
-    const property: BaseProperty = {
+    const property: ComponentProperty = {
       basic: {
         className: "BarChart",
       },

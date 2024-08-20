@@ -38,6 +38,7 @@ const PropertyGroup: React.FC<Props> = ({ propertyDic, property, onUpdatePropert
               }}>
               {collapsed[index] ? "🔽" : "🔼"}
             </span>
+            {group.hasOwnProperty("action") && <button>新增</button>}
           </div>
           {!collapsed[index] && (
             <div>

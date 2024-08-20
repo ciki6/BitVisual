@@ -1,24 +1,29 @@
 import OptionType from "lib/base/optionType";
 
 type BasicProperty = {
-  code?: string;
-  displayName?: string;
-  type?: string;
-  className?: string;
-  frame?: [number, number, number, number];
-  isVisible?: boolean;
-  translateZ?: boolean;
-  needSync?: boolean;
-  zIndex?: number;
-  scale?: number;
-  isSendData?: boolean;
-  isAnimate?: boolean;
-  isDataLinked?: boolean;
+  code: string;
+  displayName: string;
+  type: string;
+  className: string;
+  frame: [number, number, number, number];
+  isVisible: boolean;
+  translateZ: boolean;
+  needSync: boolean;
+  zIndex: number;
+  scale: number;
+  isSendData: boolean;
+  isAnimate: boolean;
+  isDataLinked: boolean;
 };
 
 export type BaseProperty = {
   basic: BasicProperty;
-  [key: string]: any; // 其他可选属性
+  [key: string]: any;
+};
+
+export type ComponentProperty = {
+  basic: Partial<BasicProperty>;
+  [key: string]: any;
 };
 
 type PropertyAction = {

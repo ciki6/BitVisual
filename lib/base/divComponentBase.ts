@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import ComponentBase from "./componentBase";
-import { BaseProperty } from "../types/property";
+import { ComponentProperty } from "../types/property";
 
 abstract class DIVComponentBase extends ComponentBase {
   mainDIV: any;
@@ -12,7 +12,7 @@ abstract class DIVComponentBase extends ComponentBase {
 
   protected initProperty(): void {
     super.initProperty();
-    const property: BaseProperty = {
+    const property: ComponentProperty = {
       basic: {
         type: "DIVComponent",
       },

@@ -7,6 +7,7 @@ span.btn {
 .comp_container,
 .prop_container {
   width: 50%;
+  min-width: 900px;
 }
 .comp_data {
   width: 100%;

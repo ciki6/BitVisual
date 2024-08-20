@@ -45,7 +45,15 @@ class PropertyManager {
     }
   }
 
-  public set(path: string, value: any) {
+  public set(pathOrObject: string | Partial<BaseProperty>, value?: any) {
+    if (typeof pathOrObject === "string") {
+      this.setPropertyByPath(pathOrObject, value);
+    } else {
+      this.setPropertyByObject(pathOrObject);
+    }
+  }
+
+  private setPropertyByPath(path: string, value: any) {
     const keys = path.split(".");
     let obj: any = this.property;
     while (keys.length > 1) {
@@ -61,6 +69,31 @@ class PropertyManager {
     }
     obj[keys[0]] = value;
     console.log(this.property, "propertyManager");
+  }
+
+  private setPropertyByObject(newProperties: Partial<BaseProperty>) {
+    const changedPaths: string[] = [];
+
+    const compareAndUpdate = (oldObj: any, newObj: any, path: string[] = []) => {
+      for (const key in newObj) {
+        if (newObj.hasOwnProperty(key)) {
+          const fullPath = [...path, key].join(".");
+          if (_.isObject(newObj[key]) && !_.isArray(newObj[key])) {
+            compareAndUpdate(oldObj[key], newObj[key], [...path, key]);
+          } else if (!_.isEqual(oldObj[key], newObj[key])) {
+            oldObj[key] = newObj[key];
+            changedPaths.push(fullPath);
+          }
+        }
+      }
+    };
+
+    compareAndUpdate(this.property, newProperties);
+
+    for (const path of changedPaths) {
+      const value = this.getProperty(path);
+      this.triggerCallbacks(path, value);
+    }
   }
 
   public addProperty(property: any, propertyDic?: PropertyDictionaryItem[]) {
