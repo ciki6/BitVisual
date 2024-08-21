@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputCheckbox from "./InputCheckbox";
 import InputNumber from "./InputNumber";
 import InputArray from "./InputArray";
@@ -15,6 +15,10 @@ interface Props {
 
 const PropertyItem: React.FC<Props> = ({ propertyDic, propertyValue, propertyName, onUpdatePropertyValue }) => {
   const [value, setValue] = useState(propertyValue);
+
+  useEffect(() => {
+    setValue(propertyValue);
+  }, [propertyValue]);
 
   const getInputComponent = (type: string | undefined): React.ElementType | string => {
     switch (type) {
