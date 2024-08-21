@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import PropertyList from "@/components/PropertyList";
+import PropertyGroup from "@/components/PropertyGroup"; // Make sure the import path is correct
 import BarChart from "../../../lib/barChart/barChart";
 
 const BarChartTest: React.FC = () => {
@@ -7,9 +7,19 @@ const BarChartTest: React.FC = () => {
   const compRef = useRef<any>(null);
   const [defaultData, setDefaultData] = useState<string>("");
   const [propertyDic, setPropertyDic] = useState([]);
-  const [property, setProperty] = useState({});
+  const [property, setProperty] = useState<any>({});
+  const [propertyTextAreaContent, setPropertyTextAreaContent] = useState<string>("");
 
   const updateProperty = (name: string, value: any) => {
+    const updatedProperty = { ...property };
+    const keys = name.split(".");
+    let obj = updatedProperty;
+    for (let i = 0; i < keys.length - 1; i++) {
+      obj = obj[keys[i]];
+    }
+    obj[keys[keys.length - 1]] = value;
+    setProperty(updatedProperty);
+
     if (compRef.current) {
       compRef.current.setProperty(name, value);
     }
@@ -20,7 +30,7 @@ const BarChartTest: React.FC = () => {
   };
 
   const handlePropertyTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setProperty(JSON.parse(e.target.value));
+    setPropertyTextAreaContent(e.target.value);
   };
 
   const updateData = () => {
@@ -29,10 +39,21 @@ const BarChartTest: React.FC = () => {
     }
   };
 
-  const updatePropertyArea = () => {
-    if (compRef.current) {
-      compRef.current.setPropertyByObject(property);
+  const applyTextareaToPropertyGroup = () => {
+    try {
+      const updatedProperty = JSON.parse(propertyTextAreaContent);
+      setProperty(updatedProperty);
+
+      if (compRef.current) {
+        compRef.current.setProperty(updatedProperty);
+      }
+    } catch (error) {
+      console.error("Invalid JSON input", error);
     }
+  };
+
+  const syncPropertyToTextarea = () => {
+    setPropertyTextAreaContent(JSON.stringify(property, null, 2));
   };
 
   useEffect(() => {
@@ -40,7 +61,7 @@ const BarChartTest: React.FC = () => {
       compRef.current = new BarChart(
         "asd",
         "asd",
-        compContainerRef.current,
+        compContainerRef.current as Element,
         0,
         {
           property: {
@@ -57,20 +78,26 @@ const BarChartTest: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    setPropertyTextAreaContent(JSON.stringify(property, null, 2));
+  }, [property]);
+
   return (
     <div>
       BarChart组件测试
       <div className="comp_prop">
         <div className="comp_container" ref={compContainerRef}></div>
         <div className="prop_container">
-          <PropertyList property={property} propertyDic={propertyDic} onUpdateProperty={updateProperty} />
+          <PropertyGroup property={property} propertyDic={propertyDic} updateProperty={updateProperty} />
         </div>
       </div>
       <div className="comp_data">
-        <textarea className="data_area" defaultValue={defaultData} onChange={handleDataTextareaChange}></textarea>
+        <textarea className="data_area" value={defaultData} onChange={handleDataTextareaChange}></textarea>
         <button onClick={updateData}>update data</button>
-        <textarea className="data_area" defaultValue={JSON.stringify(property)} onChange={handlePropertyTextareaChange}></textarea>
-        <button onClick={updatePropertyArea}>update property</button>
+
+        <textarea className="data_area" value={propertyTextAreaContent} onChange={handlePropertyTextareaChange}></textarea>
+        <button onClick={applyTextareaToPropertyGroup}>Apply to PropertyGroup</button>
+        <button onClick={syncPropertyToTextarea}>Sync PropertyGroup to Textarea</button>
       </div>
     </div>
   );

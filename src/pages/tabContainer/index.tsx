@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import PropertyList from "@/components/PropertyList";
+import PropertyList from "@/components/PropertyGroup";
 import TabContainer from "../../../lib/tabContainer/tabContainer";
 
 const TabContainerTest: React.FC = () => {
@@ -53,7 +53,7 @@ const TabContainerTest: React.FC = () => {
       <div className="comp_prop">
         <div className="comp_container" ref={compContainerRef}></div>
         <div className="prop_container">
-          <PropertyList property={property} propertyDic={propertyDic} onUpdateProperty={updateProperty} />
+          <PropertyList property={property} propertyDic={propertyDic} updateProperty={updateProperty} />
         </div>
       </div>
       <div className="comp_data">

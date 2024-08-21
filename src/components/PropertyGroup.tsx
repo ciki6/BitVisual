@@ -1,3 +1,4 @@
+// PropertyGroup.tsx
 import React, { useState, useEffect } from "react";
 import PropertyItem from "./PropertyItem";
 import { PropertyDictionaryItem } from "lib/types/property";
@@ -5,21 +6,15 @@ import { PropertyDictionaryItem } from "lib/types/property";
 interface Props {
   propertyDic: PropertyDictionaryItem[];
   property: Record<string, any>;
-  onUpdateProperty: (name: string, value: any) => void;
+  updateProperty: (name: string, value: any) => void;
 }
 
-const PropertyGroup: React.FC<Props> = ({ propertyDic, property, onUpdateProperty }) => {
+const PropertyGroup: React.FC<Props> = ({ propertyDic, property, updateProperty }) => {
   const [collapsed, setCollapsed] = useState<boolean[]>([]);
 
   useEffect(() => {
     setCollapsed(propertyDic.map(() => false));
   }, [propertyDic]);
-
-  const propertyValue = (group: string, name: string): any => property[group]?.[name];
-
-  const handlePropertyValueUpdate = (value: any, name: string) => {
-    onUpdateProperty(name, value);
-  };
 
   const toggleGroupCollapse = (index: number) => {
     setCollapsed((prev) => prev.map((isCollapsed, i) => (i === index ? !isCollapsed : isCollapsed)));
@@ -31,11 +26,7 @@ const PropertyGroup: React.FC<Props> = ({ propertyDic, property, onUpdatePropert
         <div key={group.name}>
           <div>
             {group.displayName}
-            <span
-              className="btn"
-              onClick={() => {
-                toggleGroupCollapse(index);
-              }}>
+            <span className="btn" onClick={() => toggleGroupCollapse(index)}>
               {collapsed[index] ? "🔽" : "🔼"}
             </span>
             {group.hasOwnProperty("action") && <button>新增</button>}
@@ -43,7 +34,7 @@ const PropertyGroup: React.FC<Props> = ({ propertyDic, property, onUpdatePropert
           {!collapsed[index] && (
             <div>
               {group.children?.map((item) => (
-                <PropertyItem key={item.name} propertyDic={item} propertyValue={propertyValue(group.name, item.name)} propertyName={`${group.name}.${item.name}`} onUpdatePropertyValue={handlePropertyValueUpdate} />
+                <PropertyItem key={item.name} propertyDic={item} propertyName={`${group.name}.${item.name}`} property={property} updateProperty={updateProperty} />
               ))}
             </div>
           )}
