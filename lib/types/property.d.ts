@@ -28,7 +28,7 @@ export type ComponentProperty = {
 
 type PropertyAction = {
   text: string;
-  style: "success" | "error";
+  style: "blue" | "red";
   action: string;
   param: any[];
 };

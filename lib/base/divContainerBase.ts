@@ -94,7 +94,7 @@ abstract class DIVContainerBase extends DIVComponentBase {
         action: [
           {
             text: "新增",
-            style: "success",
+            style: "blue",
             action: "addPanel",
             param: [],
           },
@@ -107,7 +107,7 @@ abstract class DIVContainerBase extends DIVComponentBase {
             action: [
               {
                 text: "删除组",
-                style: "error",
+                style: "red",
                 action: "deletePanel",
                 param: ["parentIndex"],
               },
@@ -126,7 +126,7 @@ abstract class DIVContainerBase extends DIVComponentBase {
 
   protected draw() {
     super.draw();
-    this.initPanelPropertyDictionary();
+    if (this.workMode === 2) this.initPanelPropertyDictionary();
   }
 
   public getAllChildren(): any[] {
@@ -140,7 +140,69 @@ abstract class DIVContainerBase extends DIVComponentBase {
     });
   }
 
-  protected initPanelPropertyDictionary() {}
+  protected initPanelPropertyDictionary() {
+    let panelProperty = this.property.panel;
+    let panelPropertyDictionary = this.getPropertyDictionary("panel");
+
+    for (const panelId in panelProperty) {
+      if (Object.prototype.hasOwnProperty.call(panelProperty, panelId) && this.getPropertyDictionary("panel") === undefined) {
+        panelPropertyDictionary!.children!.push({
+          name: panelId,
+          description: panelId,
+          displayName: panelId,
+          action: [
+            {
+              text: "删除组",
+              style: "red",
+              action: "deletePanel",
+              param: ["parentIndex"],
+            },
+          ],
+          children: _.cloneDeep(this.panelPropertyDictionary),
+          show: true,
+          editable: true,
+        });
+      }
+    }
+  }
+
+  public addPanel() {
+    let panelPropertyDictionary = this.getPropertyDictionary("panel") ?? ({} as any);
+    let lastIndex = 0;
+    if (panelPropertyDictionary.children.length > 0) {
+      lastIndex = Math.max(panelPropertyDictionary.children.map((d: any) => parseInt(d.name.split("_")[1]))) + 1;
+    }
+    let panelName = `panel_${lastIndex}`;
+    this.property.panel[panelName] = _.cloneDeep(this.panelProperty);
+    panelPropertyDictionary.children.push({
+      name: panelName,
+      displayName: panelName,
+      action: [
+        {
+          text: "删除组",
+          style: "red",
+          action: "deletePanel",
+          param: ["parentIndex"],
+        },
+      ],
+      children: _.cloneDeep(this.panelPropertyDictionary),
+      show: true,
+      editable: true,
+    });
+  }
+
+  public deletePanel(index: number) {
+    let panelPropertyDictionary = this.getPropertyDictionary("panel");
+    let panelName = panelPropertyDictionary!.children![index].name;
+    panelPropertyDictionary!.children!.splice(index, 1);
+    delete this.property.panel[panelName];
+    for (let i = 0; i < this.property.containerJson.length; i++) {
+      if (this.property.containerJson[i].paneId === panelName) {
+        this.property.containerJson.splice(i, 1);
+        break;
+      }
+    }
+  }
 }
 
 export default DIVContainerBase;

@@ -25,6 +25,22 @@ const TabContainerTest: React.FC = () => {
     }
   };
 
+  const addPanel = () => {
+    if (compRef.current) {
+      compRef.current.addPanel();
+      console.log(compRef.current.property, "propertyList");
+      console.log(compRef.current.propertyDictionary, "PropertyDictionary");
+    }
+  };
+
+  const deletePanel = () => {
+    if (compRef.current) {
+      compRef.current.deletePanel(0);
+      console.log(compRef.current.property, "propertyList");
+      console.log(compRef.current.propertyDictionary, "PropertyDictionary");
+    }
+  };
+
   useEffect(() => {
     if (compContainerRef.current) {
       compRef.current = new TabContainer(
@@ -59,6 +75,8 @@ const TabContainerTest: React.FC = () => {
       <div className="comp_data">
         <textarea className="data_area" defaultValue={defaultData} onChange={handleTextareaChange}></textarea>
         <button onClick={updateData}>update data</button>
+        <button onClick={addPanel}>add panel</button>
+        <button onClick={deletePanel}>delete panel</button>
       </div>
     </div>
   );

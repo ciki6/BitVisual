@@ -9,12 +9,11 @@ class PropertyManager {
   private callbacks: Callback[] = [];
 
   constructor(initialProperty: BaseProperty, initialPropertyDic: PropertyDictionaryItem[]) {
-    // 确保 property 中的 basic 属性存在
     if (!initialProperty.basic) {
       throw new Error("The 'basic' property is required.");
     }
     this.property = this.createProxy(initialProperty);
-    this.propertyDic = initialPropertyDic; // 使用传入的属性字典或空对象
+    this.propertyDic = initialPropertyDic;
   }
 
   private createProxy(target: any, path: string[] = []): any {
@@ -125,6 +124,23 @@ class PropertyManager {
 
   public getPropertyList(): BaseProperty {
     return this.property;
+  }
+
+  public getPropertyDictionaryByPath(path: string): PropertyDictionaryItem | undefined {
+    const keys = path.split(".");
+    let dicItems = this.propertyDic;
+    for (const key of keys) {
+      const foundItem = dicItems.find((item) => item.name === key);
+      if (!foundItem) {
+        return undefined;
+      }
+      if (foundItem.children && keys.indexOf(key) !== keys.length - 1) {
+        dicItems = foundItem.children;
+      } else {
+        return foundItem;
+      }
+    }
+    return undefined;
   }
 }
 

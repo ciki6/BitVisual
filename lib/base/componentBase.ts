@@ -317,6 +317,10 @@ abstract class ComponentBase {
     d3.select(this.container).style("display", isShow ? "block" : "none");
   }
 
+  protected getPropertyDictionary(path: string): PropertyDictionaryItem | undefined {
+    return this.propertyManager.getPropertyDictionaryByPath(path);
+  }
+
   public setProperty(path: string | Partial<BaseProperty>, value?: any): void {
     this.propertyManager.set(path, value);
   }
