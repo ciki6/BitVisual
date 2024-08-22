@@ -52,10 +52,6 @@ const BarChartTest: React.FC = () => {
     }
   };
 
-  const syncPropertyToTextarea = () => {
-    setPropertyTextAreaContent(JSON.stringify(property, null, 2));
-  };
-
   useEffect(() => {
     if (compContainerRef.current) {
       compRef.current = new BarChart(
@@ -97,7 +93,6 @@ const BarChartTest: React.FC = () => {
 
         <textarea className="data_area" value={propertyTextAreaContent} onChange={handlePropertyTextareaChange}></textarea>
         <button onClick={applyTextareaToPropertyGroup}>Apply to PropertyGroup</button>
-        <button onClick={syncPropertyToTextarea}>Sync PropertyGroup to Textarea</button>
       </div>
     </div>
   );
