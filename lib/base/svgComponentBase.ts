@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import * as $ from "jquery";
 import ComponentBase from "./componentBase";
 import OptionType from "./optionType";
 import { ComponentProperty, PropertyDictionaryItem } from "../types/property";
@@ -80,7 +81,7 @@ abstract class SVGComponentBase extends ComponentBase {
 
   protected draw() {
     super.draw();
-    this.container.innerHTML = "";
+    $(this.container).empty();
     const frame = this.property.basic.frame ?? [0, 0, 1920, 1080];
     this.mainSVG = d3.select(this.container).append("svg").attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", frame[2]).attr("height", frame[3]).style("pointer-events", "auto").attr("viewBox", this.property.svgBasic.viewBox.join(" "));
   }

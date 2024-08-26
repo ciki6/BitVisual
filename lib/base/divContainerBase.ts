@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import _ from "lodash";
+import * as $ from "jquery";
 import { ComponentProperty, PropertyDictionaryItem } from "../types/property";
 import OptionType from "./optionType";
 import DIVComponentBase from "./divComponentBase";
@@ -8,6 +9,7 @@ abstract class DIVContainerBase extends DIVComponentBase {
   childrenComponents: any[];
   panelProperty: any;
   panelPropertyDictionary!: PropertyDictionaryItem[];
+  containerMap: any;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: any, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
@@ -200,6 +202,25 @@ abstract class DIVContainerBase extends DIVComponentBase {
       if (this.property.containerJson[i].paneId === panelName) {
         this.property.containerJson.splice(i, 1);
         break;
+      }
+    }
+  }
+
+  protected drawPanel(container: d3.Selection<HTMLElement, unknown, any, unknown>, option: { paneId: string; left?: number; top?: number; width?: number; height?: number }) {
+    const ele = container.append("div");
+    const opt = { ...{ paneId: "", top: 0, left: 0, width: this.property.basic.frame[2], height: this.property.basic.frame[3] }, ...option };
+    ele.style("top", opt.top).style("left", opt.left).style("width", opt.width).style("height", opt.height);
+    this.containerMap[opt.paneId] = ele;
+    return ele;
+  }
+
+  protected drawChidlrenComponents(paneId: string | null = null) {
+    this.cleanup();
+    if (paneId === null) {
+      for (const containerObj of this.property.containerJson) {
+        const panelId = containerObj.paneId;
+        const container = this.containerMap[panelId];
+        $(container.node()).empty();
       }
     }
   }
