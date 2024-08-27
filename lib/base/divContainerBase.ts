@@ -4,6 +4,7 @@ import * as $ from "jquery";
 import { ComponentProperty, PropertyDictionaryItem } from "../types/property";
 import OptionType from "./optionType";
 import DIVComponentBase from "./divComponentBase";
+import { ComponentsFactory } from "./componentFactory";
 
 abstract class DIVContainerBase extends DIVComponentBase {
   childrenComponents: any[];
@@ -214,15 +215,37 @@ abstract class DIVContainerBase extends DIVComponentBase {
     return ele;
   }
 
-  protected drawChidlrenComponents(paneId: string | null = null) {
+  protected drawChildrenComponents(paneId: string | null = null) {
     this.cleanup();
     if (paneId === null) {
       for (const containerObj of this.property.containerJson) {
         const panelId = containerObj.paneId;
         const container = this.containerMap[panelId];
         $(container.node()).empty();
+        if (containerObj.children.length > 0) {
+          const compList = new ComponentsFactory(containerObj.children, container, this.workMode, { resourceId: this.resourceId });
+          this.childrenComponents = [...this.childrenComponents, ...compList.components];
+        }
+      }
+    } else {
+      const containerObj = this.property.containerJson.filter((d: any) => (d.paneId = paneId))[0];
+      const container = this.containerMap[paneId];
+      $(container.node()).empty();
+      if (containerObj.children.length > 0) {
+        const compList = new ComponentsFactory(containerObj.children, container, this.workMode, { resourceId: this.resourceId });
+        this.childrenComponents = [...this.childrenComponents, ...compList.components];
       }
     }
+    requestAnimationFrame(() => {
+      this.childrenComponents.forEach((one) => {
+        if (one && one.passiveLoad) {
+          one.passiveLoad();
+        }
+        if (one && one.passiveLoadVideo) {
+          one.passiveLoadVideo();
+        }
+      });
+    });
   }
 }
 
