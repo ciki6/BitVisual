@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import _ from "lodash";
-import * as $ from "jquery";
+import $ from "jquery";
 import { ComponentProperty, PropertyDictionaryItem } from "../types/property";
 import OptionType from "./optionType";
 import DIVComponentBase from "./divComponentBase";
