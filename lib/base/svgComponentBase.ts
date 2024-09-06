@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import * as $ from "jquery";
+import $ from "jquery";
 import ComponentBase from "./componentBase";
 import OptionType from "./optionType";
 import { ComponentProperty, PropertyDictionaryItem } from "../types/property";

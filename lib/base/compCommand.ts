@@ -1,5 +1,5 @@
 import ComponentBase from "./componentBase";
-import * as $ from "jquery";
+import $ from "jquery";
 import { guid } from "./compUtil";
 const CommandModule = {
   sendCommand(this: ComponentBase, params: any): void {
