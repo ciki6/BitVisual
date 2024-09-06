@@ -86,7 +86,7 @@ abstract class ComponentBase {
     this.initMethods(DataModule, this.dataModule);
     this.initMethods(SyncModule, this.syncModule);
 
-    this.initProperty();
+    this.initProperty(); 
     this.initEvents();
     this.initConf(option);
     this.setupDefaultValues();
