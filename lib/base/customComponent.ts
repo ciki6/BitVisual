@@ -60,7 +60,7 @@ class CustomComponent {
             displayName: "组件编码",
             description: "组件编码",
             type: OptionType.string,
-            show: true,
+            
             editable: false,
           },
           {
@@ -68,15 +68,15 @@ class CustomComponent {
             displayName: "组件名称",
             description: "组件名称",
             type: OptionType.string,
-            show: true,
-            editable: true,
+            
+            
           },
           {
             name: "type",
             displayName: "组件类型",
             description: "组件类型",
             type: OptionType.string,
-            show: true,
+            
             editable: false,
           },
           {
@@ -84,7 +84,7 @@ class CustomComponent {
             displayName: "组件类名",
             description: "组件类名",
             type: OptionType.string,
-            show: true,
+            
             editable: false,
           },
           {
@@ -93,44 +93,44 @@ class CustomComponent {
             description: "组件位置以及大小",
             type: OptionType.doubleArray,
             placeholder: ["x", "y", "宽", "高"],
-            show: true,
-            editable: true,
+            
+            
           },
           {
             name: "isVisible",
             displayName: "是否可见",
             description: "组件是否可见",
             type: OptionType.boolean,
-            show: true,
-            editable: true,
+            
+            
           },
           {
             name: "translateZ",
             displayName: "启用Z轴位移",
             description: "是否启用Z轴位移(启用分层渲染)",
             type: OptionType.boolean,
-            show: true,
-            editable: true,
+            
+            
           },
           {
             name: "needSync",
             displayName: "是否同步",
             description: "跨屏组件是否启动事件同步",
             type: OptionType.boolean,
-            show: true,
-            editable: true,
+            
+            
           },
           {
             name: "zIndex",
             displayName: "组件层级",
             description: "组件的所在画布的层级",
             type: OptionType.int,
-            show: true,
-            editable: true,
+            
+            
           },
         ],
-        show: true,
-        editable: true,
+        
+        
       },
     ];
     this.addProperty(property, propertyDictionary);

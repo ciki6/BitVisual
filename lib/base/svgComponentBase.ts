@@ -40,16 +40,16 @@ abstract class SVGComponentBase extends ComponentBase {
             displayName: "启用ViewBox",
             description: "组件是否启用ViewBox",
             type: OptionType.boolean,
-            show: true,
-            editable: true,
+            
+            
           },
           {
             name: "lockViewBox",
             displayName: "锁定ViewBox",
             description: "指定组件viewbox，若不锁定则跟随组件大小变化",
             type: OptionType.boolean,
-            show: true,
-            editable: true,
+            
+            
           },
           {
             name: "viewBox",
@@ -57,12 +57,12 @@ abstract class SVGComponentBase extends ComponentBase {
             description: "可视区域大小",
             placeholder: ["x", "y", "宽", "高"],
             type: OptionType.doubleArray,
-            show: true,
-            editable: true,
+            
+            
           },
         ],
         show: false,
-        editable: true,
+        
       },
     ];
     this.addProperty(property, propertyDictionary);

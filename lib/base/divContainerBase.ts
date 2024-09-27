@@ -34,8 +34,6 @@ abstract class DIVContainerBase extends DIVComponentBase {
         displayName: "面板名称",
         description: "面板名称",
         type: OptionType.string,
-        show: true,
-        editable: true,
       },
       {
         name: "panelFrame",
@@ -43,7 +41,6 @@ abstract class DIVContainerBase extends DIVComponentBase {
         description: "面板位置以及大小",
         type: OptionType.doubleArray,
         placeholder: ["x", "y", "宽", "高"],
-        show: true,
         editable: false,
       },
       {
@@ -51,8 +48,6 @@ abstract class DIVContainerBase extends DIVComponentBase {
         displayName: "面板背景",
         description: "面板背景图",
         type: OptionType.string,
-        show: true,
-        editable: true,
       },
     ];
   }
@@ -77,16 +72,13 @@ abstract class DIVContainerBase extends DIVComponentBase {
         name: "basicSetting",
         displayName: "容器组件设置",
         description: "容器组件基础设置",
-        show: true,
-        editable: true,
+
         children: [
           {
             name: "isLazyLoad",
             displayName: "是否动态加载",
             description: "是否动态加载组件",
             type: OptionType.boolean,
-            show: true,
-            editable: true,
           },
         ],
       },
@@ -116,12 +108,8 @@ abstract class DIVContainerBase extends DIVComponentBase {
               },
             ],
             children: _.cloneDeep(this.panelPropertyDictionary),
-            show: true,
-            editable: true,
           },
         ],
-        show: true,
-        editable: true,
       },
     ];
     this.addProperty(property, propertyDictionary);
@@ -162,8 +150,6 @@ abstract class DIVContainerBase extends DIVComponentBase {
             },
           ],
           children: _.cloneDeep(this.panelPropertyDictionary),
-          show: true,
-          editable: true,
         });
       }
     }
@@ -189,8 +175,6 @@ abstract class DIVContainerBase extends DIVComponentBase {
         },
       ],
       children: _.cloneDeep(this.panelPropertyDictionary),
-      show: true,
-      editable: true,
     });
   }
 

@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import _ from "lodash";
 import SVGComponentBase from "../base/svgComponentBase";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/property";
 import OptionType from "../base/optionType";
@@ -17,6 +18,10 @@ class BarChart extends SVGComponentBase {
   };
   private x: d3.ScaleBand<string>;
   private y: d3.ScaleLinear<number, number>;
+  dataSeriesProperty: any;
+  dataSeriesPropertyDictionary!: PropertyDictionaryItem[];
+  guideLineProperty: any;
+  guideLinePropertyDictionary!: PropertyDictionaryItem[];
 
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
@@ -65,6 +70,7 @@ class BarChart extends SVGComponentBase {
 
   protected initProperty(): void {
     super.initProperty();
+    this.initAddedProperty();
     const property: ComponentProperty = {
       basic: {
         className: "BarChart",
@@ -76,24 +82,818 @@ class BarChart extends SVGComponentBase {
 
     const propertyDictionary: PropertyDictionaryItem[] = [
       {
-        name: "fontSetting",
-        displayName: "文字属性",
-        description: "文字属性",
+        name: "global",
+        displayName: "全局",
         children: [
           {
-            name: "fontSize",
-            displayName: "文字大小",
-            description: "文字大小",
-            type: OptionType.int,
-            show: true,
-            editable: true,
+            name: "padding",
+            displayName: "内边距",
+            type: OptionType.doubleArray,
+            placeholder: ["上", "下", "左", "右"],
+          },
+          {
+            name: "bgImage",
+            displayName: "背景图片",
+            type: OptionType.media,
+          },
+          {
+            name: "bar",
+            displayName: "柱体",
+            children: [
+              {
+                name: "barNumber",
+                displayName: "柱子数量",
+                type: OptionType.int,
+              },
+              {
+                name: "carousel",
+                displayName: "启动轮播",
+                type: OptionType.boolean,
+              },
+              {
+                name: "barStyle",
+                displayName: "柱体样式",
+                children: [
+                  {
+                    name: "type",
+                    displayName: "柱体类型",
+                    type: OptionType.select,
+                    options: [
+                      {
+                        name: "矩形",
+                        value: "rect",
+                      },
+                      {
+                        name: "圆形",
+                        value: "circle",
+                      },
+                      {
+                        name: "圆柱",
+                        value: "cylinder",
+                      },
+                      {
+                        name: "方柱",
+                        value: "cube",
+                      },
+                      {
+                        name: "切片",
+                        value: "slice",
+                      },
+                    ],
+                  },
+                  {
+                    name: "barWidthPercent",
+                    displayName: "柱宽占比",
+                    type: OptionType.range,
+                    unit: "%",
+                    options: {
+                      min: 1,
+                      max: 100,
+                    },
+                  },
+                  {
+                    name: "barMarginPercent",
+                    displayName: "柱间距占比",
+                    type: OptionType.range,
+                    unit: "%",
+                    options: {
+                      min: 1,
+                      max: 100,
+                    },
+                  },
+                  {
+                    name: "barBg",
+                    displayName: "柱背景",
+                    type: OptionType.color,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: "legend",
+            displayName: "图例",
+            closable: true,
+            children: [
+              {
+                name: "style",
+                displayName: "样式",
+
+                children: [
+                  {
+                    name: "font",
+                    displayName: "文本样式",
+                    type: OptionType.font,
+                  },
+                  {
+                    name: "type",
+                    displayName: "类型",
+                    type: OptionType.radio,
+
+                    options: [
+                      {
+                        name: "正方形",
+                        value: "rect",
+                      },
+                      {
+                        name: "圆点",
+                        value: "circle",
+                      },
+                      {
+                        name: "三角形",
+                        value: "triangle",
+                      },
+                    ],
+                  },
+                  {
+                    name: "size",
+                    displayName: "大小",
+                    type: OptionType.doubleArray,
+                    placeholder: ["长", "宽"],
+                    unit: "px",
+                  },
+                  {
+                    name: "showValue",
+                    displayName: "显示数值",
+                    type: OptionType.boolean,
+                  },
+                  {
+                    name: "valueMargin",
+                    displayName: "显示间隔",
+                    type: OptionType.boolean,
+                  },
+                  {
+                    name: "valueFont",
+                    displayName: "数值文本",
+                    type: OptionType.font,
+                  },
+                  {
+                    name: "valueFont",
+                    displayName: "数值文本",
+                    type: OptionType.font,
+                  },
+                  {
+                    name: "valueSuffix",
+                    displayName: "后缀",
+                    type: OptionType.string,
+                  },
+                ],
+              },
+              {
+                name: "layout",
+                displayName: "布局",
+
+                children: [
+                  {
+                    name: "position",
+                    displayName: "位置",
+                    type: OptionType.position,
+                  },
+                  {
+                    name: "direction",
+                    displayName: "排列方式",
+                    type: OptionType.radio,
+
+                    options: [
+                      {
+                        name: "横向",
+                        value: "h",
+                      },
+                      {
+                        name: "纵向",
+                        value: "v",
+                      },
+                    ],
+                  },
+                  {
+                    name: "margin",
+                    displayName: "间距",
+                    type: OptionType.double,
+
+                    unit: "px",
+                  },
+                ],
+              },
+            ],
           },
         ],
-        show: true,
-        editable: true,
+      },
+      {
+        name: "axis",
+        displayName: "坐标轴",
+        children: [
+          {
+            name: "axisX",
+            displayName: "X轴",
+            closable: true,
+            children: [
+              {
+                name: "axisLabel",
+                displayName: "轴标签",
+                closable: true,
+                children: [
+                  {
+                    name: "font",
+                    displayName: "文本样式",
+                    type: OptionType.font,
+                  },
+                  {
+                    name: "font",
+                    displayName: "显示间隔",
+                    type: OptionType.int,
+                  },
+                  {
+                    name: "labelWidth",
+                    displayName: "文字长度",
+                    type: OptionType.double,
+                    unit: "px",
+                  },
+                  {
+                    name: "labelOverflow",
+                    displayName: "文字溢出",
+                    type: OptionType.select,
+                    options: [
+                      {
+                        name: "省略号",
+                        value: "suspe",
+                      },
+                      {
+                        name: "换行",
+                        value: "warp",
+                      },
+                      {
+                        name: "滚动",
+                        value: "scroll",
+                      },
+                    ],
+                  },
+                  {
+                    name: "textRotate",
+                    displayName: "文字角度",
+                    type: OptionType.range,
+                    options: {
+                      min: -180,
+                      max: 180,
+                    },
+                    unit: "°",
+                  },
+                ],
+              },
+              {
+                name: "axisLine",
+                displayName: "轴线",
+                closable: true,
+                children: [
+                  {
+                    name: "颜色",
+                    displayName: "color",
+                    type: OptionType.color,
+                  },
+                  {
+                    name: "粗细",
+                    displayName: "stroke",
+                    type: OptionType.int,
+                  },
+                ],
+              },
+              {
+                name: "axisTick",
+                displayName: "刻度",
+                closable: true,
+                children: [
+                  {
+                    name: "颜色",
+                    displayName: "color",
+                    type: OptionType.color,
+                  },
+                  {
+                    name: "粗细",
+                    displayName: "stroke",
+                    type: OptionType.int,
+                  },
+                  {
+                    name: "长短",
+                    displayName: "length",
+                    type: OptionType.int,
+                  },
+                  {
+                    name: "范围类型",
+                    displayName: "rangeType",
+                    type: OptionType.radio,
+                    options: [
+                      {
+                        name: "自适应",
+                        value: "auto",
+                      },
+                      {
+                        name: "指定值",
+                        value: "value",
+                      },
+                    ],
+                  },
+                  {
+                    name: "范围值",
+                    displayName: "rangeValue",
+                    type: OptionType.doubleArray,
+                    placeholder: ["最小值", "最大值"],
+                  },
+                ],
+              },
+              {
+                name: "gridLine",
+                displayName: "网格线",
+                closable: true,
+                children: [
+                  {
+                    name: "线样式",
+                    displayName: "style",
+                    type: OptionType.radio,
+                    options: [
+                      {
+                        name: "虚线",
+                        value: "dash",
+                      },
+                      {
+                        name: "实线",
+                        value: "line",
+                      },
+                    ],
+                  },
+                  {
+                    name: "颜色",
+                    displayName: "color",
+                    type: OptionType.color,
+                  },
+                  {
+                    name: "粗细",
+                    displayName: "stroke",
+                    type: OptionType.int,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "series",
+        displayName: "系列",
+        children: [
+          {
+            name: "dataSeries",
+            displayName: "数据系列",
+            children: [],
+            action: [
+              {
+                text: "新增",
+                style: "blue",
+                action: "addDataSeries",
+                param: [],
+              },
+            ],
+          },
+          {
+            name: "guideLine",
+            displayName: "辅助线",
+            children: [],
+            action: [
+              {
+                text: "新增",
+                style: "blue",
+                action: "addGuideLine",
+                param: [],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "prompt",
+        displayName: "提示框",
+        closable: false,
+        children: [
+          {
+            name: "carousel",
+            displayName: "轮播",
+            closable: false,
+            children: [
+              {
+                name: "stopTime",
+                displayName: "停留时长",
+                type: OptionType.int,
+                unit: "秒",
+              },
+            ],
+          },
+          {
+            name: "suspend",
+            displayName: "悬浮框",
+            children: [
+              {
+                name: "background",
+                displayName: "背景",
+                children: [
+                  {
+                    name: "image",
+                    displayName: "背景图",
+                    type: OptionType.media,
+                  },
+                  {
+                    name: "opacity",
+                    displayName: "透明度",
+                    type: OptionType.range,
+                    options: {
+                      min: 0,
+                      max: 1,
+                    },
+                  },
+                  {
+                    name: "size",
+                    displayName: "大小",
+                    type: OptionType.doubleArray,
+                    placeholder: ["长", "宽"],
+                    unit: "px",
+                  },
+                  {
+                    name: "offset",
+                    displayName: "偏移量",
+                    type: OptionType.position,
+                  },
+                ],
+              },
+              {
+                name: "style",
+                displayName: "样式",
+                children: [
+                  {
+                    name: "titleFont",
+                    displayName: "标题样式",
+                    type: OptionType.font,
+                  },
+                  {
+                    name: "align",
+                    displayName: "对齐方式",
+                    type: OptionType.radio,
+                    options: [
+                      {
+                        name: "左",
+                        value: "left",
+                      },
+                      {
+                        name: "居中",
+                        value: "center",
+                      },
+                      {
+                        name: "右",
+                        value: "right",
+                      },
+                    ],
+                  },
+                  {
+                    name: "nameFont",
+                    displayName: "名称样式",
+                    type: OptionType.font,
+                  },
+                  {
+                    name: "legendType",
+                    displayName: "图例类型",
+                    type: OptionType.radio,
+
+                    options: [
+                      {
+                        name: "正方形",
+                        value: "rect",
+                      },
+                      {
+                        name: "圆点",
+                        value: "circle",
+                      },
+                      {
+                        name: "三角形",
+                        value: "triangle",
+                      },
+                    ],
+                  },
+                  {
+                    name: "legendSize",
+                    displayName: "图例大小",
+                    type: OptionType.doubleArray,
+                    placeholder: ["长", "宽"],
+                    unit: "px",
+                  },
+                  {
+                    name: "interval",
+                    displayName: "图例大小",
+                    description: "数值与名称之间的间隔",
+                    type: OptionType.doubleArray,
+                    placeholder: ["长", "宽"],
+                    unit: "px",
+                  },
+                  {
+                    name: "dataFont",
+                    displayName: "数值样式",
+                    type: OptionType.font,
+                  },
+                  {
+                    name: "dataSuffix",
+                    displayName: "后缀",
+                    type: OptionType.string,
+                  },
+                ],
+              },
+              {
+                name: "indicator",
+                displayName: "指示器",
+                children: [
+                  {
+                    name: "widthPercent",
+                    displayName: "宽度占比",
+                    type: OptionType.range,
+                    options: {
+                      min: 1,
+                      max: 100,
+                    },
+                  },
+                  {
+                    name: "color",
+                    displayName: "颜色",
+                    type: OptionType.color,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       },
     ];
     this.addProperty(property, propertyDictionary);
+  }
+
+  protected initAddedProperty(): void {
+    this.dataSeriesProperty = {
+      valueAxis: "y",
+      style: {
+        fillType: "color",
+        color: ["blue"],
+        image: "",
+        opacity: 1,
+      },
+      highlight: {
+        valueType: "min",
+        value: "",
+        color: "red",
+      },
+      dataTip: {
+        font: {},
+        image: "",
+        offset: [0, 0],
+        suffix: "",
+      },
+    };
+    this.dataSeriesPropertyDictionary = [
+      {
+        name: "valueAxis",
+        displayName: "轴选择",
+        type: OptionType.radio,
+        options: [
+          {
+            name: "Y轴",
+            value: "y",
+          },
+          {
+            name: "Z轴",
+            value: "z",
+          },
+        ],
+      },
+      {
+        name: "style",
+        displayName: "样式",
+        children: [
+          {
+            name: "fillType",
+            displayName: "填充类型",
+            type: OptionType.radio,
+            options: [
+              {
+                name: "颜色",
+                value: "color",
+              },
+              {
+                name: "图片",
+                value: "image",
+              },
+            ],
+          },
+          {
+            name: "color",
+            displayName: "柱体颜色",
+            type: OptionType.colorList,
+          },
+          {
+            name: "image",
+            displayName: "柱体图片",
+            type: OptionType.media,
+          },
+          {
+            name: "opacity",
+            displayName: "柱体图片透明度",
+            type: OptionType.range,
+            options: {
+              min: 0,
+              max: 1,
+            },
+          },
+        ],
+      },
+      {
+        name: "highlight",
+        displayName: "高亮",
+        closable: true,
+        children: [
+          {
+            name: "valueType",
+            displayName: "值类型",
+            type: OptionType.select,
+            options: [
+              {
+                name: "最大值",
+                value: "max",
+              },
+              {
+                name: "最小值",
+                value: "min",
+              },
+              {
+                name: "指定值",
+                value: "assign",
+              },
+            ],
+          },
+          {
+            name: "value",
+            displayName: "匹配项",
+            type: OptionType.string,
+          },
+          {
+            name: "color",
+            displayName: "颜色",
+            type: OptionType.color,
+          },
+        ],
+      },
+      {
+        name: "dataTip",
+        displayName: "值标签",
+        closable: true,
+        children: [
+          {
+            name: "font",
+            displayName: "文本样式",
+            type: OptionType.font,
+          },
+          {
+            name: "image",
+            displayName: "图标",
+            type: OptionType.media,
+          },
+          {
+            name: "offset",
+            displayName: "位置",
+            type: OptionType.position,
+          },
+          {
+            name: "suffix",
+            displayName: "后缀",
+            type: OptionType.string,
+          },
+        ],
+      },
+    ];
+
+    this.guideLineProperty = {
+      style: {
+        lineType: "assign",
+        axis: "y",
+        value: "",
+        lineStyle: "line",
+        color: "red",
+        stroke: 5,
+      },
+      dataTip: {
+        font: {},
+        image: "",
+        offset: [0, 0],
+        suffix: "",
+      },
+    };
+
+    this.guideLinePropertyDictionary = [
+      {
+        name: "style",
+        displayName: "样式",
+        children: [
+          {
+            name: "lineType",
+            displayName: "线类型",
+            type: OptionType.select,
+            options: [
+              {
+                name: "指定值",
+                value: "assign",
+              },
+              {
+                name: "最大值",
+                value: "max",
+              },
+              {
+                name: "最小值",
+                value: "min",
+              },
+              {
+                name: "平均值",
+                value: "average",
+              },
+            ],
+          },
+          {
+            name: "valueAxis",
+            displayName: "轴选择",
+            type: OptionType.radio,
+            options: [
+              {
+                name: "Y轴",
+                value: "y",
+              },
+              {
+                name: "X轴",
+                value: "x",
+              },
+              {
+                name: "Z轴",
+                value: "z",
+              },
+            ],
+          },
+          {
+            name: "value",
+            displayName: "匹配值",
+            type: OptionType.string,
+          },
+          {
+            name: "线样式",
+            displayName: "lineStyle",
+            type: OptionType.radio,
+            options: [
+              {
+                name: "虚线",
+                value: "dash",
+              },
+              {
+                name: "实线",
+                value: "line",
+              },
+            ],
+          },
+          {
+            name: "颜色",
+            displayName: "color",
+            type: OptionType.color,
+          },
+          {
+            name: "粗细",
+            displayName: "stroke",
+            type: OptionType.int,
+          },
+        ],
+      },
+      {
+        name: "dataTip",
+        displayName: "值标签",
+        children: [
+          {
+            name: "font",
+            displayName: "文本样式",
+            type: OptionType.font,
+          },
+          {
+            name: "image",
+            displayName: "图标",
+            type: OptionType.media,
+          },
+          {
+            name: "offset",
+            displayName: "位置",
+            type: OptionType.position,
+          },
+          {
+            name: "suffix",
+            displayName: "后缀",
+            type: OptionType.string,
+          },
+        ],
+      },
+    ];
   }
 
   protected handlePropertyChange(): void {
@@ -106,6 +906,66 @@ class BarChart extends SVGComponentBase {
           break;
       }
     });
+  }
+
+  public addDataSeries() {
+    let dataSeriesPropertyDictionary = this.getPropertyDictionary("series.dataSeries") ?? ({} as any);
+    let lastIndex = 0;
+    if (dataSeriesPropertyDictionary.children.length > 0) {
+      lastIndex = Math.max(dataSeriesPropertyDictionary.children.map((d: any) => parseInt(d.name.split("_")[1]))) + 1;
+    }
+    let dataSeriesName = `dataSeries_${lastIndex}`;
+    this.property.series.dataSeries[dataSeriesName] = _.cloneDeep(this.dataSeriesProperty);
+    dataSeriesPropertyDictionary.children.push({
+      name: dataSeriesName,
+      displayName: `数据系列${lastIndex}`,
+      action: [
+        {
+          text: "删除组",
+          style: "red",
+          action: "deleteDataSeries",
+          param: ["parentIndex"],
+        },
+      ],
+      children: _.cloneDeep(this.dataSeriesPropertyDictionary),
+    });
+  }
+
+  public deleteDataSeries(index: number) {
+    let dataSeriesPropertyDictionary = this.getPropertyDictionary("series.dataSeries");
+    let dataSeriesName = dataSeriesPropertyDictionary!.children![index].name;
+    dataSeriesPropertyDictionary!.children!.splice(index, 1);
+    delete this.property.series.dataSeries[dataSeriesName];
+  }
+
+  public addGuideLine() {
+    let guideLinePropertyDictionary = this.getPropertyDictionary("series.guideLine") ?? ({} as any);
+    let lastIndex = 0;
+    if (guideLinePropertyDictionary.children.length > 0) {
+      lastIndex = Math.max(guideLinePropertyDictionary.children.map((d: any) => parseInt(d.name.split("_")[1]))) + 1;
+    }
+    let guideLineName = `guideLine_${lastIndex}`;
+    this.property.series.guideLine[guideLineName] = _.cloneDeep(this.guideLineProperty);
+    guideLinePropertyDictionary.children.push({
+      name: guideLineName,
+      displayName: `辅助线${lastIndex}`,
+      action: [
+        {
+          text: "删除组",
+          style: "red",
+          action: "deleteGuideLine",
+          param: ["parentIndex"],
+        },
+      ],
+      children: _.cloneDeep(this.guideLinePropertyDictionary),
+    });
+  }
+
+  public deleteGuideLine(index: number) {
+    let guideLinePropertyDictionary = this.getPropertyDictionary("series.guideLine");
+    let guideLineName = guideLinePropertyDictionary!.children![index].name;
+    guideLinePropertyDictionary!.children!.splice(index, 1);
+    delete this.property.series.guideLine[guideLineName];
   }
 
   protected draw() {
@@ -185,11 +1045,7 @@ class BarChart extends SVGComponentBase {
       );
   }
 
-  printString(str: string) {
-    console.log(str);
-  }
-
-  update(data: any) {
+  public update(data: any) {
     console.log("bar chart update", data);
     this.defaultData = data;
     this.renderAxis();

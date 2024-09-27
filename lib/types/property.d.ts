@@ -33,17 +33,29 @@ type PropertyAction = {
   param: any[];
 };
 
+type selectOption = {
+  name: string;
+  value: string;
+};
+
+type rangeOption = {
+  max: number;
+  min: number;
+};
+
 export type PropertyDictionaryItem = {
   name: string;
   displayName: string;
-  description: string;
+  description?: string;
   type?: OptionType;
-  show: boolean;
-  editable: boolean;
+  show?: boolean;
+  editable?: boolean;
   children?: PropertyDictionaryItem[];
   placeholder?: string[];
-  options?: [];
+  options?: selectOption[] | rangeOption;
   rules?: string;
   value?: any;
   action?: PropertyAction[];
+  unit?: string;
+  closable?: boolean;
 };
