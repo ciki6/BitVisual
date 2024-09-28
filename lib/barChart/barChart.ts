@@ -75,8 +75,161 @@ class BarChart extends SVGComponentBase {
       basic: {
         className: "BarChart",
       },
-      fontSetting: {
-        fontSize: 16,
+      global: {
+        padding: [10, 10, 10, 10],
+        bgImage: "",
+        bar: {
+          barNumber: 0,
+          carousel: false,
+          barStyle: {
+            type: "rect",
+            barWidthPercent: 20,
+            barMarginPercent: 10,
+            barBg: "",
+          },
+        },
+        legend: {
+          isShow: false,
+          style: {
+            font: "",
+            type: "rect",
+            size: [10, 10],
+            showValue: false,
+            valueMargin: 5,
+            valueFont: "",
+            valueSuffix: "",
+          },
+          layout: {
+            position: [90, 5],
+            direction: "h",
+            margin: 5,
+          },
+        },
+      },
+      axis: {
+        axisX: {
+          isShow: true,
+          axisLabel: {
+            isShow: true,
+            font: "",
+            showMargin: 0,
+            labelWidth: 0,
+            labelOverflow: "suspe",
+            textRotate: 0,
+          },
+          axisLine: {
+            isShow: true,
+            color: "",
+            stroke: 5,
+          },
+          axisTick: {
+            isShow: true,
+            color: "",
+            stroke: 5,
+            length: 2,
+            rangeType: "auto",
+            rangeValue: [1, 1000],
+          },
+          gridLine: {
+            isShow: true,
+            style: "dash",
+            color: "",
+            stroke: 5,
+          },
+        },
+        axisY: {
+          isShow: true,
+          axisLabel: {
+            isShow: true,
+            font: "",
+            showMargin: 0,
+            labelWidth: 0,
+            labelOverflow: "suspe",
+            textRotate: 0,
+          },
+          axisLine: {
+            isShow: true,
+            color: "",
+            stroke: 5,
+          },
+          axisTick: {
+            isShow: true,
+            color: "",
+            stroke: 5,
+            length: 2,
+            rangeType: "auto",
+            rangeValue: [1, 1000],
+          },
+          gridLine: {
+            isShow: true,
+            style: "dash",
+            color: "",
+            stroke: 5,
+          },
+        },
+        axisZ: {
+          isShow: false,
+          axisLabel: {
+            isShow: true,
+            font: "",
+            showMargin: 0,
+            labelWidth: 0,
+            labelOverflow: "suspe",
+            textRotate: 0,
+          },
+          axisLine: {
+            isShow: true,
+            color: "",
+            stroke: 5,
+          },
+          axisTick: {
+            isShow: true,
+            color: "",
+            stroke: 5,
+            length: 2,
+            rangeType: "auto",
+            rangeValue: [1, 1000],
+          },
+          gridLine: {
+            isShow: true,
+            style: "dash",
+            color: "",
+            stroke: 5,
+          },
+        },
+      },
+      series: {
+        dataSeries: {},
+        guideLine: {},
+      },
+      prompt: {
+        isShow: false,
+        carousel: {
+          isShow: false,
+          stopTime: 5,
+        },
+        suspend: {
+          background: {
+            image: "",
+            opacity: 0.5,
+            size: [100, 100],
+            offset: [0, 0],
+          },
+          style: {
+            titleFont: "",
+            align: "left",
+            nameFont: "",
+            legendType: "rect",
+            legendSize: [10, 10],
+            interval: 20,
+            dataFont: "",
+            dataSuffix: "",
+          },
+          indicator: {
+            widthPercent: 0.5,
+            color: "",
+          },
+        },
       },
     };
 
@@ -173,12 +326,15 @@ class BarChart extends SVGComponentBase {
           {
             name: "legend",
             displayName: "图例",
-            closable: true,
             children: [
+              {
+                name: "isShow",
+                displayName: "是否显示",
+                type: OptionType.boolean,
+              },
               {
                 name: "style",
                 displayName: "样式",
-
                 children: [
                   {
                     name: "font",
@@ -189,7 +345,6 @@ class BarChart extends SVGComponentBase {
                     name: "type",
                     displayName: "类型",
                     type: OptionType.radio,
-
                     options: [
                       {
                         name: "正方形",
@@ -228,11 +383,6 @@ class BarChart extends SVGComponentBase {
                     type: OptionType.font,
                   },
                   {
-                    name: "valueFont",
-                    displayName: "数值文本",
-                    type: OptionType.font,
-                  },
-                  {
                     name: "valueSuffix",
                     displayName: "后缀",
                     type: OptionType.string,
@@ -242,7 +392,6 @@ class BarChart extends SVGComponentBase {
               {
                 name: "layout",
                 displayName: "布局",
-
                 children: [
                   {
                     name: "position",
@@ -253,7 +402,6 @@ class BarChart extends SVGComponentBase {
                     name: "direction",
                     displayName: "排列方式",
                     type: OptionType.radio,
-
                     options: [
                       {
                         name: "横向",
@@ -269,7 +417,6 @@ class BarChart extends SVGComponentBase {
                     name: "margin",
                     displayName: "间距",
                     type: OptionType.double,
-
                     unit: "px",
                   },
                 ],
@@ -285,20 +432,28 @@ class BarChart extends SVGComponentBase {
           {
             name: "axisX",
             displayName: "X轴",
-            closable: true,
             children: [
+              {
+                name: "isShow",
+                displayName: "是否显示",
+                type: OptionType.boolean,
+              },
               {
                 name: "axisLabel",
                 displayName: "轴标签",
-                closable: true,
                 children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
                   {
                     name: "font",
                     displayName: "文本样式",
                     type: OptionType.font,
                   },
                   {
-                    name: "font",
+                    name: "showMargin",
                     displayName: "显示间隔",
                     type: OptionType.int,
                   },
@@ -342,8 +497,12 @@ class BarChart extends SVGComponentBase {
               {
                 name: "axisLine",
                 displayName: "轴线",
-                closable: true,
                 children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
                   {
                     name: "颜色",
                     displayName: "color",
@@ -359,8 +518,12 @@ class BarChart extends SVGComponentBase {
               {
                 name: "axisTick",
                 displayName: "刻度",
-                closable: true,
                 children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
                   {
                     name: "颜色",
                     displayName: "color",
@@ -402,8 +565,354 @@ class BarChart extends SVGComponentBase {
               {
                 name: "gridLine",
                 displayName: "网格线",
-                closable: true,
                 children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
+                  {
+                    name: "线样式",
+                    displayName: "style",
+                    type: OptionType.radio,
+                    options: [
+                      {
+                        name: "虚线",
+                        value: "dash",
+                      },
+                      {
+                        name: "实线",
+                        value: "line",
+                      },
+                    ],
+                  },
+                  {
+                    name: "颜色",
+                    displayName: "color",
+                    type: OptionType.color,
+                  },
+                  {
+                    name: "粗细",
+                    displayName: "stroke",
+                    type: OptionType.int,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: "axisY",
+            displayName: "Y轴",
+            children: [
+              {
+                name: "isShow",
+                displayName: "是否显示",
+                type: OptionType.boolean,
+              },
+              {
+                name: "axisLabel",
+                displayName: "轴标签",
+                children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
+                  {
+                    name: "font",
+                    displayName: "文本样式",
+                    type: OptionType.font,
+                  },
+                  {
+                    name: "showMargin",
+                    displayName: "显示间隔",
+                    type: OptionType.int,
+                  },
+                  {
+                    name: "labelWidth",
+                    displayName: "文字长度",
+                    type: OptionType.double,
+                    unit: "px",
+                  },
+                  {
+                    name: "labelOverflow",
+                    displayName: "文字溢出",
+                    type: OptionType.select,
+                    options: [
+                      {
+                        name: "省略号",
+                        value: "suspe",
+                      },
+                      {
+                        name: "换行",
+                        value: "warp",
+                      },
+                      {
+                        name: "滚动",
+                        value: "scroll",
+                      },
+                    ],
+                  },
+                  {
+                    name: "textRotate",
+                    displayName: "文字角度",
+                    type: OptionType.range,
+                    options: {
+                      min: -180,
+                      max: 180,
+                    },
+                    unit: "°",
+                  },
+                ],
+              },
+              {
+                name: "axisLine",
+                displayName: "轴线",
+                children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
+                  {
+                    name: "颜色",
+                    displayName: "color",
+                    type: OptionType.color,
+                  },
+                  {
+                    name: "粗细",
+                    displayName: "stroke",
+                    type: OptionType.int,
+                  },
+                ],
+              },
+              {
+                name: "axisTick",
+                displayName: "刻度",
+                children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
+                  {
+                    name: "颜色",
+                    displayName: "color",
+                    type: OptionType.color,
+                  },
+                  {
+                    name: "粗细",
+                    displayName: "stroke",
+                    type: OptionType.int,
+                  },
+                  {
+                    name: "长短",
+                    displayName: "length",
+                    type: OptionType.int,
+                  },
+                  {
+                    name: "范围类型",
+                    displayName: "rangeType",
+                    type: OptionType.radio,
+                    options: [
+                      {
+                        name: "自适应",
+                        value: "auto",
+                      },
+                      {
+                        name: "指定值",
+                        value: "value",
+                      },
+                    ],
+                  },
+                  {
+                    name: "范围值",
+                    displayName: "rangeValue",
+                    type: OptionType.doubleArray,
+                    placeholder: ["最小值", "最大值"],
+                  },
+                ],
+              },
+              {
+                name: "gridLine",
+                displayName: "网格线",
+                children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
+                  {
+                    name: "线样式",
+                    displayName: "style",
+                    type: OptionType.radio,
+                    options: [
+                      {
+                        name: "虚线",
+                        value: "dash",
+                      },
+                      {
+                        name: "实线",
+                        value: "line",
+                      },
+                    ],
+                  },
+                  {
+                    name: "颜色",
+                    displayName: "color",
+                    type: OptionType.color,
+                  },
+                  {
+                    name: "粗细",
+                    displayName: "stroke",
+                    type: OptionType.int,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: "axisZ",
+            displayName: "Z轴",
+            children: [
+              {
+                name: "isShow",
+                displayName: "是否显示",
+                type: OptionType.boolean,
+              },
+              {
+                name: "axisLabel",
+                displayName: "轴标签",
+                children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
+                  {
+                    name: "font",
+                    displayName: "文本样式",
+                    type: OptionType.font,
+                  },
+                  {
+                    name: "showMargin",
+                    displayName: "显示间隔",
+                    type: OptionType.int,
+                  },
+                  {
+                    name: "labelWidth",
+                    displayName: "文字长度",
+                    type: OptionType.double,
+                    unit: "px",
+                  },
+                  {
+                    name: "labelOverflow",
+                    displayName: "文字溢出",
+                    type: OptionType.select,
+                    options: [
+                      {
+                        name: "省略号",
+                        value: "suspe",
+                      },
+                      {
+                        name: "换行",
+                        value: "warp",
+                      },
+                      {
+                        name: "滚动",
+                        value: "scroll",
+                      },
+                    ],
+                  },
+                  {
+                    name: "textRotate",
+                    displayName: "文字角度",
+                    type: OptionType.range,
+                    options: {
+                      min: -180,
+                      max: 180,
+                    },
+                    unit: "°",
+                  },
+                ],
+              },
+              {
+                name: "axisLine",
+                displayName: "轴线",
+                children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
+                  {
+                    name: "颜色",
+                    displayName: "color",
+                    type: OptionType.color,
+                  },
+                  {
+                    name: "粗细",
+                    displayName: "stroke",
+                    type: OptionType.int,
+                  },
+                ],
+              },
+              {
+                name: "axisTick",
+                displayName: "刻度",
+                children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
+                  {
+                    name: "颜色",
+                    displayName: "color",
+                    type: OptionType.color,
+                  },
+                  {
+                    name: "粗细",
+                    displayName: "stroke",
+                    type: OptionType.int,
+                  },
+                  {
+                    name: "长短",
+                    displayName: "length",
+                    type: OptionType.int,
+                  },
+                  {
+                    name: "范围类型",
+                    displayName: "rangeType",
+                    type: OptionType.radio,
+                    options: [
+                      {
+                        name: "自适应",
+                        value: "auto",
+                      },
+                      {
+                        name: "指定值",
+                        value: "value",
+                      },
+                    ],
+                  },
+                  {
+                    name: "范围值",
+                    displayName: "rangeValue",
+                    type: OptionType.doubleArray,
+                    placeholder: ["最小值", "最大值"],
+                  },
+                ],
+              },
+              {
+                name: "gridLine",
+                displayName: "网格线",
+                children: [
+                  {
+                    name: "isShow",
+                    displayName: "是否显示",
+                    type: OptionType.boolean,
+                  },
                   {
                     name: "线样式",
                     displayName: "style",
@@ -470,13 +979,21 @@ class BarChart extends SVGComponentBase {
       {
         name: "prompt",
         displayName: "提示框",
-        closable: false,
         children: [
+          {
+            name: "isShow",
+            displayName: "是否显示",
+            type: OptionType.boolean,
+          },
           {
             name: "carousel",
             displayName: "轮播",
-            closable: false,
             children: [
+              {
+                name: "isShow",
+                displayName: "是否显示",
+                type: OptionType.boolean,
+              },
               {
                 name: "stopTime",
                 displayName: "停留时长",
@@ -517,7 +1034,9 @@ class BarChart extends SVGComponentBase {
                   {
                     name: "offset",
                     displayName: "偏移量",
-                    type: OptionType.position,
+                    type: OptionType.doubleArray,
+                    placeholder: ["x", "y"],
+                    unit: "px",
                   },
                 ],
               },
@@ -558,7 +1077,6 @@ class BarChart extends SVGComponentBase {
                     name: "legendType",
                     displayName: "图例类型",
                     type: OptionType.radio,
-
                     options: [
                       {
                         name: "正方形",
@@ -709,8 +1227,12 @@ class BarChart extends SVGComponentBase {
       {
         name: "highlight",
         displayName: "高亮",
-        closable: true,
         children: [
+          {
+            name: "isShow",
+            displayName: "是否显示",
+            type: OptionType.boolean,
+          },
           {
             name: "valueType",
             displayName: "值类型",
@@ -745,8 +1267,12 @@ class BarChart extends SVGComponentBase {
       {
         name: "dataTip",
         displayName: "值标签",
-        closable: true,
         children: [
+          {
+            name: "isShow",
+            displayName: "是否显示",
+            type: OptionType.boolean,
+          },
           {
             name: "font",
             displayName: "文本样式",

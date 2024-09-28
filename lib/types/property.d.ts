@@ -57,5 +57,4 @@ export type PropertyDictionaryItem = {
   value?: any;
   action?: PropertyAction[];
   unit?: string;
-  closable?: boolean;
 };
