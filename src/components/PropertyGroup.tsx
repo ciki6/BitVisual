@@ -1,4 +1,3 @@
-// PropertyGroup.tsx
 import React, { useState, useEffect } from "react";
 import PropertyItem from "./PropertyItem";
 import { PropertyDictionaryItem } from "lib/types/property";
@@ -20,6 +19,20 @@ const PropertyGroup: React.FC<Props> = ({ propertyDic, property, updateProperty 
     setCollapsed((prev) => prev.map((isCollapsed, i) => (i === index ? !isCollapsed : isCollapsed)));
   };
 
+  const renderChildren = (children: PropertyDictionaryItem[]) => {
+    return children.map((item) => {
+      const propertyName = item.name;
+      const fullPropertyName = item.children ? `${propertyName}` : propertyName;
+
+      return (
+        <div key={item.name}>
+          <PropertyItem propertyDic={item} propertyName={fullPropertyName} property={property[propertyName]} updateProperty={updateProperty} />
+          {item.children && <div style={{ marginLeft: "20px" }}>{renderChildren(item.children)}</div>}
+        </div>
+      );
+    });
+  };
+
   return (
     <div>
       {propertyDic.map((group, index) => (
@@ -29,15 +42,8 @@ const PropertyGroup: React.FC<Props> = ({ propertyDic, property, updateProperty 
             <span className="btn" onClick={() => toggleGroupCollapse(index)}>
               {collapsed[index] ? "🔽" : "🔼"}
             </span>
-            {group.hasOwnProperty("action") && <button>新增</button>}
           </div>
-          {!collapsed[index] && (
-            <div>
-              {group.children?.map((item) => (
-                <PropertyItem key={item.name} propertyDic={item} propertyName={`${group.name}.${item.name}`} property={property} updateProperty={updateProperty} />
-              ))}
-            </div>
-          )}
+          {!collapsed[index] && <div>{renderChildren(group.children!)}</div>}
         </div>
       ))}
     </div>
