@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import PropertyGroup from "@/components/PropertyGroup"; // Make sure the import path is correct
+import PropertySection from "@/components/PropertySection"; // Make sure the import path is correct
 import BarChart from "../../../lib/barChart/barChart";
 
 const BarChartTest: React.FC = () => {
@@ -77,14 +77,17 @@ const BarChartTest: React.FC = () => {
   useEffect(() => {
     setPropertyTextAreaContent(JSON.stringify(property, null, 2));
   }, [property]);
-
+  console.log(property)
+  console.log(propertyDic)
   return (
     <div>
       BarChart组件测试
       <div className="comp_prop">
         <div className="comp_container" ref={compContainerRef}></div>
         <div className="prop_container">
-          <PropertyGroup property={property} propertyDic={propertyDic} updateProperty={updateProperty} />
+          {propertyDic.map((item: any) => (
+            <PropertySection key={item.name} item={item} formData={property} onChange={updateProperty} />
+          ))}
         </div>
       </div>
       <div className="comp_data">
