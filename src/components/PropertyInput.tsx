@@ -1,6 +1,5 @@
 // PropertyInput.tsx
-import React from 'react';
-import OptionType from '../../lib/base/optionType'; // 导入 OptionType 枚举
+import React from "react";
 
 interface SelectOption {
   name: string;
@@ -15,7 +14,7 @@ interface RangeOption {
 interface PropertyInputProps {
   name: string;
   displayName: string;
-  type: OptionType;
+  type: string; // 现在是字符串类型
   value: any;
   options?: SelectOption[] | RangeOption;
   placeholder?: string[];
@@ -23,71 +22,65 @@ interface PropertyInputProps {
 }
 
 const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, value, options, placeholder, onChange }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const target = e.target as HTMLInputElement;
-    const newValue = type === OptionType.boolean ? target.checked : target.value;
-    onChange(name, newValue);
+  const handleChange = (index: number, newValue: any) => {
+    const updatedValue = [...(value || [])]; // 创建数组的副本
+    updatedValue[index] = newValue;
+    onChange(name, updatedValue); // 更新整个数组
   };
 
   switch (type) {
-    case OptionType.string:
+    case "String":
       return (
         <div>
           <label>{displayName}:</label>
-          <input type="text" value={value || ''} placeholder={placeholder?.[0]} onChange={handleChange} />
+          <input type="text" value={value || ""} placeholder={placeholder?.[0]} onChange={(e) => onChange(name, e.target.value)} />
         </div>
       );
-    case OptionType.boolean:
+    case "Boolean":
       return (
         <div>
           <label>{displayName}:</label>
-          <input type="checkbox" checked={!!value} onChange={handleChange} />
+          <input type="checkbox" checked={!!value} onChange={(e) => onChange(name, e.target.checked)} />
         </div>
       );
-    case OptionType.int:
-    case OptionType.double:
+    case "Int":
+    case "Double":
       return (
         <div>
           <label>{displayName}:</label>
-          <input type="number" value={value || ''} placeholder={placeholder?.[0]} onChange={handleChange} />
+          <input type="number" value={value || ""} placeholder={placeholder?.[0]} onChange={(e) => onChange(name, e.target.value)} />
         </div>
       );
-    case OptionType.doubleArray:
+    case "DoubleArray":
       return (
         <div>
           <label>{displayName}:</label>
-          <input
-            type="text"
-            value={value?.join(', ') || ''}
-            placeholder={placeholder?.join(', ')}
-            onChange={(e) => onChange(name, e.target.value.split(',').map(Number))}
-          />
+          {placeholder?.map((place, index) => (
+            <div key={index}>
+              <label>{place}:</label>
+              <input type="number" value={value?.[index] || ""} placeholder={place} onChange={(e) => handleChange(index, Number(e.target.value))} />
+            </div>
+          ))}
         </div>
       );
-    case OptionType.range:
+    case "Range":
       if (options) {
         const { min, max } = options as RangeOption;
         return (
           <div>
             <label>{displayName}:</label>
-            <input
-              type="range"
-              min={min}
-              max={max}
-              value={value}
-              onChange={(e) => handleChange(e)}
-            />
+            <input type="range" min={min} max={max} value={value} onChange={(e) => onChange(name, e.target.value)} />
             <span>{value}</span>
           </div>
         );
       }
       break;
-    case OptionType.select:
+    case "Select":
       if (options) {
         return (
           <div>
             <label>{displayName}:</label>
-            <select value={value || ''} onChange={handleChange}>
+            <select value={value || ""} onChange={(e) => onChange(name, e.target.value)}>
               {(options as SelectOption[]).map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.name}

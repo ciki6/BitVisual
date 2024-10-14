@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import PropertySection from "@/components/PropertySection"; // Make sure the import path is correct
+import PropertyPanel from "@/components/PropertyPanel"; // Make sure the import path is correct
 import BarChart from "../../../lib/barChart/barChart";
 
 const BarChartTest: React.FC = () => {
@@ -10,18 +10,30 @@ const BarChartTest: React.FC = () => {
   const [property, setProperty] = useState<any>({});
   const [propertyTextAreaContent, setPropertyTextAreaContent] = useState<string>("");
 
-  const updateProperty = (name: string, value: any) => {
-    const updatedProperty = { ...property };
-    const keys = name.split(".");
-    let obj = updatedProperty;
-    for (let i = 0; i < keys.length - 1; i++) {
-      obj = obj[keys[i]];
-    }
-    obj[keys[keys.length - 1]] = value;
-    setProperty(updatedProperty);
+  // const handlePropertyChange = (name: string, value: any) => {
+  //   const updatedProperty = { ...property };
+  //   const keys = name.split(".");
+  //   let obj = updatedProperty;
+  //   for (let i = 0; i < keys.length - 1; i++) {
+  //     obj = obj[keys[i]];
+  //   }
+  //   obj[keys[keys.length - 1]] = value;
+  //   setProperty(updatedProperty);
 
+  //   if (compRef.current) {
+  //     compRef.current.setProperty(name, value);
+  //   }
+  // };
+
+  const handlePropertyChange = (property: any) => {
     if (compRef.current) {
-      compRef.current.setProperty(name, value);
+      compRef.current.setProperty(property);
+    }
+  };
+
+  const handleAction = (action: string, param: any) => {
+    if (compRef.current) {
+      eval(`compRef.current.${action}(${param.join(",")})`);
     }
   };
 
@@ -62,7 +74,7 @@ const BarChartTest: React.FC = () => {
         {
           property: {
             basic: {
-              frame: [0, 0, 900, 800],
+              frame: [0, 0, 1920, 1080],
             },
           },
         },
@@ -77,17 +89,13 @@ const BarChartTest: React.FC = () => {
   useEffect(() => {
     setPropertyTextAreaContent(JSON.stringify(property, null, 2));
   }, [property]);
-  console.log(property)
-  console.log(propertyDic)
   return (
     <div>
       BarChart组件测试
       <div className="comp_prop">
         <div className="comp_container" ref={compContainerRef}></div>
         <div className="prop_container">
-          {propertyDic.map((item: any) => (
-            <PropertySection key={item.name} item={item} formData={property} onChange={updateProperty} />
-          ))}
+          <PropertyPanel property={property} propertyDic={propertyDic} onChange={handlePropertyChange} onAction={handleAction} />
         </div>
       </div>
       <div className="comp_data">

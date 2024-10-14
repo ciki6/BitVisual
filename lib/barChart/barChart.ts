@@ -22,6 +22,7 @@ class BarChart extends SVGComponentBase {
   dataSeriesPropertyDictionary!: PropertyDictionaryItem[];
   guideLineProperty: any;
   guideLinePropertyDictionary!: PropertyDictionaryItem[];
+  chartContainer: any;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
@@ -1500,11 +1501,19 @@ class BarChart extends SVGComponentBase {
   }
 
   private render(): void {
-    const g = this.mainSVG.append("g").attr("id", this.id);
-    g.append("g").attr("class", "axes");
-    g.append("g").attr("class", "graph");
+    this.renderContainer();
     this.renderAxis();
     this.renderBar();
+  }
+
+  private renderContainer(): void {
+    if (this.property.global.bgImage !== "") {
+      this.mainSVG.append("image").attr("x", 0).attr("y", 0).attr("width", this.property.frame[2]).attr("height", this.property.frame[3]).attr("xlink:href", this.property.global.bgImage);
+    }
+    const padding = this.property.global.padding;
+    this.chartContainer = this.mainSVG.append("g").attr("class", "barChart-container").style("transform", `translate(${padding[0]}px,${padding[1]}px)`);
+    this.chartContainer.append("g").attr("class", "axes");
+    this.chartContainer.append("g").attr("class", "graph");
   }
 
   private renderAxis(): void {
