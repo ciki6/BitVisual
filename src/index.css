@@ -4,10 +4,8 @@ span.btn {
 .comp_prop {
   display: flex;
 }
-.comp_container,
-.prop_container {
-  width: 50%;
-  min-width: 900px;
+.comp_container {
+  width: 1920px;
 }
 .comp_data {
   width: 100%;

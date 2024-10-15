@@ -23,6 +23,8 @@ class BarChart extends SVGComponentBase {
   guideLineProperty: any;
   guideLinePropertyDictionary!: PropertyDictionaryItem[];
   chartContainer: any;
+  realWidth: number;
+  realHeight: number;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
@@ -32,6 +34,8 @@ class BarChart extends SVGComponentBase {
       bottom: 30,
       left: 40,
     };
+    this.realWidth = 1920;
+    this.realHeight = 1080;
     this.x = d3.scaleBand();
     this.y = d3.scaleLinear();
     this.draw();
@@ -1426,16 +1430,15 @@ class BarChart extends SVGComponentBase {
   protected handlePropertyChange(): void {
     this.propertyManager.onPropertyChange((path: string, value: any) => {
       switch (path) {
-        case "fontSetting.fontSize":
-          d3.select(this.container)
-            .selectAll("text")
-            .style("font-size", value + "px");
+        case "global.padding":
+          this.chartContainer.style("transform", `translate(${value[2]}px,${value[0]}px)`);
           break;
       }
     });
   }
 
   public addDataSeries() {
+    debugger
     let dataSeriesPropertyDictionary = this.getPropertyDictionary("series.dataSeries") ?? ({} as any);
     let lastIndex = 0;
     if (dataSeriesPropertyDictionary.children.length > 0) {
@@ -1511,9 +1514,11 @@ class BarChart extends SVGComponentBase {
       this.mainSVG.append("image").attr("x", 0).attr("y", 0).attr("width", this.property.frame[2]).attr("height", this.property.frame[3]).attr("xlink:href", this.property.global.bgImage);
     }
     const padding = this.property.global.padding;
-    this.chartContainer = this.mainSVG.append("g").attr("class", "barChart-container").style("transform", `translate(${padding[0]}px,${padding[1]}px)`);
+    this.chartContainer = this.mainSVG.append("g").attr("class", "barChart-container").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
     this.chartContainer.append("g").attr("class", "axes");
     this.chartContainer.append("g").attr("class", "graph");
+    this.realWidth = this.property.svgBasic.viewBox[2];
+    this.realHeight = this.property.svgBasic.viewBox[3];
   }
 
   private renderAxis(): void {

@@ -1,4 +1,3 @@
-// PropertyInput.tsx
 import React from "react";
 
 interface SelectOption {
@@ -14,18 +13,27 @@ interface RangeOption {
 interface PropertyInputProps {
   name: string;
   displayName: string;
-  type: string; // 现在是字符串类型
+  type: string;
   value: any;
-  options?: SelectOption[] | RangeOption;
   placeholder?: string[];
+  options?: SelectOption[] | RangeOption;
   onChange: (key: string, value: any) => void;
 }
 
-const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, value, options, placeholder, onChange }) => {
-  const handleChange = (index: number, newValue: any) => {
-    const updatedValue = [...(value || [])]; // 创建数组的副本
+const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, value, placeholder, options, onChange }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    let newValue;
+    if (type === "Boolean") {
+      newValue = (e.target as HTMLInputElement).checked;
+    } else {
+      newValue = e.target.value;
+    }
+    onChange(name, newValue);
+  };
+  const handleArrayChange = (index: number, newValue: any) => {
+    const updatedValue = [...(value || [])];
     updatedValue[index] = newValue;
-    onChange(name, updatedValue); // 更新整个数组
+    onChange(name, updatedValue);
   };
 
   switch (type) {
@@ -33,14 +41,14 @@ const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, 
       return (
         <div>
           <label>{displayName}:</label>
-          <input type="text" value={value || ""} placeholder={placeholder?.[0]} onChange={(e) => onChange(name, e.target.value)} />
+          <input type="text" value={value || ""} placeholder={placeholder?.[0]} onChange={handleChange} />
         </div>
       );
     case "Boolean":
       return (
         <div>
           <label>{displayName}:</label>
-          <input type="checkbox" checked={!!value} onChange={(e) => onChange(name, e.target.checked)} />
+          <input type="checkbox" checked={!!value} onChange={handleChange} />
         </div>
       );
     case "Int":
@@ -48,7 +56,7 @@ const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, 
       return (
         <div>
           <label>{displayName}:</label>
-          <input type="number" value={value || ""} placeholder={placeholder?.[0]} onChange={(e) => onChange(name, e.target.value)} />
+          <input type="number" value={value || ""} placeholder={placeholder?.[0]} onChange={handleChange} />
         </div>
       );
     case "DoubleArray":
@@ -58,7 +66,7 @@ const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, 
           {placeholder?.map((place, index) => (
             <div key={index}>
               <label>{place}:</label>
-              <input type="number" value={value?.[index] || ""} placeholder={place} onChange={(e) => handleChange(index, Number(e.target.value))} />
+              <input type="number" value={value?.[index] || ""} placeholder={place} onChange={(e) => handleArrayChange(index, Number(e.target.value))} />
             </div>
           ))}
         </div>
@@ -69,7 +77,7 @@ const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, 
         return (
           <div>
             <label>{displayName}:</label>
-            <input type="range" min={min} max={max} value={value} onChange={(e) => onChange(name, e.target.value)} />
+            <input type="range" min={min} max={max} value={value || min} onChange={handleChange} />
             <span>{value}</span>
           </div>
         );
@@ -80,7 +88,7 @@ const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, 
         return (
           <div>
             <label>{displayName}:</label>
-            <select value={value || ""} onChange={(e) => onChange(name, e.target.value)}>
+            <select value={value || ""} onChange={handleChange}>
               {(options as SelectOption[]).map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.name}
@@ -91,7 +99,7 @@ const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, 
         );
       }
       break;
-    // 处理其他类型...
+    // 添加其他类型的处理逻辑...
     default:
       return null;
   }

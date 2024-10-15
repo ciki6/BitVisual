@@ -25,15 +25,28 @@ const BarChartTest: React.FC = () => {
   //   }
   // };
 
-  const handlePropertyChange = (property: any) => {
+  const handlePropertyChange = (key: string, value: any) => {
+    const keys = key.split(".");
+    const updatedProperty = { ...property };
+    let temp = updatedProperty;
+
+    for (let i = 0; i < keys.length - 1; i++) {
+      temp = temp[keys[i]];
+    }
+    temp[keys[keys.length - 1]] = value;
+    setProperty(updatedProperty);
     if (compRef.current) {
-      compRef.current.setProperty(property);
+      compRef.current.setProperty(key, value);
     }
   };
 
   const handleAction = (action: string, param: any) => {
     if (compRef.current) {
-      eval(`compRef.current.${action}(${param.join(",")})`);
+      const evalStr = `compRef.current.${action}(${param.join(",")})`;
+      eval(evalStr);
+      console.log(compRef.current.propertyManager.getPropertyList(), compRef.current.propertyManager.getPropertyDictionary());
+      setPropertyDic(compRef.current.propertyManager.getPropertyDictionary());
+      setProperty(compRef.current.propertyManager.getPropertyList());
     }
   };
 
