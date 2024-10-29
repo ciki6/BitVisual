@@ -1,11 +1,11 @@
 import * as d3 from "d3";
 class ChordDiagram {
-  constructor(id: string, code: string, container: HTMLElement | null, workMode: number, option: Object) {
-    console.log(id, code, container, workMode, option);
+  constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
+    console.log(id, code, container, workMode, option, useDefaultOpt);
     this._draw(id, container);
   }
 
-  _draw(id: string, container: HTMLElement | null) {
+  _draw(id: string, container: Element) {
     const data = Object.assign(
       [
         [11975, 5871, 8916, 2868],

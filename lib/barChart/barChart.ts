@@ -25,6 +25,7 @@ class BarChart extends SVGComponentBase {
   chartContainer: any;
   realWidth: number;
   realHeight: number;
+  data: any;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
@@ -1438,7 +1439,7 @@ class BarChart extends SVGComponentBase {
   }
 
   public addDataSeries() {
-    debugger
+    debugger;
     let dataSeriesPropertyDictionary = this.getPropertyDictionary("series.dataSeries") ?? ({} as any);
     let lastIndex = 0;
     if (dataSeriesPropertyDictionary.children.length > 0) {
@@ -1507,6 +1508,7 @@ class BarChart extends SVGComponentBase {
     this.renderContainer();
     this.renderAxis();
     this.renderBar();
+    this.renderLegend();
   }
 
   private renderContainer(): void {
@@ -1517,8 +1519,8 @@ class BarChart extends SVGComponentBase {
     this.chartContainer = this.mainSVG.append("g").attr("class", "barChart-container").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
     this.chartContainer.append("g").attr("class", "axes");
     this.chartContainer.append("g").attr("class", "graph");
-    this.realWidth = this.property.svgBasic.viewBox[2];
-    this.realHeight = this.property.svgBasic.viewBox[3];
+    this.realWidth = this.property.basic.frame[2] - this.property.global.padding[2] - this.property.global.padding[3];
+    this.realHeight = this.property.basic.frame[3] - this.property.global.padding[0] - this.property.global.padding[1];
   }
 
   private renderAxis(): void {
@@ -1558,7 +1560,7 @@ class BarChart extends SVGComponentBase {
 
   private renderBar(): void {
     const data = this.defaultData;
-
+    const barWidth = (this.x.bandwidth() * this.property.global.bar.barStyle.barWidthPercent) / 100;
     this.mainSVG
       .select(".graph")
       .selectAll("rect")
@@ -1567,10 +1569,10 @@ class BarChart extends SVGComponentBase {
         (enter: any) =>
           enter
             .append("rect")
-            .attr("x", (d: dataType) => this.x(d.x))
+            .attr("x", (d: dataType) => (this.x(d.x) as number) + this.x.bandwidth() / 2 - barWidth / 2)
             .attr("y", (d: dataType) => this.y(d.y))
             .attr("height", (d: dataType) => this.y(0) - this.y(d.y))
-            .attr("width", this.x.bandwidth())
+            .attr("width", barWidth)
             .attr("fill", "steelblue"),
         (update: any) => {
           update
@@ -1579,10 +1581,16 @@ class BarChart extends SVGComponentBase {
             .attr("x", (d: dataType) => this.x(d.x))
             .attr("y", (d: dataType) => this.y(d.y))
             .attr("height", (d: dataType) => this.y(0) - this.y(d.y))
-            .attr("width", this.x.bandwidth());
+            .attr("width", barWidth);
         },
         (exit: any) => exit.remove()
       );
+  }
+
+  private renderLegend() {
+    const p = this.property.global.legend.layout.position;
+    const pt = [(this.realWidth * p[0]) / 100, (this.realHeight * p[1]) / 100];
+    const legendContainer = this.chartContainer.append("g").attr("class", "legend").style("transform", `translate(${pt[0]}px,${pt[1]}px)`);
   }
 
   public update(data: any) {

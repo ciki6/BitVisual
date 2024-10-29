@@ -22,6 +22,32 @@ export const setGradient = (svg: any, gradient: { direction: number; stops: any[
   return `url(#${id}_gradient)`;
 };
 
+type colorType = "div" | "svg";
+type colorJSON = { stops: colorStop[]; angle: number; colorString: string };
+type colorStop = { id: string; offset: number; color: string };
+
+export const generateGradient = (type: colorType, svg: any, id: string, colorJSON: colorJSON): string => {
+  if (type === "div") return colorJSON.colorString;
+  let gradientDom = null;
+  if (id !== "") {
+    gradientDom = svg.select("defs").select(`#${id}_gradient`);
+  } else {
+    if (svg.select("defs").empty()) {
+      gradientDom = svg.append("defs").append("linearGradient").attr("id", `${id}_gradient`);
+    } else {
+      gradientDom = svg.select("defs").append("linearGradient").attr("id", `${id}_gradient`);
+    }
+  }
+  gradientDom.attr("gradientTransform", `rotate(${colorJSON.angle})`);
+  colorJSON.stops.forEach((stop: colorStop) => {
+    gradientDom
+      .append("stop")
+      .attr("offset", stop.offset * 100 + "%")
+      .attr("style", "stop-color", stop.color);
+  });
+  return `url(#${id}_gradient)`;
+};
+
 const getRadomA = () => {
   var returnStr = "",
     range = 13,

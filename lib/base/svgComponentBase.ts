@@ -23,8 +23,7 @@ abstract class SVGComponentBase extends ComponentBase {
         type: "SVGComponent",
       },
       svgBasic: {
-        isViewBox: true,
-        lockViewBox: false,
+        isViewBox: false,
         viewBox: [0, 0, 1920, 1080],
       },
     };
@@ -38,13 +37,7 @@ abstract class SVGComponentBase extends ComponentBase {
           {
             name: "isViewBox",
             displayName: "启用ViewBox",
-            description: "组件是否启用ViewBox",
-            type: OptionType.boolean,
-          },
-          {
-            name: "lockViewBox",
-            displayName: "锁定ViewBox",
-            description: "指定组件viewbox，若不锁定则跟随组件大小变化",
+            description: "组件是否启用ViewBox，默认不启用表示没有viewbox属性",
             type: OptionType.boolean,
           },
           {
@@ -52,6 +45,7 @@ abstract class SVGComponentBase extends ComponentBase {
             displayName: "可视区域",
             description: "可视区域大小",
             placeholder: ["x", "y", "宽", "高"],
+            show: false,
             type: OptionType.doubleArray,
           },
         ],
@@ -65,8 +59,13 @@ abstract class SVGComponentBase extends ComponentBase {
     super.handlePropertyChange();
     this.propertyManager.onPropertyChange((path: string, value: any) => {
       switch (path) {
+        case "svgBasic.isViewBox":
+          this.propertyManager.getPropertyDictionaryByPath("svgBasic.viewBox").show = value;
+          break;
         case "svgBasic.viewBox":
-          this.mainSVG.attr("viewBox", value.join(" "));
+          if (this.property.svgBasic.isViewBox) {
+            this.mainSVG.attr("viewBox", value.join(" "));
+          }
           break;
       }
     });
@@ -76,7 +75,10 @@ abstract class SVGComponentBase extends ComponentBase {
     super.draw();
     $(this.container).empty();
     const frame = this.property.basic.frame ?? [0, 0, 1920, 1080];
-    this.mainSVG = d3.select(this.container).append("svg").attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", frame[2]).attr("height", frame[3]).style("pointer-events", "auto").attr("viewBox", this.property.svgBasic.viewBox.join(" "));
+    this.mainSVG = d3.select(this.container).append("svg").attr("class", "mainSVG").attr("x", 0).attr("y", 0).attr("width", frame[2]).attr("height", frame[3]).style("pointer-events", "auto");
+    if (this.property.svgBasic.isViewBox) {
+      this.mainSVG.attr("viewBox", this.property.svgBasic.viewBox.join(" "));
+    }
   }
 
   protected createClipRect() {

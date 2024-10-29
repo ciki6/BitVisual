@@ -4,15 +4,15 @@ class ImageView {
   constructor(
     id: string,
     code: string,
-    container: HTMLElement | null,
+    container: Element,
     workMode: number,
-    option: Object
+    option: Object, useDefaultOpt: boolean
   ) {
-    console.log(id, code, container, workMode, option);
+    console.log(id, code, container, workMode, option, useDefaultOpt);
     this._draw(id, container);
   }
 
-  _draw(id: string, container: HTMLElement | null) {
+  _draw(id: string, container: Element) {
     if (container === null) return;
     const d3Container: any = d3.select(container);
     d3Container

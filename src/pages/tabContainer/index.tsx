@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import PropertyList from "@/components/PropertyGroup";
+import PropertyPanel from "@/components/PropertyPanel";
 import TabContainer from "../../../lib/tabContainer/tabContainer";
 
 const TabContainerTest: React.FC = () => {
@@ -7,16 +7,40 @@ const TabContainerTest: React.FC = () => {
   const compRef = useRef<any>(null);
   const [defaultData, setDefaultData] = useState<string>("");
   const [propertyDic, setPropertyDic] = useState([]);
-  const [property, setProperty] = useState({});
+  const [property, setProperty] = useState<any>({});
+  const [propertyTextAreaContent, setPropertyTextAreaContent] = useState<string>("");
 
-  const updateProperty = (name: string, value: any) => {
+  const handlePropertyChange = (key: string, value: any) => {
+    const keys = key.split(".");
+    const updatedProperty = { ...property };
+    let temp = updatedProperty;
+
+    for (let i = 0; i < keys.length - 1; i++) {
+      temp = temp[keys[i]];
+    }
+    temp[keys[keys.length - 1]] = value;
+    setProperty(updatedProperty);
     if (compRef.current) {
-      compRef.current.setProperty(name, value);
+      compRef.current.setProperty(key, value);
     }
   };
 
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleAction = (action: string, param: any) => {
+    if (compRef.current) {
+      const evalStr = 'compRef.current.' + action + '(' + param.join(",") + ')';
+      eval(evalStr);
+      console.log(compRef.current.propertyManager.getPropertyList(), compRef.current.propertyManager.getPropertyDictionary());
+      setPropertyDic(compRef.current.propertyManager.getPropertyDictionary());
+      setProperty(compRef.current.propertyManager.getPropertyList());
+    }
+  };
+
+  const handleDataTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDefaultData(e.target.value);
+  };
+
+  const handlePropertyTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setPropertyTextAreaContent(e.target.value);
   };
 
   const updateData = () => {
@@ -25,19 +49,16 @@ const TabContainerTest: React.FC = () => {
     }
   };
 
-  const addPanel = () => {
-    if (compRef.current) {
-      compRef.current.addPanel();
-      console.log(compRef.current.property, "propertyList");
-      console.log(compRef.current.propertyDictionary, "PropertyDictionary");
-    }
-  };
+  const applyTextareaToPropertyGroup = () => {
+    try {
+      const updatedProperty = JSON.parse(propertyTextAreaContent);
+      setProperty(updatedProperty);
 
-  const deletePanel = () => {
-    if (compRef.current) {
-      compRef.current.deletePanel(0);
-      console.log(compRef.current.property, "propertyList");
-      console.log(compRef.current.propertyDictionary, "PropertyDictionary");
+      if (compRef.current) {
+        compRef.current.setProperty(updatedProperty);
+      }
+    } catch (error) {
+      console.error("Invalid JSON input", error);
     }
   };
 
@@ -46,12 +67,12 @@ const TabContainerTest: React.FC = () => {
       compRef.current = new TabContainer(
         "asd",
         "asd",
-        compContainerRef.current,
+        compContainerRef.current as Element,
         0,
         {
           property: {
             basic: {
-              frame: [0, 0, 900, 800],
+              frame: [0, 0, 1920, 1080],
             },
           },
         },
@@ -63,20 +84,25 @@ const TabContainerTest: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    setPropertyTextAreaContent(JSON.stringify(property, null, 2));
+  }, [property]);
+
   return (
     <div>
-      TabContainer组件测试
+    TabContainer组件测试
       <div className="comp_prop">
         <div className="comp_container" ref={compContainerRef}></div>
         <div className="prop_container">
-          <PropertyList property={property} propertyDic={propertyDic} updateProperty={updateProperty} />
+          <PropertyPanel property={property} propertyDic={propertyDic} onChange={handlePropertyChange} onAction={handleAction} />
         </div>
       </div>
       <div className="comp_data">
-        <textarea className="data_area" defaultValue={defaultData} onChange={handleTextareaChange}></textarea>
+        <textarea className="data_area" value={defaultData} onChange={handleDataTextareaChange}></textarea>
         <button onClick={updateData}>update data</button>
-        <button onClick={addPanel}>add panel</button>
-        <button onClick={deletePanel}>delete panel</button>
+
+        <textarea className="data_area" value={propertyTextAreaContent} onChange={handlePropertyTextareaChange}></textarea>
+        <button onClick={applyTextareaToPropertyGroup}>Apply to PropertyGroup</button>
       </div>
     </div>
   );
