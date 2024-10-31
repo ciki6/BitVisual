@@ -4,10 +4,15 @@ import SVGComponentBase from "../base/svgComponentBase";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/property";
 import OptionType from "../base/optionType";
 
-interface dataType {
+type DataPoint = {
+  name: string;
   x: string;
   y: number;
-}
+};
+
+type DataSets = {
+  [key: string]: DataPoint[];
+};
 
 class BarChart extends SVGComponentBase {
   private margin: {
@@ -16,7 +21,8 @@ class BarChart extends SVGComponentBase {
     bottom: number;
     left: number;
   };
-  private x: d3.ScaleBand<string>;
+  private x0: d3.ScaleBand<string>;
+  private x1: d3.ScaleBand<string>;
   private y: d3.ScaleLinear<number, number>;
   dataSeriesProperty: any;
   dataSeriesPropertyDictionary!: PropertyDictionaryItem[];
@@ -26,6 +32,8 @@ class BarChart extends SVGComponentBase {
   realWidth: number;
   realHeight: number;
   data: any;
+  axisX: any;
+  axisY: any;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
@@ -37,41 +45,29 @@ class BarChart extends SVGComponentBase {
     };
     this.realWidth = 1920;
     this.realHeight = 1080;
-    this.x = d3.scaleBand();
+    this.x0 = d3.scaleBand();
+    this.x1 = d3.scaleBand();
     this.y = d3.scaleLinear();
     this.draw();
   }
 
   protected setupDefaultValues(): void {
     super.setupDefaultValues();
-    this.defaultData = [
-      { x: "A", y: 0.08167 },
-      { x: "B", y: 0.01492 },
-      { x: "C", y: 0.02782 },
-      { x: "D", y: 0.04253 },
-      { x: "E", y: 0.12702 },
-      { x: "F", y: 0.02288 },
-      { x: "G", y: 0.02015 },
-      { x: "H", y: 0.06094 },
-      { x: "I", y: 0.06966 },
-      { x: "J", y: 0.00153 },
-      { x: "K", y: 0.00772 },
-      { x: "L", y: 0.04025 },
-      { x: "M", y: 0.02406 },
-      { x: "N", y: 0.06749 },
-      { x: "O", y: 0.07507 },
-      { x: "P", y: 0.01929 },
-      { x: "Q", y: 0.00095 },
-      { x: "R", y: 0.05987 },
-      { x: "S", y: 0.06327 },
-      { x: "T", y: 0.09056 },
-      { x: "U", y: 0.02758 },
-      { x: "V", y: 0.00978 },
-      { x: "W", y: 0.0236 },
-      { x: "X", y: 0.0015 },
-      { x: "Y", y: 0.01974 },
-      { x: "Z", y: 0.00074 },
-    ] as dataType[];
+    this.defaultData = {
+      bar1: [
+        { name: "去年", x: "A", y: 0.08167 },
+        { name: "去年", x: "B", y: 0.01492 },
+        { name: "去年", x: "C", y: 0.02782 },
+        { name: "去年", x: "D", y: 0.04253 },
+      ],
+      bar2: [
+        { name: "今年", x: "A", y: 0.12702 },
+        { name: "今年", x: "B", y: 0.02288 },
+        { name: "今年", x: "G", y: 0.02015 },
+        { name: "今年", x: "H", y: 0.06094 },
+        { name: "今年", x: "I", y: 0.06966 },
+      ],
+    } as DataSets;
   }
 
   protected initProperty(): void {
@@ -106,7 +102,7 @@ class BarChart extends SVGComponentBase {
             valueSuffix: "",
           },
           layout: {
-            position: [90, 5],
+            position: [50, 5],
             direction: "h",
             margin: 5,
           },
@@ -205,7 +201,9 @@ class BarChart extends SVGComponentBase {
         },
       },
       series: {
-        dataSeries: {},
+        dataSeries: {
+          dataSeries_0: _.cloneDeep(this.dataSeriesProperty),
+        },
         guideLine: {},
       },
       prompt: {
@@ -957,7 +955,21 @@ class BarChart extends SVGComponentBase {
           {
             name: "dataSeries",
             displayName: "数据系列",
-            children: [],
+            children: [
+              {
+                name: "dataSeries_0",
+                displayName: `数据系列0`,
+                action: [
+                  {
+                    text: "删除组",
+                    style: "red",
+                    action: "deleteDataSeries",
+                    param: ["parentIndex"],
+                  },
+                ],
+                children: _.cloneDeep(this.dataSeriesPropertyDictionary),
+              },
+            ],
             action: [
               {
                 text: "新增",
@@ -1439,7 +1451,6 @@ class BarChart extends SVGComponentBase {
   }
 
   public addDataSeries() {
-    debugger;
     let dataSeriesPropertyDictionary = this.getPropertyDictionary("series.dataSeries") ?? ({} as any);
     let lastIndex = 0;
     if (dataSeriesPropertyDictionary.children.length > 0) {
@@ -1507,8 +1518,8 @@ class BarChart extends SVGComponentBase {
   private render(): void {
     this.renderContainer();
     this.renderAxis();
-    this.renderBar();
-    this.renderLegend();
+    this.renderBar(this.defaultData);
+    this.renderLegend(this.defaultData);
   }
 
   private renderContainer(): void {
@@ -1524,80 +1535,142 @@ class BarChart extends SVGComponentBase {
   }
 
   private renderAxis(): void {
-    const data = this.defaultData;
     const width = 1920;
     const height = 1080;
     this.mainSVG.select(".axes").selectAll(".axis").remove();
-    this.x = d3
-      .scaleBand()
-      .domain(d3.sort(data, (d: dataType) => -d.y).map((d) => d.x))
-      .range([this.margin.left, width - this.margin.right])
+
+    this.x0 = d3
+      .scaleBand<string>()
+      .rangeRound([this.margin.left, width - this.margin.right])
       .padding(0.1);
 
-    const xAxis = d3.axisBottom(this.x).tickSizeOuter(0);
+    this.x1 = d3.scaleBand<string>().padding(0.1);
 
-    this.y = d3
-      .scaleLinear()
-      .domain([0, d3.max(data, (d: dataType) => d.y)] as [number, number])
-      .nice()
-      .range([height - this.margin.bottom, this.margin.top]);
+    this.y = d3.scaleLinear().range([height - this.margin.bottom, this.margin.top]);
 
-    this.mainSVG
+    this.axisX = this.mainSVG
       .select(".axes")
       .append("g")
       .attr("class", "axis")
-      .attr("transform", `translate(0,${height - this.margin.bottom})`)
-      .call(xAxis);
+      .attr("transform", `translate(0,${height - this.margin.bottom})`);
 
-    this.mainSVG
-      .select(".axes")
-      .append("g")
-      .attr("class", "axis")
-      .attr("transform", `translate(${this.margin.left},0)`)
-      .call(d3.axisLeft(this.y))
-      .call((g: any) => g.select(".domain").remove());
+    this.axisY = this.mainSVG.select(".axes").append("g").attr("class", "axis").attr("transform", `translate(${this.margin.left},0)`);
   }
 
-  private renderBar(): void {
-    const data = this.defaultData;
-    const barWidth = (this.x.bandwidth() * this.property.global.bar.barStyle.barWidthPercent) / 100;
-    this.mainSVG
+  private renderBar(data: DataSets): void {
+    const allKeys = Array.from(new Set(Object.values(data).flatMap((dataset: any) => dataset.map((d: any) => d.x))));
+    const datasets = Object.keys(data);
+
+    this.x0.domain(allKeys);
+    this.x1.domain(datasets).rangeRound([0, this.x0.bandwidth()]);
+    this.y
+      .domain([
+        0,
+        d3.max(
+          datasets.flatMap((key) => data[key]),
+          (d) => d.y
+        ) as number,
+      ])
+      .nice();
+
+    this.axisX.transition().duration(750).call(d3.axisBottom(this.x0).tickSizeOuter(0));
+    this.axisY.transition().duration(750).call(d3.axisLeft(this.y));
+
+    const barWidth = (this.x0.bandwidth() * this.property.global.bar.barStyle.barWidthPercent) / 100;
+
+    const bars = this.mainSVG.select(".graph").selectAll("g.layer").data(allKeys);
+
+    const barsEnter = bars
+      .enter()
+      .append("g")
+      .classed("layer", "true")
+      .attr("transform", (d: any) => `translate(${this.x0(d)}, 0)`);
+
+    barsEnter
+      .merge(bars)
+      .transition()
+      .duration(750)
+      .attr("transform", (d: any) => `translate(${this.x0(d)}, 0)`);
+
+    bars.exit().remove();
+
+    const rects = this.mainSVG
       .select(".graph")
+      .selectAll("g.layer")
       .selectAll("rect")
-      .data(data)
-      .join(
-        (enter: any) =>
-          enter
-            .append("rect")
-            .attr("x", (d: dataType) => (this.x(d.x) as number) + this.x.bandwidth() / 2 - barWidth / 2)
-            .attr("y", (d: dataType) => this.y(d.y))
-            .attr("height", (d: dataType) => this.y(0) - this.y(d.y))
-            .attr("width", barWidth)
-            .attr("fill", "steelblue"),
-        (update: any) => {
-          update
-            .transition()
-            .duration(500)
-            .attr("x", (d: dataType) => this.x(d.x))
-            .attr("y", (d: dataType) => this.y(d.y))
-            .attr("height", (d: dataType) => this.y(0) - this.y(d.y))
-            .attr("width", barWidth);
-        },
-        (exit: any) => exit.remove()
+      .data((d: any) =>
+        datasets.map((key) => {
+          const item = data[key].find((item) => item.x === d) || { name: "", x: d, y: 0 };
+          return { key, value: item.y, name: item.name };
+        })
       );
+
+    rects
+      .enter()
+      .append("rect")
+      .attr("x", (d: any) => this.x1(d.key) as number)
+      .attr("width", this.x1.bandwidth())
+      // .attr("fill", d => color(d.key) as string)
+      .attr("fill", "steelblue")
+      .attr("y", this.y(0))
+      .attr("height", 0)
+      .merge(rects)
+      .transition()
+      .duration(750)
+      .attr("x", (d: any) => this.x1(d.key) as number)
+      .attr("width", this.x1.bandwidth())
+      .attr("y", (d: any) => this.y(d.value))
+      .attr("height", (d: any) => this.y(0) - this.y(d.value));
+
+    rects.exit().transition().duration(750).attr("y", this.y(0)).attr("height", 0).remove();
   }
 
-  private renderLegend() {
+  private renderLegend(data: DataSets) {
     const p = this.property.global.legend.layout.position;
     const pt = [(this.realWidth * p[0]) / 100, (this.realHeight * p[1]) / 100];
-    const legendContainer = this.chartContainer.append("g").attr("class", "legend").style("transform", `translate(${pt[0]}px,${pt[1]}px)`);
+    const legend = this.chartContainer.append("g").attr("class", "legend").style("transform", `translate(${pt[0]}px,${pt[1]}px)`);
+    const keys = Object.keys(data);
+    const legendItems = keys.map((key: any) => ({
+      key,
+      name: data[key][0].name,
+      totalValue: d3.sum(data[key], (d) => d.y),
+    }));
+    const layout = this.property.global.legend.layout.direction;
+    const spaceBetweenItems = 10;
+    let currentX = 0;
+    let currentY = 0;
+    legendItems.forEach((item) => {
+      // 创建图例项的容器
+      const legendItem = legend.append("g").attr("transform", layout === "h" ? `translate(${currentX}, 0)` : `translate(0, ${currentY})`);
+
+      // 添加矩形
+      legendItem.append("rect").attr("width", 18).attr("height", 18).attr("fill", "steelblue");
+      // .attr("fill", color(item.key));
+
+      // 添加文本
+      const text = legendItem
+        .append("text")
+        .attr("x", 25) // 文本偏移量
+        .attr("y", 15)
+        .text(`${item.name} (总值: ${item.totalValue})`);
+
+      // 计算当前项的宽度
+      const itemWidth = 18 + 25 + text.node().getComputedTextLength() + spaceBetweenItems; // 矩形宽度 + 文本偏移 + 文本宽度 + 间距
+      const itemHeight = 18 + spaceBetweenItems; // 图例项的高度
+
+      // 更新位置
+      if (layout === "h") {
+        currentX += itemWidth; // 横向排列
+      } else {
+        currentY += itemHeight; // 纵向排列
+      }
+    });
   }
 
   public update(data: any) {
     console.log("bar chart update", data);
-    this.defaultData = data;
     this.renderAxis();
-    this.renderBar();
+    this.renderBar(data);
   }
 }
 
