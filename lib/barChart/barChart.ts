@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import _ from "lodash";
+import "../base/d3Extend";
 import SVGComponentBase from "../base/svgComponentBase";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/property";
 import OptionType from "../base/optionType";
@@ -55,13 +56,13 @@ class BarChart extends SVGComponentBase {
     super.setupDefaultValues();
     this.defaultData = {
       bar1: [
-        { name: "去年", x: "A", y: 0.08167 },
+        { name: "去年", x: "一二三四五七八九十", y: 0.08167 },
         { name: "去年", x: "B", y: 0.01492 },
         { name: "去年", x: "C", y: 0.02782 },
         { name: "去年", x: "D", y: 0.04253 },
       ],
       bar2: [
-        { name: "今年", x: "A", y: 0.12702 },
+        { name: "今年", x: "一二三四五七八九十", y: 0.12702 },
         { name: "今年", x: "B", y: 0.02288 },
         { name: "今年", x: "G", y: 0.02015 },
         { name: "今年", x: "H", y: 0.06094 },
@@ -78,33 +79,49 @@ class BarChart extends SVGComponentBase {
         className: "BarChart",
       },
       global: {
-        padding: [10, 10, 10, 10],
+        padding: [80, 30, 50, 10],
         bgImage: "",
         bar: {
           barNumber: 0,
           carousel: false,
           barStyle: {
             type: "rect",
-            barWidthPercent: 20,
+            groupMarginPercent: 20,
             barMarginPercent: 10,
-            barBg: "",
+            barBg: "#00000066",
           },
         },
         legend: {
           isShow: false,
           style: {
-            font: "",
+            font: {
+              family: "黑体",
+              size: "20px",
+              color: "#000000",
+              bolder: false,
+              italic: false,
+              underline: false,
+              lineThrough: false,
+            },
             type: "rect",
             size: [10, 10],
-            showValue: false,
+            showValue: true,
             valueMargin: 5,
-            valueFont: "",
+            valueFont: {
+              family: "黑体",
+              size: "16px",
+              color: "#000000",
+              bolder: false,
+              italic: false,
+              underline: false,
+              lineThrough: false,
+            },
             valueSuffix: "",
           },
           layout: {
             position: [50, 5],
             direction: "h",
-            margin: 5,
+            margin: 10,
           },
         },
       },
@@ -113,7 +130,15 @@ class BarChart extends SVGComponentBase {
           isShow: true,
           axisLabel: {
             isShow: true,
-            font: "",
+            font: {
+              family: "黑体",
+              size: "16px",
+              color: "#000000",
+              bolder: false,
+              italic: false,
+              underline: false,
+              lineThrough: false,
+            },
             showMargin: 0,
             labelWidth: 0,
             labelOverflow: "suspe",
@@ -143,7 +168,15 @@ class BarChart extends SVGComponentBase {
           isShow: true,
           axisLabel: {
             isShow: true,
-            font: "",
+            font: {
+              family: "黑体",
+              size: "16px",
+              color: "#000000",
+              bolder: false,
+              italic: false,
+              underline: false,
+              lineThrough: false,
+            },
             showMargin: 0,
             labelWidth: 0,
             labelOverflow: "suspe",
@@ -173,7 +206,15 @@ class BarChart extends SVGComponentBase {
           isShow: false,
           axisLabel: {
             isShow: true,
-            font: "",
+            font: {
+              family: "黑体",
+              size: "16px",
+              color: "#000000",
+              bolder: false,
+              italic: false,
+              underline: false,
+              lineThrough: false,
+            },
             showMargin: 0,
             labelWidth: 0,
             labelOverflow: "suspe",
@@ -299,8 +340,8 @@ class BarChart extends SVGComponentBase {
                     ],
                   },
                   {
-                    name: "barWidthPercent",
-                    displayName: "柱宽占比",
+                    name: "groupMarginPercent",
+                    displayName: "组间距占比",
                     type: OptionType.range,
                     unit: "%",
                     options: {
@@ -1535,26 +1576,20 @@ class BarChart extends SVGComponentBase {
   }
 
   private renderAxis(): void {
-    const width = 1920;
-    const height = 1080;
     this.mainSVG.select(".axes").selectAll(".axis").remove();
 
     this.x0 = d3
       .scaleBand<string>()
-      .rangeRound([this.margin.left, width - this.margin.right])
-      .padding(0.1);
+      .rangeRound([0, this.realWidth])
+      .padding(this.property.global.bar.barStyle.groupMarginPercent / 100);
 
-    this.x1 = d3.scaleBand<string>().padding(0.1);
+    this.x1 = d3.scaleBand<string>().padding(this.property.global.bar.barStyle.barMarginPercent / 100);
 
-    this.y = d3.scaleLinear().range([height - this.margin.bottom, this.margin.top]);
+    this.y = d3.scaleLinear().range([this.realHeight, 0]);
 
-    this.axisX = this.mainSVG
-      .select(".axes")
-      .append("g")
-      .attr("class", "axis")
-      .attr("transform", `translate(0,${height - this.margin.bottom})`);
+    this.axisX = this.mainSVG.select(".axes").append("g").attr("class", "axisX").attr("transform", `translate(0,${this.realHeight})`);
 
-    this.axisY = this.mainSVG.select(".axes").append("g").attr("class", "axis").attr("transform", `translate(${this.margin.left},0)`);
+    this.axisY = this.mainSVG.select(".axes").append("g").attr("class", "axisY");
   }
 
   private renderBar(data: DataSets): void {
@@ -1573,10 +1608,13 @@ class BarChart extends SVGComponentBase {
       ])
       .nice();
 
-    this.axisX.transition().duration(750).call(d3.axisBottom(this.x0).tickSizeOuter(0));
+    this.axisX.call(d3.axisBottom(this.x0).tickSizeInner(10));
+
+    this.axisX.selectAll("text").setFontStyle(this.property.axis.axisX.axisLabel.font).style("transform", `rotate(${this.property.axis.axisX.axisLabel.textRotate}deg)`);
+
     this.axisY.transition().duration(750).call(d3.axisLeft(this.y));
 
-    const barWidth = (this.x0.bandwidth() * this.property.global.bar.barStyle.barWidthPercent) / 100;
+    this.axisY.selectAll("text").setFontStyle(this.property.axis.axisY.axisLabel.font);
 
     const bars = this.mainSVG.select(".graph").selectAll("g.layer").data(allKeys);
 
@@ -1594,10 +1632,14 @@ class BarChart extends SVGComponentBase {
 
     bars.exit().remove();
 
+    const barBgColor = this.property.global.bar.barStyle.barBg;
+
+    barsEnter.append("rect").attr("class", "background").attr("width", this.x0.bandwidth()).attr("height", this.realHeight).attr("fill", barBgColor);
+
     const rects = this.mainSVG
       .select(".graph")
       .selectAll("g.layer")
-      .selectAll("rect")
+      .selectAll(".bar")
       .data((d: any) =>
         datasets.map((key) => {
           const item = data[key].find((item) => item.x === d) || { name: "", x: d, y: 0 };
@@ -1608,6 +1650,7 @@ class BarChart extends SVGComponentBase {
     rects
       .enter()
       .append("rect")
+      .classed("bar", true)
       .attr("x", (d: any) => this.x1(d.key) as number)
       .attr("width", this.x1.bandwidth())
       // .attr("fill", d => color(d.key) as string)
@@ -1626,43 +1669,57 @@ class BarChart extends SVGComponentBase {
   }
 
   private renderLegend(data: DataSets) {
-    const p = this.property.global.legend.layout.position;
+    const legendProp = this.property.global.legend;
+    const layout = legendProp.layout.direction;
+    const [itemW, itemH] = legendProp.style.size;
+    const valueMargin = legendProp.style.valueMargin;
+    const p = legendProp.layout.position;
     const pt = [(this.realWidth * p[0]) / 100, (this.realHeight * p[1]) / 100];
-    const legend = this.chartContainer.append("g").attr("class", "legend").style("transform", `translate(${pt[0]}px,${pt[1]}px)`);
+    const legend = this.mainSVG.append("g").attr("class", "legend").style("transform", `translate(${pt[0]}px,${pt[1]}px)`);
     const keys = Object.keys(data);
     const legendItems = keys.map((key: any) => ({
       key,
       name: data[key][0].name,
       totalValue: d3.sum(data[key], (d) => d.y),
     }));
-    const layout = this.property.global.legend.layout.direction;
-    const spaceBetweenItems = 10;
+
+    const spaceBetweenItems = legendProp.layout.margin;
     let currentX = 0;
     let currentY = 0;
     legendItems.forEach((item) => {
-      // 创建图例项的容器
       const legendItem = legend.append("g").attr("transform", layout === "h" ? `translate(${currentX}, 0)` : `translate(0, ${currentY})`);
-
-      // 添加矩形
-      legendItem.append("rect").attr("width", 18).attr("height", 18).attr("fill", "steelblue");
+      legendItem.append("rect").attr("width", itemW).attr("height", itemH).attr("fill", "steelblue");
       // .attr("fill", color(item.key));
 
-      // 添加文本
       const text = legendItem
         .append("text")
-        .attr("x", 25) // 文本偏移量
-        .attr("y", 15)
-        .text(`${item.name} (总值: ${item.totalValue})`);
+        .attr("x", itemW + valueMargin)
+        .attr("y", itemH / 2)
+        .style("dominant-baseline", "central")
+        .setFontStyle(legendProp.style.font)
+        .text(item.name);
 
-      // 计算当前项的宽度
-      const itemWidth = 18 + 25 + text.node().getComputedTextLength() + spaceBetweenItems; // 矩形宽度 + 文本偏移 + 文本宽度 + 间距
-      const itemHeight = 18 + spaceBetweenItems; // 图例项的高度
+      let valueLength = 0;
 
-      // 更新位置
+      if (legendProp.style.showValue) {
+        const valueText = legendItem
+          .append("text")
+          .attr("x", itemW + valueMargin + text.node()!.getComputedTextLength() + valueMargin)
+          .attr("y", itemH / 2)
+          .style("dominant-baseline", "central")
+          .setFontStyle(legendProp.style.valueFont)
+          .text(`(${item.totalValue + legendProp.style.valueSuffix})`);
+
+        valueLength = valueText.node()!.getComputedTextLength();
+      }
+
+      const itemWidth = itemW + valueMargin + text.node().getComputedTextLength() + valueLength + valueMargin + spaceBetweenItems;
+      const itemHeight = itemH + spaceBetweenItems;
+
       if (layout === "h") {
-        currentX += itemWidth; // 横向排列
+        currentX += itemWidth;
       } else {
-        currentY += itemHeight; // 纵向排列
+        currentY += itemHeight;
       }
     });
   }
