@@ -16,12 +16,6 @@ type DataSets = {
 };
 
 class BarChart extends SVGComponentBase {
-  private margin: {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  };
   private x0: d3.ScaleBand<string>;
   private x1: d3.ScaleBand<string>;
   private y: d3.ScaleLinear<number, number>;
@@ -35,15 +29,10 @@ class BarChart extends SVGComponentBase {
   data: any;
   axisX: any;
   axisY: any;
+  defs: any;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
-    this.margin = {
-      top: 20,
-      right: 0,
-      bottom: 30,
-      left: 40,
-    };
     this.realWidth = 1920;
     this.realHeight = 1080;
     this.x0 = d3.scaleBand();
@@ -55,13 +44,13 @@ class BarChart extends SVGComponentBase {
   protected setupDefaultValues(): void {
     super.setupDefaultValues();
     this.defaultData = {
-      bar1: [
+      dataSeries_0: [
         { name: "去年", x: "一二三四五七八九十", y: 0.08167 },
         { name: "去年", x: "B", y: 0.01492 },
         { name: "去年", x: "C", y: 0.02782 },
         { name: "去年", x: "D", y: 0.04253 },
       ],
-      bar2: [
+      dataSeries_1: [
         { name: "今年", x: "一二三四五七八九十", y: 0.12702 },
         { name: "今年", x: "B", y: 0.02288 },
         { name: "今年", x: "G", y: 0.02015 },
@@ -95,9 +84,9 @@ class BarChart extends SVGComponentBase {
           isShow: false,
           style: {
             font: {
-              family: "黑体",
-              size: "20px",
-              color: "#000000",
+              family: "微软雅黑",
+              size: "50px",
+              color: "#ffffff",
               bolder: false,
               italic: false,
               underline: false,
@@ -108,9 +97,9 @@ class BarChart extends SVGComponentBase {
             showValue: true,
             valueMargin: 5,
             valueFont: {
-              family: "黑体",
-              size: "16px",
-              color: "#000000",
+              family: "微软雅黑",
+              size: "50px",
+              color: "#ffffff",
               bolder: false,
               italic: false,
               underline: false,
@@ -131,9 +120,9 @@ class BarChart extends SVGComponentBase {
           axisLabel: {
             isShow: true,
             font: {
-              family: "黑体",
-              size: "16px",
-              color: "#000000",
+              family: "微软雅黑",
+              size: "50px",
+              color: "#ffffff",
               bolder: false,
               italic: false,
               underline: false,
@@ -146,12 +135,12 @@ class BarChart extends SVGComponentBase {
           },
           axisLine: {
             isShow: true,
-            color: "",
+            color: "#fff",
             stroke: 5,
           },
           axisTick: {
             isShow: true,
-            color: "",
+            color: "#fff",
             stroke: 5,
             length: 2,
             rangeType: "auto",
@@ -160,7 +149,7 @@ class BarChart extends SVGComponentBase {
           gridLine: {
             isShow: true,
             style: "dash",
-            color: "",
+            color: "#fff",
             stroke: 5,
           },
         },
@@ -169,9 +158,9 @@ class BarChart extends SVGComponentBase {
           axisLabel: {
             isShow: true,
             font: {
-              family: "黑体",
-              size: "16px",
-              color: "#000000",
+              family: "微软雅黑",
+              size: "50px",
+              color: "#ffffff",
               bolder: false,
               italic: false,
               underline: false,
@@ -184,12 +173,12 @@ class BarChart extends SVGComponentBase {
           },
           axisLine: {
             isShow: true,
-            color: "",
+            color: "#fff",
             stroke: 5,
           },
           axisTick: {
             isShow: true,
-            color: "",
+            color: "#fff",
             stroke: 5,
             length: 2,
             rangeType: "auto",
@@ -198,7 +187,7 @@ class BarChart extends SVGComponentBase {
           gridLine: {
             isShow: true,
             style: "dash",
-            color: "",
+            color: "#fff",
             stroke: 5,
           },
         },
@@ -207,9 +196,9 @@ class BarChart extends SVGComponentBase {
           axisLabel: {
             isShow: true,
             font: {
-              family: "黑体",
-              size: "16px",
-              color: "#000000",
+              family: "微软雅黑",
+              size: "50px",
+              color: "#ffffff",
               bolder: false,
               italic: false,
               underline: false,
@@ -222,12 +211,12 @@ class BarChart extends SVGComponentBase {
           },
           axisLine: {
             isShow: true,
-            color: "",
+            color: "#fff",
             stroke: 5,
           },
           axisTick: {
             isShow: true,
-            color: "",
+            color: "#fff",
             stroke: 5,
             length: 2,
             rangeType: "auto",
@@ -236,7 +225,7 @@ class BarChart extends SVGComponentBase {
           gridLine: {
             isShow: true,
             style: "dash",
-            color: "",
+            color: "#fff",
             stroke: 5,
           },
         },
@@ -244,8 +233,11 @@ class BarChart extends SVGComponentBase {
       series: {
         dataSeries: {
           dataSeries_0: _.cloneDeep(this.dataSeriesProperty),
+          dataSeries_1: _.cloneDeep(this.dataSeriesProperty),
         },
-        guideLine: {},
+        guideLine: {
+          guideLine_0: _.cloneDeep(this.guideLineProperty),
+        },
       },
       prompt: {
         isShow: false,
@@ -1010,6 +1002,19 @@ class BarChart extends SVGComponentBase {
                 ],
                 children: _.cloneDeep(this.dataSeriesPropertyDictionary),
               },
+              {
+                name: "dataSeries_1",
+                displayName: `数据系列1`,
+                action: [
+                  {
+                    text: "删除组",
+                    style: "red",
+                    action: "deleteDataSeries",
+                    param: ["parentIndex"],
+                  },
+                ],
+                children: _.cloneDeep(this.dataSeriesPropertyDictionary),
+              },
             ],
             action: [
               {
@@ -1023,7 +1028,21 @@ class BarChart extends SVGComponentBase {
           {
             name: "guideLine",
             displayName: "辅助线",
-            children: [],
+            children: [
+              {
+                name: "guideLine",
+                displayName: `辅助线0`,
+                action: [
+                  {
+                    text: "删除组",
+                    style: "red",
+                    action: "deleteGuideLine",
+                    param: ["parentIndex"],
+                  },
+                ],
+                children: _.cloneDeep(this.guideLinePropertyDictionary),
+              },
+            ],
             action: [
               {
                 text: "新增",
@@ -1211,7 +1230,7 @@ class BarChart extends SVGComponentBase {
       valueAxis: "y",
       style: {
         fillType: "color",
-        color: ["blue"],
+        color: ["blue", "red"],
         image: "",
         opacity: 1,
       },
@@ -1221,7 +1240,15 @@ class BarChart extends SVGComponentBase {
         color: "red",
       },
       dataTip: {
-        font: {},
+        font: {
+          family: "微软雅黑",
+          size: "50px",
+          color: "#ffffff",
+          bolder: false,
+          italic: false,
+          underline: false,
+          lineThrough: false,
+        },
         image: "",
         offset: [0, 0],
         suffix: "",
@@ -1358,7 +1385,7 @@ class BarChart extends SVGComponentBase {
 
     this.guideLineProperty = {
       style: {
-        lineType: "assign",
+        lineType: "max",
         axis: "y",
         value: "",
         lineStyle: "line",
@@ -1366,7 +1393,15 @@ class BarChart extends SVGComponentBase {
         stroke: 5,
       },
       dataTip: {
-        font: {},
+        font: {
+          family: "微软雅黑",
+          size: "50px",
+          color: "#ffffff",
+          bolder: false,
+          italic: false,
+          underline: false,
+          lineThrough: false,
+        },
         image: "",
         offset: [0, 0],
         suffix: "",
@@ -1384,10 +1419,6 @@ class BarChart extends SVGComponentBase {
             type: OptionType.select,
             options: [
               {
-                name: "指定值",
-                value: "assign",
-              },
-              {
                 name: "最大值",
                 value: "max",
               },
@@ -1398,6 +1429,10 @@ class BarChart extends SVGComponentBase {
               {
                 name: "平均值",
                 value: "average",
+              },
+              {
+                name: "指定值",
+                value: "assign",
               },
             ],
           },
@@ -1560,6 +1595,7 @@ class BarChart extends SVGComponentBase {
     this.renderContainer();
     this.renderAxis();
     this.renderBar(this.defaultData);
+    this.renderGuideLine(this.defaultData);
     this.renderLegend(this.defaultData);
   }
 
@@ -1567,10 +1603,16 @@ class BarChart extends SVGComponentBase {
     if (this.property.global.bgImage !== "") {
       this.mainSVG.append("image").attr("x", 0).attr("y", 0).attr("width", this.property.frame[2]).attr("height", this.property.frame[3]).attr("xlink:href", this.property.global.bgImage);
     }
+    if (this.mainSVG.select("defs").empty()) {
+      this.defs = this.mainSVG.append("defs");
+    } else {
+      this.defs = this.mainSVG.select("defs");
+    }
     const padding = this.property.global.padding;
     this.chartContainer = this.mainSVG.append("g").attr("class", "barChart-container").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
     this.chartContainer.append("g").attr("class", "axes");
     this.chartContainer.append("g").attr("class", "graph");
+    this.chartContainer.append("g").attr("class", "guideLine");
     this.realWidth = this.property.basic.frame[2] - this.property.global.padding[2] - this.property.global.padding[3];
     this.realHeight = this.property.basic.frame[3] - this.property.global.padding[0] - this.property.global.padding[1];
   }
@@ -1594,7 +1636,10 @@ class BarChart extends SVGComponentBase {
 
   private renderBar(data: DataSets): void {
     const allKeys = Array.from(new Set(Object.values(data).flatMap((dataset: any) => dataset.map((d: any) => d.x))));
+
     const datasets = Object.keys(data);
+
+    const dataSeriesProps = this.property.series.dataSeries;
 
     this.x0.domain(allKeys);
     this.x1.domain(datasets).rangeRound([0, this.x0.bandwidth()]);
@@ -1608,13 +1653,22 @@ class BarChart extends SVGComponentBase {
       ])
       .nice();
 
-    this.axisX.call(d3.axisBottom(this.x0).tickSizeInner(10));
+    this.axisX.call(d3.axisBottom(this.x0).tickSize(10));
 
     this.axisX.selectAll("text").setFontStyle(this.property.axis.axisX.axisLabel.font).style("transform", `rotate(${this.property.axis.axisX.axisLabel.textRotate}deg)`);
+    this.axisX.select(".domain").style("stroke-width", this.property.axis.axisX.axisLine.stroke).style("stroke", this.property.axis.axisX.axisLine.color);
+    this.axisX.selectAll(".tick").selectAll("line").style("stroke-width", this.property.axis.axisX.axisTick.stroke).style("stroke", this.property.axis.axisX.axisTick.color);
 
-    this.axisY.transition().duration(750).call(d3.axisLeft(this.y));
+    this.axisY.transition().duration(750).call(d3.axisLeft(this.y).tickSize(10));
 
     this.axisY.selectAll("text").setFontStyle(this.property.axis.axisY.axisLabel.font);
+    this.axisY.select(".domain").style("stroke-width", this.property.axis.axisY.axisLine.stroke).style("stroke", this.property.axis.axisY.axisLine.color);
+    this.axisY.selectAll(".tick").selectAll("line").style("stroke-width", this.property.axis.axisY.axisTick.stroke).style("stroke", this.property.axis.axisY.axisTick.color);
+
+    datasets.forEach((d) => {
+      this.defs.select(`#barFillImage_${this.id}_${d}`).remove();
+      this.defs.append("pattern").attr("id", `barFillImage_${this.id}_${d}`).attr("patternUnits", "objectBoundingBox").attr("width", 1).attr("height", 1).append("image").attr("href", this.property.series.dataSeries[d].style.image).attr("x", 0).attr("y", 0).attr("width", 1).attr("height", 1);
+    });
 
     const bars = this.mainSVG.select(".graph").selectAll("g.layer").data(allKeys);
 
@@ -1642,8 +1696,9 @@ class BarChart extends SVGComponentBase {
       .selectAll(".bar")
       .data((d: any) =>
         datasets.map((key) => {
-          const item = data[key].find((item) => item.x === d) || { name: "", x: d, y: 0 };
-          return { key, value: item.y, name: item.name };
+          const itemIndex = data[key].findIndex((item) => item.x === d);
+          const item = itemIndex !== -1 ? data[key][itemIndex] : { name: "", x: d, y: 0 };
+          return { key, value: item.y, name: item.name, props: dataSeriesProps[key], index: itemIndex };
         })
       );
 
@@ -1653,8 +1708,7 @@ class BarChart extends SVGComponentBase {
       .classed("bar", true)
       .attr("x", (d: any) => this.x1(d.key) as number)
       .attr("width", this.x1.bandwidth())
-      // .attr("fill", d => color(d.key) as string)
-      .attr("fill", "steelblue")
+      .attr("fill", (d: any) => this.barFill(d))
       .attr("y", this.y(0))
       .attr("height", 0)
       .merge(rects)
@@ -1666,6 +1720,18 @@ class BarChart extends SVGComponentBase {
       .attr("height", (d: any) => this.y(0) - this.y(d.value));
 
     rects.exit().transition().duration(750).attr("y", this.y(0)).attr("height", 0).remove();
+  }
+
+  private barFill(d: any) {
+    if (d.props.style.fillType === "color") {
+      const colorList = d.props.style.color;
+      if (d.index >= colorList.length) {
+        return colorList[colorList.length - 1];
+      } else {
+        return colorList[d.index];
+      }
+    }
+    return `url(#barFillImage_${this.id}_${d.key})`;
   }
 
   private renderLegend(data: DataSets) {
@@ -1722,6 +1788,61 @@ class BarChart extends SVGComponentBase {
         currentY += itemHeight;
       }
     });
+  }
+
+  private renderGuideLine(data: DataSets) {
+    this.mainSVG.select(".guideLine").selectAll(".guide").remove();
+    for (const key in this.property.series.guideLine) {
+      const guideLineProp = this.property.series.guideLine[key];
+      console.log(guideLineProp);
+      let x1: number = 0,
+        y1: number = 0,
+        x2: number = 0,
+        y2: number = 0,
+        showValue: number = 0;
+      switch (guideLineProp.style.lineType) {
+        case "max":
+          showValue = Math.max(...Object.values(data).flatMap((series: any) => series.map((item: any) => item.y)));
+          x1 = 0;
+          x2 = this.realWidth;
+          y1 = this.y(showValue);
+          y2 = this.y(showValue);
+          break;
+        case "min":
+          showValue = Math.min(...Object.values(data).flatMap((series: any) => series.map((item: any) => item.y)));
+          x1 = 0;
+          x2 = this.realWidth;
+          y1 = this.y(showValue);
+          y2 = this.y(showValue);
+          break;
+        case "average":
+          const allYValues = Object.values(data).flatMap((series: any) => series.map((item: any) => item.y));
+          showValue = allYValues.reduce((sum, y) => sum + y, 0) / allYValues.length;
+          x1 = 0;
+          x2 = this.realWidth;
+          y1 = this.y(showValue);
+          y2 = this.y(showValue);
+          break;
+        case "assign":
+          showValue = guideLineProp.style.value;
+          x1 = 0;
+          x2 = this.realWidth;
+          y1 = this.y(showValue);
+          y2 = this.y(showValue);
+          break;
+      }
+      this.mainSVG.select(".guideLine").append("line").classed("guide", true).attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2).style("stroke-width", guideLineProp.style.stroke).style("stroke", guideLineProp.style.color);
+      this.mainSVG
+        .select(".guideLine")
+        .append("text")
+        .classed("guide", true)
+        .style("transform", `translate(${guideLineProp.dataTip.offset.join(",")})`)
+        .setFontStyle(guideLineProp.dataTip.font)
+        .text(showValue + guideLineProp.dataTip.suffix);
+      if (guideLineProp.dataTip.image !== "") {
+        this.mainSVG.select(".guideLine").append("image").classed("guide", true).attr("href", guideLineProp.dataTip.image).attr("x", guideLineProp.dataTip.offset[0]).attr("y", guideLineProp.dataTip.offset[1]);
+      }
+    }
   }
 
   public update(data: any) {

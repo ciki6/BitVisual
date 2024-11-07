@@ -6,6 +6,7 @@ span.btn {
 }
 .comp_container {
   width: 1920px;
+  background-color: black;
   /* transform: scale(0.5) !important; */
 }
 .comp_data {
