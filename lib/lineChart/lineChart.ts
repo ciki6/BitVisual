@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import _, { pad } from "lodash";
+import _ from "lodash";
 import $ from "jquery";
 import "../base/d3Extend";
 import SVGComponentBase from "../base/svgComponentBase";
@@ -33,8 +33,6 @@ class LineChart extends SVGComponentBase {
   animeRect: any;
   promptcontentbg: any;
   aniTimer: any;
-  //提示框动画事件
-  showPromptIndex: ((self: any, aniIndex: number) => void) | undefined;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
@@ -51,11 +49,6 @@ class LineChart extends SVGComponentBase {
     this.yA = d3.scaleLinear();
     this.zA = d3.scaleLinear();
     this._id = 'wiscom_' + this.id;
-
-    // this.dataSeriesProperty = {} as any;
-    // this.dataSeriesPropertyDictionary = [] as PropertyDictionaryItem[]
-    // this.guideLineProperty = {} as any;
-    // this.guideLinePropertyDictionary = [] as PropertyDictionaryItem[]
     this.initAddedProperty();
 
     this.draw();
@@ -63,6 +56,65 @@ class LineChart extends SVGComponentBase {
 
   protected setupDefaultValues(): void {
     super.setupDefaultValues();
+
+    let dataSeriesModels = Object.values(this.property.series.dataSeries);
+    let dataSeriesModelArr = [];
+    let dataSeriesDic = this.getPropertyDictionary('series.dataSeries');
+    for (let i = 0; i < dataSeriesModels.length; i++) {
+      // @ts-ignore
+      let lineName = dataSeriesModels[i].groupId;
+      dataSeriesModelArr.push({
+        name: lineName,
+        displayName: `数据系列${lineName.split("_")[1]}`,
+        description: lineName,
+        action: [
+          {
+            text: "删除组",
+            style: "red",
+            action: "deleteDataSeries",
+            param: [lineName.split("_")[1]],
+          },
+        ],
+        children: _.cloneDeep(this.dataSeriesPropertyDictionary),
+      })
+    }
+    //@ts-ignore
+    dataSeriesDic.children = dataSeriesModelArr;
+
+    let guideLineModels = Object.values(this.property.series.guideLine);
+    let guideLineModelArr = [];
+    let lineStyleDic = this.getPropertyDictionary('series.guideLine');
+    for (let i = 0; i < guideLineModels.length; i++) {
+      //@ts-ignore
+      let guideLineName = guideLineModels[i].groupId;
+      guideLineModelArr.push({
+        name: guideLineName,
+        displayName: `辅助线${guideLineName.split("_")[1]}`,
+        action: [
+          {
+            text: "删除组",
+            style: "red",
+            action: "deleteGuideLine",
+            param: [guideLineName.split("_")[1]],
+          },
+        ],
+        children: _.cloneDeep(this.guideLinePropertyDictionary),
+      })
+    }
+    //@ts-ignore
+    lineStyleDic.children = guideLineModelArr;
+
+    if (this.dataBind === undefined || JSON.stringify(this.dataBind) === "{}") {
+      this.dataBind = {
+      };
+    };
+
+    for (let i = 0; i < dataSeriesModels.length; i++) {
+      //@ts-ignore
+      let dataSeriesName = dataSeriesModels[i].groupId;
+      this._addDataBind(dataSeriesName, true);
+    }
+
     this.defaultData = {
       'dataSeries_0': [
         { x: "B", y: 14.5 },
@@ -121,6 +173,16 @@ class LineChart extends SVGComponentBase {
         { x: "Z", y: 10 },
       ]
     } as any;
+  }
+
+  private _addDataBind(lineName = '', isAdd = true) {
+    if (isAdd) {
+      if (Object.keys(this.dataBind).indexOf(lineName) < 0) {
+        this.dataBind[lineName] = { x: { bindKey: '', isCustom: false }, y: { bindKey: '', isCustom: false } };
+      }
+    } else {
+      delete this.dataBind[lineName];
+    }
   }
 
   protected initProperty(): void {
@@ -269,6 +331,7 @@ class LineChart extends SVGComponentBase {
       series: {
         dataSeries: {
           'dataSeries_0': {
+            groupId: 'dataSeries_0',
             name: '折线1',
             valueAxis: "y",
             style: {
@@ -304,6 +367,7 @@ class LineChart extends SVGComponentBase {
         },
         guideLine: {
           // 'guidLine_0': {
+          //   groupId: 'guidLine_0',
           //   style: {
           //     lineType: "max",
           //     axis: "y",
@@ -984,21 +1048,7 @@ class LineChart extends SVGComponentBase {
           {
             name: "dataSeries",
             displayName: "数据系列",
-            children: [
-              {
-                name: "dataSeries_0",
-                displayName: `数据系列0`,
-                action: [
-                  {
-                    text: "删除组",
-                    style: "red",
-                    action: "deleteDataSeries",
-                    param: [0],
-                  },
-                ],
-                children: _.cloneDeep(this.dataSeriesPropertyDictionary),
-              }
-            ],
+            children: [],
             action: [
               {
                 text: "新增",
@@ -1011,21 +1061,7 @@ class LineChart extends SVGComponentBase {
           {
             name: "guideLine",
             displayName: "辅助线",
-            children: [
-              {
-                name: "guideLine_0",
-                displayName: `辅助线0`,
-                action: [
-                  {
-                    text: "删除组",
-                    style: "red",
-                    action: "deleteGuideLine",
-                    param: [0],
-                  },
-                ],
-                children: _.cloneDeep(this.guideLinePropertyDictionary),
-              }
-            ],
+            children: [],
             action: [
               {
                 text: "新增",
@@ -1192,6 +1228,7 @@ class LineChart extends SVGComponentBase {
   protected initAddedProperty(): void {
     if (!this.dataSeriesProperty) {
       this.dataSeriesProperty = {
+        groupId: '',
         name: '',
         valueAxis: "y",
         style: {
@@ -1219,6 +1256,13 @@ class LineChart extends SVGComponentBase {
     }
     if (!this.dataSeriesPropertyDictionary) {
       this.dataSeriesPropertyDictionary = [
+        {
+          name: "groupId",
+          displayName: "折线编码",
+          type: OptionType.string,
+          editable: false,
+          show: false,
+        },
         {
           name: "name",
           displayName: "折线名称",
@@ -1395,6 +1439,7 @@ class LineChart extends SVGComponentBase {
 
     if (!this.guideLineProperty) {
       this.guideLineProperty = {
+        groupId: '',
         style: {
           lineType: "min",
           axis: "y",
@@ -1413,6 +1458,13 @@ class LineChart extends SVGComponentBase {
     }
     if (!this.guideLinePropertyDictionary) {
       this.guideLinePropertyDictionary = [
+        {
+          name: "groupId",
+          displayName: "标记线名称",
+          type: OptionType.string,
+          editable: false,
+          show: false,
+        },
         {
           name: "style",
           displayName: "样式",
@@ -1540,6 +1592,7 @@ class LineChart extends SVGComponentBase {
     let dataSeriesName = `dataSeries_${lastIndex}`;
     this.property.series.dataSeries[dataSeriesName] = _.cloneDeep(this.dataSeriesProperty);
     this.property.series.dataSeries[dataSeriesName].name = dataSeriesName;
+    this.property.series.dataSeries[dataSeriesName].groupId = dataSeriesName;
     dataSeriesPropertyDictionary.children.push({
       name: dataSeriesName,
       displayName: `数据系列${lastIndex}`,
@@ -1553,12 +1606,15 @@ class LineChart extends SVGComponentBase {
       ],
       children: _.cloneDeep(this.dataSeriesPropertyDictionary),
     });
+    this._addDataBind(dataSeriesName, true);
     this.renderAxis();
     this._getLine();
     this.renderLine();
     this.renderLegend();
     this._renderGuidLine();
-    this._renderPromptList();
+    if (this.property.prompt.isShow) {
+      this._renderPromptList();
+    }
     this.promptAnime('');
   }
 
@@ -1575,13 +1631,16 @@ class LineChart extends SVGComponentBase {
     dataSeriesPropertyDictionary!.children!.splice(index, 1);
     delete this.property.series.dataSeries[dataSeriesName];
 
+    this._addDataBind(dataSeriesName, false);
     this.renderAxis();
     this._getLine();
     this.renderLine();
     this.renderLegend();
     this._renderGuidLine();
-    this._renderPromptList();
-    this.promptAnime();
+    if (this.property.prompt.isShow) {
+      this._renderPromptList();
+    }
+    this.promptAnime('');
   }
 
   public addGuideLine() {
@@ -1592,6 +1651,7 @@ class LineChart extends SVGComponentBase {
     }
     let guideLineName = `guideLine_${lastIndex}`;
     this.property.series.guideLine[guideLineName] = _.cloneDeep(this.guideLineProperty);
+    this.property.series.guideLine[guideLineName].groupId = guideLineName;
     guideLinePropertyDictionary.children.push({
       name: guideLineName,
       displayName: `辅助线${lastIndex}`,
@@ -1636,7 +1696,7 @@ class LineChart extends SVGComponentBase {
     this.renderLine();
     this.renderLegend();
     this._renderGuidLine();
-    this.promptAnime();
+    this.promptAnime('');
   }
 
   private renderContainer(): void {
@@ -1762,10 +1822,9 @@ class LineChart extends SVGComponentBase {
       }, (exit: any) => exit.remove());
   }
 
-  private promptAnime(xValue: any): void {
+  private promptAnime(xValue: any) {
 
     this.clearTimer();
-
     let prompt = this.property.prompt;
     if (!prompt.isShow) return;
     const padding = this.property.global.padding;
@@ -1794,8 +1853,9 @@ class LineChart extends SVGComponentBase {
     //提示框当前位置的下标
     let prompAniIndex = xAxisValues.indexOf(xValue) < 0 ? 0 : xAxisValues.indexOf(xValue);
 
+    let that = this;
     //提示框位置更新
-    this.showPromptIndex = function (that, aniIndex: number) {
+    let showPromptIndex = function (aniIndex: number) {
       for (let index = 0; index < linekeys.length; index++) {
         //@ts-ignore
         that.promptcontentbg.select(`#${that._id}_${linekeys[index]}`).select('.pro-legend-value').text(promptData[aniIndex][linekeys[index]]);
@@ -1810,7 +1870,7 @@ class LineChart extends SVGComponentBase {
       that.mainSVG.select('.line-prompt').style('transform', `translate3d(${translateX}px,${translateY}px,0px)`);
       that.chartContainer.select('.prompt-indicator').attr('x', (that.xA(promptData[aniIndex]['xkey']) as number) + that.xA.bandwidth() / 2 - indicatorWidth / 2);
     }
-    this.showPromptIndex(this, prompAniIndex)
+    showPromptIndex(prompAniIndex)
     if (prompt.carousel.isShow) {
       this.aniTimer = setInterval(() => {
         prompAniIndex++;
@@ -1818,7 +1878,7 @@ class LineChart extends SVGComponentBase {
           prompAniIndex = 0;
         }
         //@ts-ignore
-        this.showPromptIndex(this, prompAniIndex);
+        showPromptIndex(prompAniIndex);
       }, prompt.carousel.stopTime * 1000)
     }
   }
@@ -2207,8 +2267,7 @@ class LineChart extends SVGComponentBase {
             })
             .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.symbolSize})`)
             .on('mouseover', (d: any) => {
-              console.log(d.currentTarget.__data__)
-              that.promptAnime(d.currentTarget.__data__.x)
+              that.promptAnime(d.currentTarget.__data__.x);
             });
         }, (update: any) => {
           update.attr('class', `item`)

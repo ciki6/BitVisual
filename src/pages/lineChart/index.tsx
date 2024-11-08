@@ -78,7 +78,7 @@ const LineChartTest: React.FC = () => {
   };
 
   useEffect(() => {
-    if (compContainerRef.current) {
+    if (compContainerRef.current && compContainerRef.current.childNodes.length < 1) {
       compRef.current = new LineChart(
         "line",
         "line",
