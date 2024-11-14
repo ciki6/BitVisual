@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import _, { forEach } from "lodash";
+import _ from "lodash";
 import $ from "jquery";
 import "../base/d3Extend";
 import SVGComponentBase from "../base/svgComponentBase";
@@ -12,10 +12,17 @@ interface dataType {
   y: number;
 }
 
-class LineChart extends SVGComponentBase {
+class AreaChart extends SVGComponentBase {
+  private margin: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
   private xA: d3.ScaleBand<string>;
   private yA: d3.ScaleLinear<number, number>;
   private zA: d3.ScaleLinear<number, number>;
+  _id: any;
   dataSeriesProperty: any;
   dataSeriesPropertyDictionary!: PropertyDictionaryItem[];
   guideLineProperty: any;
@@ -26,10 +33,17 @@ class LineChart extends SVGComponentBase {
   animeRect: any;
   promptcontentbg: any;
   aniTimer: any;
-  _id: any;
+  defs: any;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
+    this.margin = {
+      top: 20,
+      right: 0,
+      bottom: 30,
+      left: 40,
+    };
+
     this.realWidth = 1920;
     this.realHeight = 1080;
     this.xA = d3.scaleBand();
@@ -43,7 +57,6 @@ class LineChart extends SVGComponentBase {
 
   protected setupDefaultValues(): void {
     super.setupDefaultValues();
-    this.initAddedProperty();
 
     let dataSeriesModels = Object.values(this.property.series.dataSeries);
     let dataSeriesModelArr = [];
@@ -105,23 +118,23 @@ class LineChart extends SVGComponentBase {
 
     this.defaultData = {
       'dataSeries_0': [
-        { x: "B", y: 14.5 },
-        { x: "A", y: 8.2 },
+        { x: "B", y: 16 },
+        { x: "A", y: 16 },
         { x: "C", y: 2.7 },
         { x: "D", y: 4.3 },
-        { x: "E", y: 130 },
-        { x: "F", y: 2.3 },
-        { x: "G", y: 2 },
-        { x: "H", y: 6 },
-        { x: "I", y: 7 },
-        { x: "J", y: 1 },
-        { x: "K", y: 0.8 },
-        { x: "L", y: 4 },
-        { x: "M", y: 2.4 },
-        { x: "N", y: 6.8 },
-        { x: "O", y: 7.5 },
-        { x: "P", y: 2 },
-        { x: "Q", y: 0.1 },
+        { x: "E", y: 190 },
+        { x: "F", y: 145 },
+        { x: "G", y: 200 },
+        { x: "H", y: 156 },
+        { x: "I", y: 210 },
+        { x: "J", y: 180 },
+        { x: "K", y: 230 },
+        { x: "L", y: 250 },
+        { x: "M", y: 204 },
+        { x: "N", y: 210 },
+        { x: "O", y: 230 },
+        { x: "P", y: 200 },
+        { x: "Q", y: 190 },
         { x: "R", y: 5.9 },
         { x: "S", y: 6.3 },
         { x: "T", y: 9 },
@@ -175,13 +188,17 @@ class LineChart extends SVGComponentBase {
 
   protected initProperty(): void {
     super.initProperty();
+    this.initAddedProperty();
     const property: ComponentProperty = {
       basic: {
-        className: "LineChart",
+        className: "AreaChart",
       },
       global: {
         padding: [40, 60, 50, 40],
         bgImage: "",
+        area: {
+          carousel: false,
+        },
         legend: {
           isShow: true,
           style: {
@@ -318,12 +335,16 @@ class LineChart extends SVGComponentBase {
         dataSeries: {
           'dataSeries_0': {
             groupId: 'dataSeries_0',
-            name: '折线1',
+            name: '面积1',
             valueAxis: "y",
             style: {
-              type: "solid",//solid ：实线 dashed ：虚线
+              fillType: 'color',//color texture
+              fill: 'green',
+              filltexture: '',
+              fillopacity: 0.1,
+              type: "dashed",//solid ：实线 dashed ：虚线
               color: 'red',
-              smooth: true,
+              smooth: false,
               symbolType: 'circle',//triangle circle hollowcircle rect hollowrect pin hollowpin
               symbolSize: 8,
               lineWidth: 5,
@@ -352,31 +373,31 @@ class LineChart extends SVGComponentBase {
           }
         },
         guideLine: {
-          'guidLine_0': {
-            groupId: 'guidLine_0',
-            style: {
-              lineType: "max",
-              dataSeriesId: "dataSeries_0",
-              value: "",
-              lineStyle: "line",//dash line
-              color: "green",
-              stroke: 5,
-            },
-            dataTip: {
-              font: {
-                family: "微软雅黑",
-                size: "16px",
-                color: "#000000",
-                bolder: false,
-                italic: false,
-                underline: false,
-                lineThrough: false,
-              },
-              image: "",
-              offset: [0, 0],
-              suffix: "",
-            },
-          }
+          // 'guidLine_0': {
+          //   groupId: 'guidLine_0',
+          //   style: {
+          //     lineType: "max",
+          //     dataSeriesId: "dataSeries_0",
+          //     value: "",
+          //     lineStyle: "line",//dash line
+          //     color: "green",
+          //     stroke: 5,
+          //   },
+          //   dataTip: {
+          //     font: {
+          //       family: "微软雅黑",
+          //       size: "16px",
+          //       color: "#000000",
+          //       bolder: false,
+          //       italic: false,
+          //       underline: false,
+          //       lineThrough: false,
+          //     },
+          //     image: "",
+          //     offset: [0, 0],
+          //     suffix: "",
+          //   },
+          // }
         },
       },
       prompt: {
@@ -445,6 +466,17 @@ class LineChart extends SVGComponentBase {
             name: "bgImage",
             displayName: "背景图片",
             type: OptionType.media,
+          },
+          {
+            name: "area",
+            displayName: "面积",
+            children: [
+              {
+                name: "carousel",
+                displayName: "启动轮播",
+                type: OptionType.boolean,
+              }
+            ],
           },
           {
             name: "legend",
@@ -1269,6 +1301,10 @@ class LineChart extends SVGComponentBase {
         name: '',
         valueAxis: "y",
         style: {
+          fillType: 'color',//color texture
+          fill: 'green',
+          filltexture: '',
+          fillopacity: 0.5,
           type: "solid",//solid ：实线 dashed ：虚线
           color: 'green',
           smooth: true,
@@ -1295,14 +1331,14 @@ class LineChart extends SVGComponentBase {
       this.dataSeriesPropertyDictionary = [
         {
           name: "groupId",
-          displayName: "折线编码",
+          displayName: "面积编码",
           type: OptionType.string,
           editable: false,
           show: true,
         },
         {
           name: "name",
-          displayName: "折线名称",
+          displayName: "面积名称",
           type: OptionType.string,
         },
         {
@@ -1325,8 +1361,28 @@ class LineChart extends SVGComponentBase {
           displayName: "样式",
           children: [
             {
+              name: "fillType",
+              displayName: "区域填充样式",
+              type: OptionType.radio,
+              options: [
+                {
+                  name: "颜色",
+                  value: "color",
+                },
+                {
+                  name: "纹理",
+                  value: "texture",
+                },
+              ],
+            },
+            {
+              name: "fill",
+              displayName: "区域填充色",
+              type: OptionType.color
+            },
+            {
               name: "type",
-              displayName: "折线类型",
+              displayName: "面积类型",
               type: OptionType.radio,
               options: [
                 {
@@ -1341,7 +1397,7 @@ class LineChart extends SVGComponentBase {
             },
             {
               name: "color",
-              displayName: "折线颜色",
+              displayName: "面积颜色",
               type: OptionType.color,
             },
             {
@@ -1395,7 +1451,7 @@ class LineChart extends SVGComponentBase {
             },
             {
               name: "lineWidth",
-              displayName: "折线粗细",
+              displayName: "面积粗细",
               type: OptionType.double,
             },
           ],
@@ -1629,7 +1685,6 @@ class LineChart extends SVGComponentBase {
           this.getPropertyDictionary("prompt.suspend").show = false;
           break;
       }
-      // this.render();
     });
   }
 
@@ -1658,8 +1713,8 @@ class LineChart extends SVGComponentBase {
     });
     this._addDataBind(dataSeriesName, true);
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this._getArea();
+    this.renderArea();
     this.renderLegend();
     this._renderGuidLine();
     if (this.property.prompt.isShow) {
@@ -1683,8 +1738,8 @@ class LineChart extends SVGComponentBase {
 
     this._addDataBind(dataSeriesName, false);
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this._getArea();
+    this.renderArea();
     this.renderLegend();
     this._renderGuidLine();
     if (this.property.prompt.isShow) {
@@ -1739,11 +1794,11 @@ class LineChart extends SVGComponentBase {
   }
 
   private render(): void {
-    this.renderDefs();
     this.renderContainer();
+    this.renderDefs();
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this._getArea();
+    this.renderArea();
     this.renderLegend();
     this._renderGuidLine();
     this.promptAnime('');
@@ -1759,10 +1814,11 @@ class LineChart extends SVGComponentBase {
     this.realWidth = this.property.svgBasic.viewBox[2];
     this.realHeight = this.property.svgBasic.viewBox[3];
 
-    this.chartContainer = this.mainSVG.append("g").attr("class", "lineChart-container").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
+    this.chartContainer = this.mainSVG.append("g").attr("class", "areaChart-container").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
     this.chartContainer.append("g").attr("class", "axis-bg");
     this.chartContainer.append("g").attr("class", "graph").attr('clip-path', `url(#${this._id}_clippath)`);
     this.chartContainer.append("g").attr("class", "guide-line");
+
     if (prompt.isShow) {
       this.chartContainer.append('rect')
         .attr('class', `prompt-indicator prompt-sign`)
@@ -1798,7 +1854,7 @@ class LineChart extends SVGComponentBase {
     style = `position: absolute; height: auto; display: flex; transform: translate3d(${this.property.global.legend.layout.position[0] / 100 * this.realWidth}px, ${this.property.global.legend.layout.position[1] / 100 * this.realHeight}px, 0px);justify-content: center;`;
 
     this.mainSVG.append("g")
-      .attr("class", "line-legend")
+      .attr("class", "area-legend")
       .append("foreignObject")
       .attr("x", `0`)
       .attr("y", `0`)
@@ -1820,7 +1876,7 @@ class LineChart extends SVGComponentBase {
         .style('transform', `translate(${padding[2]}px,${padding[0]}px)`)
         .attr("class", "prompt-sign")
         .append("foreignObject")
-        .attr("class", "line-prompt")
+        .attr("class", "area-prompt")
         .style('pointer-events', 'none')
         .style('transform', `translate(${padding[2] + prompt.suspend.background.offset[0]}px,${padding[0] + prompt.suspend.background.offset[1]}px)`)
         .attr("width", prompt.suspend.background.size[0])
@@ -1921,11 +1977,11 @@ class LineChart extends SVGComponentBase {
       if (translateX + prompt.suspend.background.size[0] > that.realWidth - padding[2]) {
         translateX = (that.xA(promptData[aniIndex]['xkey']) as number) + that.xA.bandwidth() / 2 - prompt.suspend.background.size[0] - prompt.suspend.background.offset[0];
       }
-      that.mainSVG.select('.line-prompt').style('transform', `translate3d(${translateX}px,${translateY}px,0px)`);
+      that.mainSVG.select('.area-prompt').style('transform', `translate3d(${translateX}px,${translateY}px,0px)`);
       that.chartContainer.select('.prompt-indicator').attr('x', (that.xA(promptData[aniIndex]['xkey']) as number) + that.xA.bandwidth() / 2 - indicatorWidth / 2);
     }
-    showPromptIndex(prompAniIndex);
-    if (prompt.isShow && prompt.carousel.isShow) {
+    showPromptIndex(prompAniIndex)
+    if (prompt.carousel.isShow && prompt.carousel.isShow) {
       that.mainSVG.selectAll('.prompt-sign').style('display', 'block');
       this.aniTimer = setInterval(() => {
         prompAniIndex++;
@@ -1941,27 +1997,59 @@ class LineChart extends SVGComponentBase {
   /**
    * 绘制裁剪框
    * @private
-   * @memberof LineChart
+   * @memberof AreaChart
    */
   private renderDefs() {
-    this.animeRect = this.mainSVG.append('defs')
+    this.defs = this.mainSVG.append('defs')
       .append('clipPath')
       .attr('id', `${this._id}_clippath`)
-      .append('rect')
+    this.animeRect = this.defs.append('rect')
       .style('transform', `translate(${this.property.global.padding[2]}px,0px)`)
       .style('height', `${this.realHeight}px`)
-      .style('width', `0px`)
+      .style('width', `0px`);
+
+    const padding = this.property.global.padding;
+    const width = this.realWidth - padding[2] - padding[3];
+    const height = this.realHeight - padding[0] - padding[1];
+
+    const dataSeries = this.property.series.dataSeries;
+    const linekeys = Object.keys(dataSeries);
+
+    let patternData = [] as any;
+    linekeys.forEach(element => {
+      if (dataSeries[element].style.fillType == 'texture') {
+        patternData.push(dataSeries[element])
+      }
+    });
+
+    // debugger
+    this.defs.selectAll('.pattern-texture').remove();
+    this.defs.selectAll('.pattern-texture')
+      .data(patternData)
+      .enter()
+      .append("pattern")
+      .attr('class', 'pattern-texture')
+      .attr("id", (d: any) => `area-texture_${this.id}_${d.groupId}`)
+      .attr("patternUnits", "userSpaceOnUse")//objectBoundingBox userSpaceOnUse
+      .attr("width", width)
+      .attr("height", height)
+      .append("image")
+      .attr("href", (d: any) => d.style.filltexture != '' ? d.style.filltexture : `/images/areaChart/5.png`)
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", width)
+      .attr("height", height);
   }
 
   /**
    *初始化图例
    * @private
-   * @memberof LineChart
+   * @memberof AreaChart
    */
   private renderLegend(): void {
 
     const legend = this.property.global.legend;
-    this.mainSVG.select('.line-legend').style('display', legend.isShow ? 'block' : 'none');
+    this.mainSVG.select('.area-legend').style('display', legend.isShow ? 'block' : 'none');
     if (legend.isShow) {
       const dataSeries = this.property.series.dataSeries;
       const linekeys = legend.isShow ? Object.keys(this.property.series.dataSeries) : [];
@@ -1997,7 +2085,7 @@ class LineChart extends SVGComponentBase {
    *绘制x y轴
    * @private
    * @returns {void}
-   * @memberof LineChart
+   * @memberof AreaChart
    */
   private renderAxis(): void {
     const linekeys = Object.keys(this.property.series.dataSeries);
@@ -2050,6 +2138,9 @@ class LineChart extends SVGComponentBase {
 
     let xAxisD = d3.axisBottom(this.xA).tickSizeOuter(0).tickSize(this.property.axis.axisX.axisTick.length);
     let xAxis = xAxisD;
+    // if (this.property.axis.axisX.axisLabel.isShow) {
+    //   xAxis = xAxis.ticks(this.property.axis.axisX.axisLabel.showMargin);
+    // }
 
     this.yA = d3
       .scaleLinear()
@@ -2080,6 +2171,7 @@ class LineChart extends SVGComponentBase {
           if (axisX.axisLine.isShow) {
             doms.append('path').attr('d', `M${padding[2]} 1L${width} 1`).style('stroke', axisX.axisLine.color).style('stroke-width', axisX.axisLine.stroke);
           }
+
           //X刻度
           doms.selectAll('line').style('stroke-width', `${axisX.axisTick.stroke} px`).style('stroke', `${axisX.axisTick.color} `)
           if (!axisX.axisTick.isShow) {
@@ -2087,10 +2179,9 @@ class LineChart extends SVGComponentBase {
           }
           if (axisX.axisLabel.textRotate != 0) {
             doms.selectAll('text').attr('transform', `rotate(${axisX.axisLabel.textRotate})`)
-              .attr('dx', `${axisX.axisLabel.textOffset[0]}em`)
-              .attr('dy', `${axisX.axisLabel.textOffset[1]}em`)
+              .attr('dx', `${axisX.axisLabel.textOffset[0]} em`)
+              .attr('dy', `${axisX.axisLabel.textOffset[1]} em`)
           }
-
           //时间刻度时候转换
           if (axisX.axisLabel.labelFormat == 'time' && axisX.axisLabel.timeFormat != '') {
             doms.selectAll('text').data(xAxisValues).text(function (d: any) {
@@ -2187,29 +2278,31 @@ class LineChart extends SVGComponentBase {
   /**
    * 初始化线条函数
    * @private
-   * @memberof LineChart
+   * @memberof AreaChart
    */
-  private _getLine(): void {
+  private _getArea(): void {
     // @ts-ignore
     const dataSeries = this.property.series.dataSeries;
     const linekeys = Object.keys(dataSeries);
+    const padding = this.property.global.padding;
+    const height = this.realHeight - padding[0] - padding[1];
     for (let index = 0; index < linekeys.length; index++) {
       let lineKey = linekeys[index];
       if (dataSeries[lineKey].style.smooth) {
-        if (dataSeries[lineKey].valueAxis == 'y') {
+        if (dataSeries[lineKey].valueAxis == 'y') {//面积
           // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.yA(d.y)).curve(d3.curveCatmullRom);
-        } else {
+          dataSeries[lineKey].area = !this.xA && !this.yA ? null : d3.area().x((d: any) => this.xA(d.x)).y0(height).y1((d: any) => this.yA(d.y)).curve(d3.curveCatmullRom);;
+        } else {//面积
           // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.zA(d.y)).curve(d3.curveCatmullRom);
+          dataSeries[lineKey].area = !this.xA && !this.zA ? null : d3.area().x((d: any) => this.xA(d.x)).y0(height).y1((d: any) => this.zA(d.y)).curve(d3.curveCatmullRom);;
         }
       } else {
-        if (dataSeries[lineKey].valueAxis == 'y') {
+        if (dataSeries[lineKey].valueAxis == 'y') {//面积
           // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.yA(d.y));
-        } else {
+          dataSeries[lineKey].area = !this.xA && !this.yA ? null : d3.area().x((d: any) => this.xA(d.x)).y0(height).y1((d: any) => this.yA(d.y));
+        } else {//面积
           // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.zA(d.y));
+          dataSeries[lineKey].area = !this.xA && !this.zA ? null : d3.area().x((d: any) => this.xA(d.x)).y0(height).y1((d: any) => this.zA(d.y));
         }
       }
     }
@@ -2218,14 +2311,13 @@ class LineChart extends SVGComponentBase {
   /**
    * 绘制曲线
    * @private
-   * @memberof LineChart
+   * @memberof AreaChart
    */
-  private renderLine(): void {
+  private renderArea(): void {
     const data = this.defaultData;
     const dataSeries = this.property.series.dataSeries;
     const linekeys = Object.keys(this.property.series.dataSeries);
     let that = this;
-    // this.animeRect.style('width', `0px`)
     this.animeRect
       .transition().duration(100).style('width', `0px`)
       .transition().duration(1000).style('width', `${this.realWidth}px`)
@@ -2234,21 +2326,41 @@ class LineChart extends SVGComponentBase {
       .data(linekeys)
       .join(
         (enter: any) => {
-          enter
-            .append('g')
+          enter.append('g')
             .attr('class', (d: any) => `${d}_line`)
             .append("path")
             .attr("transform", `translate(${that.xA.bandwidth() / 2}, 0)`)
-            .attr("d", (d: any) => dataSeries[d].line(data[d] || []))
-            .attr("stroke", (d: any) => dataSeries[d].style.color != '' ? dataSeries[d].style.color : 'red')
-            .attr("stroke-width", (d: any) => dataSeries[d].style.lineWidth)
+            .attr("d", (d: any) => dataSeries[d].area(data[d] || []))
+            .style("stroke", (d: any) => dataSeries[d].style.color != '' ? dataSeries[d].style.color : 'red')
+            .style("stroke-width", (d: any) => dataSeries[d].style.lineWidth)
             .attr("stroke-dasharray", (d: any) => dataSeries[d].style.type == 'solid' ? '' : dataSeries[d].style.lineWidth)
-            .attr("fill", "none")
+            .style("fill", (d: any) => {
+              if (dataSeries[d].style.fillType == 'texture') {
+                return `url(#area-texture_${that.id}_${dataSeries[d].groupId})`
+              } else {
+                return dataSeries[d].style.fill;
+              }
+            })
+            .style('fill-opacity', (d: any) => {
+              if (dataSeries[d].style.fillType == 'texture') {
+                return dataSeries[d].style.fillopacity
+              } else {
+                return '';
+              }
+            });
+
         },
         (update: any) => {
-          update.attr('class', (d: any) => `${d}_line`)
-            .select('path')
-            .attr("d", (d: any) => dataSeries[d].line(data[d] || []));
+          update.select('path')
+            .attr("d", (d: any) => dataSeries[d].area(data[d] || []))
+            // .style("fill", "green");
+            .style("fill", (d: any) => {
+              if (dataSeries[d].style.fillType == 'texture') {
+                return `url(#area-texture_${that.id}_${dataSeries[d].groupId})`
+              } else {
+                return '';
+              }
+            })
         },
         (exit: any) => exit.remove()
       );
@@ -2419,13 +2531,12 @@ class LineChart extends SVGComponentBase {
         this.chartContainer.select('.graph').select(`.${keyClass}_line`).selectAll(`text`).setFontStyle(dataSeries[keyClass].dataTip.font);
       }
     }
-    // this.animeRect.transition().duration(1000).style('width', `${this.realWidth}px`)
   }
 
   /**
    * 绘制引导线
    * @private
-   * @memberof LineChart
+   * @memberof AreaChart
    */
   private _renderGuidLine() {
 
@@ -2592,9 +2703,8 @@ class LineChart extends SVGComponentBase {
     // console.log("bar chart update", data);
     this.defaultData = data;
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
-    // this.renderLegend();
+    this._getArea();
+    this.renderArea();
     this._renderGuidLine();
   }
 
@@ -2609,4 +2719,4 @@ class LineChart extends SVGComponentBase {
   }
 }
 
-export default LineChart;
+export default AreaChart;
