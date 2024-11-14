@@ -5,7 +5,7 @@ import SVGComponentBase from "../base/svgComponentBase";
 import type { ComponentProperty, PropertyDictionaryItem } from "lib/types/property";
 import OptionType from "../base/optionType";
 import type { Pie, Arc, PieArcDatum } from "d3-shape";
-import type { Selection } from "d3-selection";
+import type { Selection, BaseType } from "d3-selection";
 import type { Transition } from "d3-transition";
 
 interface DataItem {
@@ -16,10 +16,13 @@ interface DataItem {
     index?: number;
 }
 
+type d3Data = BaseType & {
+    __data__: PieArcDatum<DataItem>;
+};
+
 class PieChart extends SVGComponentBase {
     private width: number;
     private height: number;
-    private colorMap: Record<string, string>;
     private textWidth: Record<string, number>;
     private pieContainer: Selection<SVGGElement, unknown, null, undefined> | null;
     private tooltip: any;
@@ -40,12 +43,12 @@ class PieChart extends SVGComponentBase {
     private hasChangePieData: PieArcDatum<DataItem>[] | null;
     private intervalId: ReturnType<typeof setTimeout> | null;
     private currentIndex: number;
-    private legendRectItems: Selection<
-        SVGRectElement,
-        d3.PieArcDatum<DataItem>,
-        SVGGElement,
-        unknown
-    > | null;
+    private hoverArc: SVGGElement | null;
+    private autoCarouselArc: SVGPathElement | null;
+    private isFirstEnter: boolean;
+    private canClick: boolean;
+    private legend: Selection<HTMLDivElement, unknown, null, undefined> | null;
+    private isInterfaceData: boolean;
 
     constructor(
         id: string,
@@ -60,7 +63,6 @@ class PieChart extends SVGComponentBase {
         this.tooltip = null;
         this.width = 0;
         this.height = 0;
-        this.colorMap = {};
         this.textWidth = {};
         this.pie = null;
         this.arc = null;
@@ -79,24 +81,29 @@ class PieChart extends SVGComponentBase {
         this.hasHiddenArcPath = new Set();
         this.intervalId = null;
         this.currentIndex = 0;
-        this.legendRectItems = null;
+        this.hoverArc = null;
+        this.autoCarouselArc = null;
+        this.isFirstEnter = true;
+        this.canClick = true;
+        this.isInterfaceData = true;
+        this.legend = null;
         this.draw();
     }
 
-    protected setupDefaultValues(): void {
+    protected setupDefaultValues() {
         super.setupDefaultValues();
         this.defaultData = [
-            // { name: "火电", value: 10 },
-            // { name: "水电", value: 20 },
-            // { name: "风电", value: 25 },
-            // { name: "光伏", value: 40 },
-            // { name: "核电", value: 40 },
-            // { name: "新能源", value: 20 },
-            // { name: "生物质", value: 30 },
+            { name: "火电", value: 10 },
+            { name: "水电", value: 20 },
+            { name: "风电", value: 25 },
+            { name: "光伏", value: 40 },
+            { name: "核电", value: 40 },
+            { name: "新能源", value: 20 },
+            { name: "生物质", value: 30 },
         ] as DataItem[];
     }
 
-    protected initProperty(): void {
+    protected initProperty() {
         super.initProperty();
         const property: ComponentProperty = {
             basic: {
@@ -141,12 +148,12 @@ class PieChart extends SVGComponentBase {
                         },
 
                         size: [60, 60],
-                        radius: [0, 0],
-                        showValue: 0,
+                        type: "rect",
+                        showValue: true,
                         unit: "(万千瓦时)",
                     },
                     layout: {
-                        position: [50, 50], //top left
+                        position: [150, 0], //top left
                         direction: "vertical", //horizontal vertical
                         rectGap: 20, //图例之间
                         itemGap: 10, //图例与文字之间
@@ -154,8 +161,6 @@ class PieChart extends SVGComponentBase {
                 },
             },
             series: {
-                dataName: ["火电", "水电", "风电", "光伏", "核电", "新能源", "生物质"],
-                dataValue: [10, 20, 35, 40, 30, 21, 15],
                 color: [
                     "#91cc75",
                     "#ee6666",
@@ -167,10 +172,10 @@ class PieChart extends SVGComponentBase {
                 ],
             },
             prompt: {
-                isShow: true,
+                isShow: false,
                 carousel: {
-                    isShow: 0,
-                    durationTime: 2,
+                    isShow: true,
+                    durationTime: 1,
                 },
                 tooltip: {
                     background: {
@@ -190,8 +195,7 @@ class PieChart extends SVGComponentBase {
                             size: 35,
                             color: "balck",
                         },
-                        size: [15, 15],
-                        radius: [7, 7],
+                        size: [20, 20],
                         paddingLeft: 20,
                         unit: "",
                     },
@@ -386,11 +390,19 @@ class PieChart extends SVGComponentBase {
                                         unit: "px",
                                     },
                                     {
-                                        name: "radius",
-                                        displayName: "圆角",
-                                        type: OptionType.doubleArray,
-                                        placeholder: ["x圆角", "y圆角"],
-                                        unit: "px",
+                                        name: "type",
+                                        displayName: "类型",
+                                        type: OptionType.radio,
+                                        options: [
+                                            {
+                                                name: "正方形",
+                                                value: "rect",
+                                            },
+                                            {
+                                                name: "圆形",
+                                                value: "circle",
+                                            },
+                                        ],
                                     },
                                     {
                                         name: "showValue",
@@ -450,16 +462,6 @@ class PieChart extends SVGComponentBase {
                 name: "series",
                 displayName: "系列",
                 children: [
-                    {
-                        name: "dataName",
-                        displayName: "数据集名",
-                        type: OptionType.string,
-                    },
-                    {
-                        name: "dataValue",
-                        displayName: "数据集值",
-                        type: OptionType.doubleArray,
-                    },
                     {
                         name: "color",
                         displayName: "数据颜色",
@@ -549,17 +551,9 @@ class PieChart extends SVGComponentBase {
                                         unit: "px",
                                     },
                                     {
-                                        name: "radius",
-                                        displayName: "图例圆角",
-                                        type: OptionType.doubleArray,
-                                        placeholder: ["x圆角", "y圆角"],
-                                        unit: "px",
-                                    },
-                                    {
                                         name: "paddingLeft",
                                         displayName: "显示间隔",
-                                        type: OptionType.doubleArray,
-                                        placeholder: ["x圆角", "y圆角"],
+                                        type: OptionType.int,
                                         unit: "px",
                                     },
                                     {
@@ -591,75 +585,54 @@ class PieChart extends SVGComponentBase {
 
     protected draw() {
         super.draw();
-        this.handleData();
+        this.handleData(this.defaultData);
         this.createSVGContainer();
         this.createTooltip();
         this.generateArc();
-        if (this.property.global.pieStyle.label.isShow) {
-            this.generatePolyline();
-            this.generateText();
-            this.generateValue();
-        }
-        if (this.property.global.legend.isShow) {
-            this.generateLegend();
-        }
+        // if (this.property.global.legend.isShow) {
+        //     this.generateLegend();
+        // }
+
         this.hoverAnimate();
         this.autoCarousel();
     }
 
-    protected handlePropertyChange(): void {
+    protected handlePropertyChange() {
         this.propertyManager.onPropertyChange((path: string, value: any) => {
             switch (path) {
                 case "global.padding":
                     this.width = this.property.basic.frame[2] - value[2] - value[3];
                     this.height = this.property.basic.frame[3] - value[0] - value[1];
-
                     this.pieContainer!.attr(
                         "transform",
                         `translate(${this.width / 2}, ${this.height / 2})`
                     );
-
                     break;
             }
         });
     }
 
-    private handleData(): void {
-        this.defaultData = this.property.series.dataName.map((d: string, i: number) => {
-            this.colorMap[d] = this.property.series.color[i];
-            return {
-                name: d,
-                value: this.property.series.dataValue[i],
-                color: this.property.series.color[i],
-            };
-        });
-
-        if (this.property.global.pieStyle.dataSort == "desc") {
-            this.defaultData.sort((a: DataItem, b: DataItem) => Number(a.value) - Number(b.value));
-        } else if (this.property.global.pieStyle.dataSort == "asc") {
-            this.defaultData.sort((a: DataItem, b: DataItem) => Number(b.value) - Number(a.value));
-        }
-
-        const sum = this.arraySum(this.defaultData);
-        this.defaultData.map((d: DataItem, i: number) => {
+    private handleData(data: DataItem[], isChange = true) {
+        const sum = this.arraySum(data);
+        data.map((d: DataItem, i: number) => {
             d.percentage = d3.format(`.${this.property.global.pieStyle.label.style.precision}f`)(
                 (d.value / sum) * 100
             );
             d.index = i;
+            d.color = this.property.series.color[i];
             this.hasChangeValue[d.name] = {
-                value: d.value,
-                percentage: d.percentage,
+                value: isChange ? d.value : 0,
+                percentage: isChange ? d.percentage : 0,
             };
         });
-
-        this.hasChangeData = JSON.parse(JSON.stringify(this.defaultData));
-        this.defaultData.map((d: DataItem) => {
+        this.hasChangeData = JSON.parse(JSON.stringify(data));
+        data.map((d: DataItem) => {
             this.textWidth[d.name] = this.getTrueWidth(d.name);
         });
+        return data;
     }
 
-    // 创建 SVG 容器
-    private createSVGContainer(): void {
+    private createSVGContainer() {
         this.width =
             this.property.basic.frame[2] -
             this.property.global.padding[2] -
@@ -694,7 +667,7 @@ class PieChart extends SVGComponentBase {
                 "background",
                 this.property.prompt.tooltip.background.backgroundImage == ""
                     ? ""
-                    : `url(public/images/imageView/noImage.png) center/100% 100% no-repeat`
+                    : `url(${this.property.prompt.tooltip.background.backgroundImage}) center/100% 100% no-repeat`
             )
             .style("background-color", this.property.prompt.tooltip.background.backgroundColor);
 
@@ -714,7 +687,6 @@ class PieChart extends SVGComponentBase {
     }
 
     private generateArc() {
-        // 创建饼图生成器
         const radians = (Math.PI / 180) * this.property.global.pieStyle.rotationAngle;
         this.pie = d3
             .pie<any, DataItem>()
@@ -729,228 +701,297 @@ class PieChart extends SVGComponentBase {
             .innerRadius(0)
             .outerRadius(this.property.global.pieStyle.radius * 1.2)
             .cornerRadius(0);
-
-        // 创建弧生成器
         this.arc = d3
             .arc<any, PieArcDatum<DataItem>>()
             .innerRadius(0)
             .outerRadius(this.property.global.pieStyle.radius)
             .cornerRadius(0);
 
-        // 生成饼图数据
         this.pieData = this.pie(this.defaultData);
 
-        // 添加路径元素
-        this.pieContainer!.append("g")
-            .attr("class", "path-group")
-            .selectAll("path")
-            .data(this.pieData)
-            .enter()
-            .append("g")
-            .attr("class", "arc-group")
-            .attr("data-name", (d) => d.data.name)
-            .attr("data-index", (d) => d.index)
-            .append("path")
-            .attr("class", "arc-path")
-            .attr("d", this.arc)
-            .attr("fill", (d: PieArcDatum<DataItem>) => d.data.color)
-            .attr("stroke", this.property.global.pieStyle.borderColor)
-            .style("stroke-width", `${this.property.global.pieStyle.borderWidth}px`)
-            .each((d: PieArcDatum<DataItem>) => {
-                this.getPoints(d);
-            })
-            .transition()
-            .duration(this.property.animation.durationTime * 1000)
-            .attrTween("d", (d: PieArcDatum<DataItem>) => {
-                let interpolate = d3.interpolate(d.startAngle, d.endAngle);
-                return (t) => {
-                    d.endAngle = interpolate(t);
-                    return this.arc!(d) as string;
-                };
-            });
+        this.pieContainer!.append("g").attr("class", "path-group");
+
+        this.update(this.pieData);
     }
 
-    private generatePolyline() {
-        this.pieContainer!.selectAll(".arc-group")
-            .append("polyline")
-            .attr("class", "arc-polyline")
-            .transition()
-            .duration(this.property.animation.durationTime * 1000)
-            .attrTween("points", ((d: PieArcDatum<DataItem>) => this.animatePolyline(d)) as any)
-            .attr("stroke-width", this.property.global.pieStyle.label.style.polylineWidth)
-            .attr("stroke", this.property.global.pieStyle.label.style.polylineColor)
-            .attr("fill", "none");
-    }
+    private animatePolyline = (data: PieArcDatum<DataItem>, _: number, isChange = false) => {
+        const { name } = data.data;
+        const [centerX, centerY, centerZ] = isChange
+            ? this.hasChangeCentroid[name]
+            : this.centroid[name];
 
-    private animatePolyline = (d: PieArcDatum<DataItem>) => {
-        const [centerX, centerY, centerZ] = this.centroid[d.data.name];
-        const offsetX = this.textWidth[d.data.name];
-        const [pointX, pointY] = this.points[d.data.name];
-
+        const offsetX = this.textWidth[name];
         const [cos, sin, arcEdgeX, arcEdgeY] = this.getAecEdgePoints(centerX, centerY, centerZ);
-
-        this.topCentroid[d.data.name] = [arcEdgeX, arcEdgeY]; //圆边上点坐标
-
-        if (centerX >= 0) {
+        const [pointX, pointY] = this.points[name]; //折点
+        if (isChange) {
+            const from = [pointX, pointY, ...this.topCentroid[name]];
+            const to = [...this.hasChangePoints[name], arcEdgeX, arcEdgeY];
+            const interpolate = d3.interpolate(from, to);
+            this.topCentroid[name] = [arcEdgeX, arcEdgeY];
+            this.points[name] = this.hasChangePoints[name];
+            if (centerX >= 0) {
+                return (t: number) => {
+                    const [x, y, arcEdgeX, arcEdgeY] = interpolate(t);
+                    return `${arcEdgeX},${arcEdgeY} ${x},${y}, ${x + offsetX * 1},${y}`;
+                };
+            }
+            return (t: number) => {
+                const [x, y, arcEdgeX, arcEdgeY] = interpolate(t);
+                return `${arcEdgeX},${arcEdgeY} ${x},${y}, ${x - offsetX * 1},${y}`;
+            };
+        } else {
+            this.topCentroid[name] = [arcEdgeX, arcEdgeY]; //圆边上点坐标
+            if (centerX >= 0) {
+                return (t: number) => {
+                    const x = arcEdgeX + (pointX - arcEdgeX) * t;
+                    const y = arcEdgeY + (pointY - arcEdgeY) * t;
+                    return `${arcEdgeX},${arcEdgeY} ${x},${y}, ${x + offsetX * t},${y}`;
+                };
+            }
             return (t: number) => {
                 const x = arcEdgeX + (pointX - arcEdgeX) * t;
                 const y = arcEdgeY + (pointY - arcEdgeY) * t;
-                return `${arcEdgeX},${arcEdgeY} ${x},${y}, ${x + offsetX},${y}`;
+                return `${arcEdgeX},${arcEdgeY} ${x},${y}, ${x - offsetX * t},${y}`;
             };
         }
-        return (t: number) => {
-            const x = arcEdgeX + (pointX - arcEdgeX) * t;
-            const y = arcEdgeY + (pointY - arcEdgeY) * t;
-            return `${arcEdgeX},${arcEdgeY} ${x},${y}, ${x - offsetX},${y}`;
-        };
     };
 
-    private generateText() {
-        // 添加文字
-        this.pieContainer!.selectAll(".arc-group")
-            .append("text")
-            .attr("class", "arc-text")
-            .setFontStyle(this.property.global.pieStyle.label.style.font)
-            // .style("font-size", `${this.property.global.pieStyle.label.style.font.fontSize}px`)
-            .style("opacity", 0)
-            .transition()
-            .duration(this.property.animation.durationTime * 1000)
-            .call((selection) => this.animateText(selection))
-            .style("opacity", 1)
-            .attr("fill", this.property.global.pieStyle.label.style.font.color)
-            .text((d: any) => d.data.name);
-    }
-
-    private animateText(selection: Transition<SVGTextElement, unknown, SVGGElement, unknown>) {
+    private animateText(
+        selection: Transition<SVGTextElement, PieArcDatum<DataItem>, BaseType, unknown>,
+        isChange = false
+    ) {
         selection
             .attrTween("x", ((d: PieArcDatum<DataItem>) => {
                 const { name } = d.data;
-                const [x] = this.points[name];
                 const offsetX = this.textWidth[name];
-                if (x > 0) {
-                    this.hasChangeTextPoints[name][0] = x + 5;
-                    return (t: number) => (x + 0) * t;
+                if (isChange) {
+                    const from = this.hasChangeTextPoints[name];
+                    const to = this.hasChangePoints[name];
+                    const interpolate = d3.interpolate(from[0], to[0]);
+                    if (to[0] > 0) {
+                        return (t: number) => {
+                            this.hasChangeTextPoints[name][0] = to[0] + 5;
+                            return interpolate(t) + 5 * t;
+                        };
+                    }
+                    return (t: number) => {
+                        this.hasChangeTextPoints[name][0] = to[0] - offsetX;
+                        return interpolate(t) - offsetX * t;
+                    };
+                } else {
+                    const [x] = this.points[name];
+                    if (x > 0) {
+                        this.hasChangeTextPoints[name][0] = x + 5;
+                        return (t: number) => (x + 5) * t;
+                    }
+                    this.hasChangeTextPoints[name][0] = x - offsetX;
+                    return (t: number) => (x - 1 * offsetX) * t;
                 }
-                this.hasChangeTextPoints[name][0] = x - offsetX;
-                return (t: number) => (x - 1 * offsetX) * t;
             }) as any)
             .attrTween("y", ((d: PieArcDatum<DataItem>) => {
                 const { name } = d.data;
-                const [_, y] = this.points[name];
-                this.hasChangeTextPoints[name][1] =
-                    y - this.property.global.pieStyle.label.style.labelOffsetY;
-                return (t: number) =>
-                    (y - this.property.global.pieStyle.label.style.labelOffsetY) * t;
+                if (isChange) {
+                    const from = this.hasChangeTextPoints[name];
+                    const to = this.hasChangePoints[name];
+                    const interpolate = d3.interpolate(from[1], to[1]);
+                    this.hasChangeTextPoints[name][1] =
+                        to[1] - this.property.global.pieStyle.label.style.labelOffsetY;
+                    return (t: number) =>
+                        interpolate(t) - this.property.global.pieStyle.label.style.labelOffsetY * t;
+                } else {
+                    const [_, y] = this.points[name];
+                    this.hasChangeTextPoints[name][1] =
+                        y - this.property.global.pieStyle.label.style.labelOffsetY;
+                    return (t: number) =>
+                        (y - this.property.global.pieStyle.label.style.labelOffsetY) * t;
+                }
             }) as any);
     }
 
-    private generateValue() {
-        // 添加百分比
-        this.pieContainer!.selectAll(".arc-group")
-            .append("text")
-            .attr("class", "arc-value")
-            .attr("fill", this.property.global.pieStyle.label.style.font.color)
-            .setFontStyle(this.property.global.pieStyle.label.style.font)
-            // .style("font-size", `${this.property.global.pieStyle.label.style.font.fontSize}px`)
-            .style("opacity", 1)
-            .attr("x", ((d: PieArcDatum<DataItem>) => {
-                const { name } = d.data;
-                const [x] = this.points[name];
-                const offsetX = this.textWidth[name];
-                if (x > 0) {
-                    this.hasChangeValuePoints[name][0] =
-                        x - this.property.global.pieStyle.label.style.textOffsetX;
-                    return x - this.property.global.pieStyle.label.style.textOffsetX;
-                }
-                this.hasChangeValuePoints[name][0] =
-                    x - offsetX + this.property.global.pieStyle.label.style.textOffsetX;
-                return x - offsetX + this.property.global.pieStyle.label.style.textOffsetX;
-            }) as any)
-            .attr("y", ((d: PieArcDatum<DataItem>) => {
-                const { name } = d.data;
-                const [_, y] = this.points[name];
-                this.hasChangeValuePoints[name][1] =
-                    y +
-                    this.property.global.pieStyle.label.style.font.size +
-                    this.property.global.pieStyle.label.style.labelOffsetY / 2;
-                return (
-                    y +
-                    this.property.global.pieStyle.label.style.font.size +
-                    this.property.global.pieStyle.label.style.labelOffsetY / 2
-                );
-            }) as any)
-            .transition()
-            .duration(this.property.animation.durationTime * 1000)
-            .call((selection) => this.animateValue(selection));
-    }
+    private animateValue(
+        selection: Transition<SVGTextElement, PieArcDatum<DataItem>, BaseType, unknown>,
+        isChange = false
+    ) {
+        if (isChange) {
+            selection
+                .attrTween("x", ((d: PieArcDatum<DataItem>) => {
+                    const { name } = d.data;
+                    const offsetX = this.textWidth[name];
+                    const from = this.hasChangeValuePoints[name];
+                    const to = this.hasChangePoints[name];
+                    const interpolate = d3.interpolate(from[0], to[0]);
 
-    private animateValue(selection: Transition<SVGTextElement, unknown, SVGGElement, unknown>) {
-        selection.textTween((d: any) => {
-            let interpolate = null;
+                    if (to[0] > 0) {
+                        return (t: number) => {
+                            this.hasChangeValuePoints[name][0] =
+                                to[0] - this.property.global.pieStyle.label.style.textOffsetX;
+                            return (
+                                interpolate(t) -
+                                this.property.global.pieStyle.label.style.textOffsetX * t
+                            );
+                        };
+                    }
+                    return (t: number) => {
+                        this.hasChangeValuePoints[name][0] =
+                            to[0] - offsetX + this.property.global.pieStyle.label.style.textOffsetX;
+                        return (
+                            interpolate(t) -
+                            (offsetX - this.property.global.pieStyle.label.style.textOffsetX) * t
+                        );
+                    };
+                }) as any)
+                .attrTween("y", ((d: PieArcDatum<DataItem>) => {
+                    const { name } = d.data;
+                    const from = this.hasChangeValuePoints[name];
+                    const to = this.hasChangePoints[name];
+                    const interpolate = d3.interpolate(from[1], to[1]);
+                    this.hasChangeValuePoints[name][1] =
+                        to[1] +
+                        this.property.global.pieStyle.label.style.font.size +
+                        this.property.global.pieStyle.label.style.labelOffsetY / 2;
+                    return (t: number) =>
+                        interpolate(t) +
+                        this.property.global.pieStyle.label.style.font.size * t +
+                        (this.property.global.pieStyle.label.style.labelOffsetY / 2) * t;
+                }) as any);
+        } else {
+            selection
+                .attr("x", ((d: PieArcDatum<DataItem>) => {
+                    const { name } = d.data;
+                    const [x] = this.points[name];
+                    const offsetX = this.textWidth[name];
+                    if (x > 0) {
+                        this.hasChangeValuePoints[name][0] =
+                            x - this.property.global.pieStyle.label.style.textOffsetX;
+                        return x - this.property.global.pieStyle.label.style.textOffsetX;
+                    }
+                    this.hasChangeValuePoints[name][0] =
+                        x - offsetX + this.property.global.pieStyle.label.style.textOffsetX;
+                    return x - offsetX + this.property.global.pieStyle.label.style.textOffsetX;
+                }) as any)
+                .attr("y", ((d: PieArcDatum<DataItem>) => {
+                    const { name } = d.data;
+                    const [_, y] = this.points[name];
+                    this.hasChangeValuePoints[name][1] =
+                        y +
+                        this.property.global.pieStyle.label.style.font.size +
+                        this.property.global.pieStyle.label.style.labelOffsetY / 2;
+                    return (
+                        y +
+                        this.property.global.pieStyle.label.style.font.size +
+                        this.property.global.pieStyle.label.style.labelOffsetY / 2
+                    );
+                }) as any);
+        }
+
+        selection.textTween(((d: PieArcDatum<DataItem>) => {
+            const { name } = d.data;
+            let interpolate: (t: number) => number;
+            const from = isChange ? (this.hasChangeValue[name].percentage as number) : 0;
             if (this.property.global.pieStyle.label.style.showlLabelType == "percentage") {
-                interpolate = d3.interpolateNumber(0, d.data.percentage as number);
-                return (t) => {
+                interpolate = d3.interpolateNumber(from, d.data.percentage as number);
+                this.hasChangeValue[name].percentage = d.data.percentage!;
+                return (t: number) => {
                     return (
                         d3.format(`.${this.property.global.pieStyle.label.style.precision}f`)(
-                            interpolate!(t)
+                            interpolate(t)
                         ) + "%"
                     );
                 };
             } else {
-                interpolate = d3.interpolateNumber(0, d.data.value);
-                return (t) =>
+                interpolate = d3.interpolateNumber(from, d.data.value);
+                this.hasChangeValue[name].value = d.data.value;
+                return (t: number) =>
                     d3.format(`.${this.property.global.pieStyle.label.style.precision}f`)(
-                        interpolate!(t)
+                        interpolate(t)
                     );
             }
-        });
+        }) as any);
     }
 
-    private generateLegend() {
-        const legend = this.pieContainer!.append("g")
-            .attr("class", "pie-legend")
-            .attr(
-                "transform",
-                `translate(-${this.width / 2 - this.property.global.legend.layout.position[0]}, -${
-                    this.height / 2 - this.property.global.legend.layout.position[1]
-                })`
-            );
+    private generateLegend(data = this.pieData) {
+        this.legend && this.legend.remove();
+        this.legend = d3
+            .select(this.mainSVG.node().parentNode)
+            .append("div")
+            .attr("class", "pie-chart-legend")
+            .style("position", "absolute")
+            .style("top", `${this.property.global.legend.layout.position[0]}px`)
+            .style("left", `${this.property.global.legend.layout.position[1]}px`)
+            .style(
+                "width",
+                this.property.global.legend.layout.direction == "horizontal"
+                    ? `calc(100% - ${this.property.global.legend.layout.position[1]}px)`
+                    : "auto"
+            )
+            .style(
+                "height",
+                this.property.global.legend.layout.direction == "vertical"
+                    ? `calc(100% - ${this.property.global.legend.layout.position[0]}px)`
+                    : "auto"
+            )
+            .style("display", "flex")
+            .style("flex-direction", "column")
+            .style(
+                "flex-direction",
+                this.property.global.legend.layout.direction == "vertical" ? "column" : "row"
+            )
+            .style("flex-wrap", "wrap")
+            .style("gap", `${this.property.global.legend.layout.rectGap}px`);
 
-        const legendItems = legend
-            .selectAll(".pie-legend-item")
-            .data(this.pieData!)
-            .enter()
-            .append("g")
-            .attr("class", "pie-legend-item");
+        const legendItems = this.legend.selectAll(".legend-item").data(data!).enter();
 
-        this.legendRectItems = legendItems
-            .append("rect")
-            .attr("width", this.property.global.legend.style.size[0])
-            .attr("height", this.property.global.legend.style.size[1])
-            .attr("rx", this.property.global.legend.style.radius[0])
-            .attr("ry", this.property.global.legend.style.radius[1])
-            .attr("fill", (d) => d.data.color)
+        const item = legendItems
+            .append("div")
+            .attr("class", "legend-item")
+            .style("display", "flex")
+            .style("align-items", "center")
+            .style("justify-content", "start")
+            .style("gap", `${this.property.global.legend.layout.itemGap}px`);
+
+        item.append("div")
+            .attr("class", "legend-mark")
+            .attr("data-name", (d) => d.data.name)
+            .style("width", this.property.global.legend.style.size[0] + "px")
+            .style("height", this.property.global.legend.style.size[1] + "px")
+            .style("border-radius", this.property.global.legend.style.type == "rect" ? "0%" : "50%")
             .style("cursor", "pointer")
-            .on("click", (event: PointerEvent, d) => {
-                let index = this.hasChangeData.findIndex((e) => e.name === d.data.name);
+            .style("background-color", (d) => d.data.color);
+
+        item.append("div")
+            .attr("class", "legend-name")
+            .style("user-select", "none")
+            .style("color", this.property.global.legend.style.font.color)
+            .style("font-size", this.property.global.legend.style.font.size + "px")
+            .text((d) => this.computedValue(d.data));
+
+        this.registerLegendEvent();
+    }
+
+    private registerLegendEvent() {
+        this.legend!.selectAll(".legend-mark")
+            .on("click", (d) => {
+                if (!this.canClick) return;
+                this.isInterfaceData = false;
+                const target = d.target;
+                const data = target.__data__.data;
+                const index = this.hasChangeData.findIndex((e) => e.name === data.name);
                 if (index !== -1) {
-                    d3.select(event.target as SVGRectElement).attr("fill", "#ccc");
+                    target.style.backgroundColor = "#ccc";
                     this.hasChangeData.splice(index, 1);
-                    // this.hasHiddenArcPath.add(d.index);
-                    this.hasHiddenArcPath.add(d.data.name);
+                    this.hasHiddenArcPath.add(data.name);
                 } else {
-                    d3.select(event.target as SVGRectElement).attr("fill", d.data.color);
-                    let i = this.hasChangeData.findIndex((e) => e.index! > d.index);
+                    target.style.backgroundColor = data.color;
+                    const i = this.hasChangeData.findIndex((e) => e.index! > target.__data__.index);
                     if (i == -1) {
-                        this.hasChangeData.push(d.data);
+                        this.hasChangeData.push(data);
                     } else {
-                        this.hasChangeData.splice(i, 0, d.data);
+                        this.hasChangeData.splice(i, 0, data);
                     }
-                    // this.hasHiddenArcPath.delete(d.index);
-                    this.hasHiddenArcPath.delete(d.data.name);
+                    this.hasHiddenArcPath.delete(data.name);
                 }
 
-                let sum = this.arraySum(this.hasChangeData);
+                const sum = this.arraySum(this.hasChangeData);
 
                 this.hasChangeData.map((v) => {
                     v.percentage =
@@ -962,386 +1003,56 @@ class PieChart extends SVGComponentBase {
                 });
 
                 this.hasChangePieData = this.pie!(this.hasChangeData);
-
-                this.pieContainer!.selectAll(".arc-path")
-                    .transition()
-                    .duration(this.property.animation.durationTime * 1000)
-                    .call((selection) =>
-                        this.updateArc(
-                            selection as unknown as Transition<
-                                SVGPathElement,
-                                unknown,
-                                SVGGElement,
-                                unknown
-                            >,
-                            this.hasChangePieData!
-                        )
-                    );
-
-                this.pieContainer!.selectAll(".arc-polyline")
-                    .transition()
-                    .duration(this.property.animation.durationTime * 1000)
-                    .call((selection) =>
-                        this.updatePolyline(
-                            selection as unknown as Transition<
-                                SVGPolylineElement,
-                                unknown,
-                                SVGGElement,
-                                unknown
-                            >,
-                            this.hasChangePieData!
-                        )
-                    );
-
-                this.pieContainer!.selectAll(".arc-text")
-                    .transition()
-                    .duration(this.property.animation.durationTime * 1000)
-                    .call((selection) =>
-                        this.updateText(
-                            selection as unknown as Transition<
-                                SVGTextElement,
-                                unknown,
-                                SVGGElement,
-                                unknown
-                            >,
-                            this.hasChangePieData!
-                        )
-                    );
-
-                this.pieContainer!.selectAll(".arc-value")
-                    .transition()
-                    .duration(this.property.animation.durationTime * 1000)
-                    .call((selection) =>
-                        this.updateValue(
-                            selection as unknown as Transition<
-                                SVGTextElement,
-                                unknown,
-                                SVGGElement,
-                                unknown
-                            >,
-                            this.hasChangePieData!
-                        )
-                    );
+                this.update(this.hasChangePieData);
+                this.isInterfaceData = true;
             })
-            .on("mouseenter", (_, d) => {
+            .on("mouseenter", (d) => {
                 this.intervalId && clearInterval(this.intervalId);
                 this.intervalId = null;
+                if (!this.canClick) return;
+                const target = d.target;
+                const data = target.__data__.data;
+                const that = this;
+                this.hoverArc = null;
                 this.tooltip.transition().duration(200).style("opacity", 0);
-                this.pieContainer!.selectAll(".arc-group").each((_, i, all) => {
-                    const name = (all[i] as SVGGElement).dataset.name;
-                    if (name == d.data.name && !this.hasHiddenArcPath.has(name)) {
-                        d3.select(all[i])
-                            .select("path")
-                            .style("cursor", "pointer")
-                            .transition()
-                            .duration(200)
-                            .attr("d", this.arcHighlight as any)
-                            .attr("filter", "url(#pie-filter)");
-                    }
-                });
+                this.pieContainer!.select(".path-group")
+                    .selectAll(".arc-path")
+                    .each(function () {
+                        if (
+                            (this as d3Data).__data__.data.name === data.name &&
+                            !that.hasHiddenArcPath.has(data.name)
+                        ) {
+                            that.hoverArc = this as SVGGElement;
+                            d3.select(this)
+                                .style("cursor", "pointer")
+                                .transition()
+                                .duration(200)
+                                .attr("d", that.arcHighlight as any)
+                                .attr("filter", "url(#pie-filter)");
+                        }
+                    });
             })
-            .on("mouseout", (_, d) => {
-                this.pieContainer!.selectAll(".arc-group").each((_, i, all) => {
-                    const name = (all[i] as SVGGElement).dataset.name;
-                    if (name == d.data.name) {
-                        d3.select(all[i])
-                            .select("path")
-                            .transition()
-                            .duration(200)
-                            .attr("d", this.arc as any)
-                            .attr("filter", "");
-                    }
-                });
+            .on("mouseout", () => {
+                if (!this.canClick) return;
+                d3.select(this.hoverArc)
+                    .transition()
+                    .duration(200)
+                    .attr("d", this.arc as any)
+                    .attr("filter", "");
                 this.autoCarousel();
-            });
-
-        const legendTextItems = legendItems
-            .append("text")
-            .setFontStyle(this.property.global.legend.style.font)
-            // .style("font-size", this.property.global.legend.style.font.fontSize)
-            .attr(
-                "x",
-                this.property.global.legend.style.size[0] +
-                    this.property.global.legend.layout.itemGap
-            )
-            .attr("y", this.property.global.legend.style.size[1] / 2)
-            .attr("fill", this.property.global.legend.style.font.color)
-            .attr("dy", "0.35em")
-            .text((d) => this.computedValue(d.data));
-
-        if (this.property.global.legend.layout.direction == "vertical") {
-            legendItems.attr(
-                "transform",
-                (_, i) =>
-                    `translate(0, ${
-                        i *
-                        (this.property.global.legend.style.size[1] +
-                            this.property.global.legend.layout.rectGap)
-                    })`
-            );
-        } else {
-            const legendItemWidths = legendTextItems.nodes().map((node) => node.getBBox().width);
-            let xOffset = 0;
-            legendItems.attr("transform", (_, i) => {
-                let translate = `translate(${
-                    xOffset +
-                    (this.property.global.legend.style.size[0] +
-                        this.property.global.legend.layout.rectGap) *
-                        i
-                },0)`;
-                xOffset += legendItemWidths[i] + this.property.global.legend.layout.itemGap;
-                return translate;
-            });
-        }
-    }
-
-    private updateArc(
-        selection: Transition<SVGPathElement, unknown, SVGGElement, unknown>,
-        sourceData: PieArcDatum<DataItem>[]
-    ) {
-        selection
-            .each(((d: PieArcDatum<DataItem>) => {
-                const name = d.data.name;
-                const target = sourceData.find((e) => e.data.name === name);
-
-                if (!target) return;
-                this.getPoints(target, true);
-            }) as any)
-            .attrTween("d", (d: any) => {
-                const name = d.data.name;
-                const target = sourceData.find((e) => e.data.name === name);
-                if (!target) {
-                    const interpolate = d3.interpolate(d.startAngle, d.endAngle);
-                    return (t) => {
-                        d.startAngle = interpolate(t);
-                        return this.arc!(d) as string;
-                    };
-                }
-
-                const interpolate = d3.interpolate(
-                    {
-                        startAngle: d.startAngle,
-                        endAngle: d.endAngle,
-                    },
-                    {
-                        startAngle: target.startAngle,
-                        endAngle: target.endAngle,
-                    }
-                );
-                return (t) => {
-                    const obj = interpolate(t);
-                    d.startAngle = obj.startAngle;
-                    d.endAngle = obj.endAngle;
-                    return this.arc!(d) as string;
-                };
-            });
-    }
-
-    private updatePolyline(
-        selection: Transition<SVGPolylineElement, unknown, SVGGElement, unknown>,
-        sourceData: PieArcDatum<DataItem>[]
-    ) {
-        selection.attrTween("points", (d: any) => {
-            const name = d.data.name;
-            const target = sourceData.find((e) => e.data.name === name);
-
-            if (!target) {
-                return () => {
-                    return `${0},${0} ${0},${0}, ${0},${0}`;
-                };
-            }
-            const [centerX, centerY, centerZ] = this.hasChangeCentroid[d.data.name];
-            const offsetX = this.textWidth[d.data.name];
-
-            const [cos, sin, arcEdgeX, arcEdgeY] = this.getAecEdgePoints(centerX, centerY, centerZ); //圆边上点
-
-            let from = this.points[d.data.name]; //折点坐标
-
-            let to = this.hasChangePoints[d.data.name];
-
-            from = [...from, ...this.topCentroid[d.data.name]];
-            to = [...to, arcEdgeX, arcEdgeY];
-            const interpolate = d3.interpolate(from, to);
-            this.topCentroid[d.data.name] = [arcEdgeX, arcEdgeY];
-            if (centerX >= 0) {
-                return (t) => {
-                    const x = interpolate(t)[2] + (to[0] - to[2]) * t;
-                    const y = interpolate(t)[3] + (to[1] - to[3]) * t;
-                    return `${interpolate(t)[2]},${interpolate(t)[3]} ${x},${y}, ${
-                        x + offsetX
-                    },${y}`;
-                };
-            }
-            return (t) => {
-                const x = interpolate(t)[2] + (to[0] - to[2]) * t;
-                const y = interpolate(t)[3] + (to[1] - to[3]) * t;
-                return `${interpolate(t)[2]},${interpolate(t)[3]} ${x},${y}, ${x - offsetX},${y}`;
-            };
-        });
-    }
-
-    private updateText(
-        selection: Transition<SVGTextElement, unknown, SVGGElement, unknown>,
-        sourceData: PieArcDatum<DataItem>[]
-    ) {
-        const that = this;
-        selection
-            .attrTween("x", function (d: any) {
-                const name = d.data.name;
-                const target = sourceData.find((e) => e.data.name === name);
-                if (!target) {
-                    this.style.opacity = "0";
-                    return () => "0";
-                }
-
-                this.style.opacity = "1";
-
-                const from = that.hasChangeTextPoints[d.data.name];
-                const to = that.hasChangePoints[d.data.name];
-
-                const interpolate = d3.interpolate(from[0], to[0]);
-
-                const offsetX = that.textWidth[name];
-                if (to[0] > 0) {
-                    return (t) => {
-                        that.hasChangeTextPoints[name][0] = to[0] + 5;
-                        return (interpolate(t) + 5 * t) as unknown as string;
-                    };
-                }
-                return (t) => {
-                    that.hasChangeTextPoints[name][0] = to[0] - offsetX;
-                    return (interpolate(t) - offsetX * t) as unknown as string;
-                };
-            })
-            .attrTween("y", function (d: any) {
-                const name = d.data.name;
-                const target = sourceData.find((e) => e.data.name === name);
-
-                if (!target) {
-                    this.style.opacity = "0";
-                    return () => "0";
-                }
-
-                const from = that.hasChangeTextPoints[d.data.name];
-                const to = that.hasChangePoints[d.data.name];
-
-                const interpolate = d3.interpolate(from[1], to[1]);
-
-                that.hasChangeTextPoints[name][1] =
-                    to[1] - that.property.global.pieStyle.label.style.labelOffsetY;
-                return (t) =>
-                    (interpolate(t) -
-                        that.property.global.pieStyle.label.style.labelOffsetY *
-                            t) as unknown as string;
-            });
-    }
-
-    private updateValue(
-        selection: Transition<SVGTextElement, unknown, SVGGElement, unknown>,
-        sourceData: PieArcDatum<DataItem>[]
-    ) {
-        let that = this;
-        selection
-            .attrTween("x", function (d: any) {
-                const name = d.data.name;
-                const target = sourceData.find((e) => e.data.name === name);
-                if (!target) {
-                    this.style.opacity = "0";
-                    return () => "0";
-                }
-
-                this.style.opacity = "1";
-
-                const from = that.hasChangeValuePoints[d.data.name];
-                const to = that.hasChangePoints[d.data.name];
-
-                const interpolate = d3.interpolate(from[0], to[0]);
-
-                const offsetX = that.textWidth[name];
-
-                if (to[0] > 0) {
-                    return (t) => {
-                        that.hasChangeValuePoints[name][0] =
-                            to[0] - that.property.global.pieStyle.label.style.textOffsetX;
-                        return (interpolate(t) -
-                            that.property.global.pieStyle.label.style.textOffsetX *
-                                t) as unknown as string;
-                    };
-                }
-                return (t) => {
-                    that.hasChangeValuePoints[name][0] =
-                        to[0] - offsetX + that.property.global.pieStyle.label.style.textOffsetX;
-                    return (interpolate(t) -
-                        (offsetX - that.property.global.pieStyle.label.style.textOffsetX) *
-                            t) as unknown as string;
-                };
-            })
-            .attrTween("y", function (d: any) {
-                const name = d.data.name;
-                const target = sourceData.find((e) => e.data.name === name);
-                if (!target) {
-                    this.style.opacity = "0";
-                    return () => "0";
-                }
-
-                const from = that.hasChangeValuePoints[d.data.name];
-                const to = that.hasChangePoints[d.data.name];
-
-                const interpolate = d3.interpolate(from[1], to[1]);
-
-                that.hasChangeValuePoints[name][1] =
-                    to[1] +
-                    that.property.global.pieStyle.label.style.font.size +
-                    that.property.global.pieStyle.label.style.labelOffsetY / 2;
-                return (t) =>
-                    (interpolate(t) +
-                        that.property.global.pieStyle.label.style.font.size * t +
-                        (that.property.global.pieStyle.label.style.labelOffsetY / 2) *
-                            t) as unknown as string;
-            })
-            .textTween((d: any) => {
-                const name = d.data.name;
-                const target = sourceData.find((e) => e.data.name === name);
-
-                if (!target) {
-                    //...............
-                    return () => undefined as unknown as string;
-                }
-
-                let interpolate: (t: number) => number;
-                if (this.property.global.pieStyle.label.style.showlLabelType == "percentage") {
-                    interpolate = d3.interpolateNumber(
-                        this.hasChangeValue[name].percentage as number,
-                        target.data.percentage as number
-                    );
-                    this.hasChangeValue[name].percentage = target.data.percentage!;
-                    return (t) => {
-                        return (
-                            d3.format(`.${this.property.global.pieStyle.label.style.precision}f`)(
-                                interpolate(t)
-                            ) + "%"
-                        );
-                    };
-                } else {
-                    interpolate = d3.interpolateNumber(
-                        this.hasChangeValue[name].value as number,
-                        target.data.value
-                    );
-                    this.hasChangeValue[name].value = target.data.value;
-                    return (t) =>
-                        d3.format(`.${this.property.global.pieStyle.label.style.precision}f`)(
-                            interpolate(t)
-                        );
-                }
             });
     }
 
     private hoverAnimate() {
-        this.pieContainer!.selectAll(".arc-path")
-            .on("mousemove", (event: PointerEvent, d: any) => {
-                const target = this.defaultData.find((e: DataItem) => e.name === d.data.name);
+        this.pieContainer!.select(".path-group")
+            .on("mousemove", (event: PointerEvent) => {
+                const target = event.target as SVGPathElement;
+                if (!this.canClick) return;
+                if (target!.tagName !== "path") return;
 
-                d3.select(event.target as SVGRectElement)
+                const { color, name, value } = (target as unknown as d3Data).__data__.data;
+
+                d3.select(target)
                     .style("cursor", "pointer")
                     .transition()
                     .duration(200)
@@ -1352,14 +1063,13 @@ class PieChart extends SVGComponentBase {
                     .transition()
                     .duration(200)
                     .style("opacity", this.property.prompt.tooltip.background.opacity)
-                    .style("border-color", d.data.color);
+                    .style("border-color", color);
                 this.tooltip
                     .html(
                         `<div style="display:flex;align-items: center;justify-content: center;">
-                            <span style="display:inline-block;margin-right:8px;border-radius:${this.property.prompt.tooltip.style.radius[0]}px ${this.property.prompt.tooltip.style.radius[1]}px
-                            ;width:${this.property.prompt.tooltip.style.size[0]}px;height:${this.property.prompt.tooltip.style.size[1]}px;background-color:${d.data.color};"></span>
-                            <span style="font-size:${this.property.prompt.tooltip.style.name.size}px;color:${this.property.prompt.tooltip.style.name.color}">${d.data.name}</span>
-                            <span style="padding-left:${this.property.prompt.tooltip.style.paddingLeft}px;font-size:${this.property.prompt.tooltip.style.value.size}px;color:${this.property.prompt.tooltip.style.value.color}">${target.value}</span>
+                            <span style="display:inline-block;margin-right:8px;border-radius:50%;width:${this.property.prompt.tooltip.style.size[0]}px;height:${this.property.prompt.tooltip.style.size[1]}px;background-color:${color};"></span>
+                            <span style="font-size:${this.property.prompt.tooltip.style.name.size}px;color:${this.property.prompt.tooltip.style.name.color}">${name}</span>
+                            <span style="padding-left:${this.property.prompt.tooltip.style.paddingLeft}px;font-size:${this.property.prompt.tooltip.style.value.size}px;color:${this.property.prompt.tooltip.style.value.color}">${value}</span>
                         <span style="font-size:${this.property.prompt.tooltip.style.value.size}px;color:${this.property.prompt.tooltip.style.value.color}">${this.property.prompt.tooltip.style.unit}</span>
                             </div>`
                     )
@@ -1376,7 +1086,9 @@ class PieChart extends SVGComponentBase {
                 this.intervalId = null;
             })
             .on("mouseout", (event: PointerEvent) => {
-                d3.select(event.target as SVGRectElement)
+                if (!this.canClick) return;
+                if ((event.target as SVGPathElement)!.tagName !== "path") return;
+                d3.select(event.target as SVGPathElement)
                     .transition()
                     .duration(200)
                     .attr("d", this.arc as any)
@@ -1387,7 +1099,11 @@ class PieChart extends SVGComponentBase {
     }
 
     private autoCarousel() {
-        if (this.property.prompt.carousel.isShow && this.hasHiddenArcPath.size === 0) {
+        if (
+            this.property.prompt.isShow &&
+            this.property.prompt.carousel.isShow &&
+            this.hasHiddenArcPath.size === 0
+        ) {
             this.intervalId && clearInterval(this.intervalId);
             this.currentIndex = 0;
             this.intervalId = setInterval(() => {
@@ -1395,6 +1111,25 @@ class PieChart extends SVGComponentBase {
                 const centroid = this.arc!.centroid(d);
                 const x = centroid[0] + this.width / 2;
                 const y = centroid[1] + this.height / 2;
+
+                const that = this;
+                this.pieContainer?.selectAll(".arc-path").each(function () {
+                    if ((this as SVGPathElement).dataset.name === d.data.name) {
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr("d", that.arcHighlight as any)
+                            .attr("filter", "url(#pie-filter)");
+
+                        d3.select(that.autoCarouselArc)
+                            .transition()
+                            .duration(200)
+                            .attr("d", that.arc as any)
+                            .attr("filter", "");
+
+                        that.autoCarouselArc = this as SVGPathElement;
+                    }
+                });
 
                 this.tooltip
                     .transition()
@@ -1404,8 +1139,7 @@ class PieChart extends SVGComponentBase {
                 this.tooltip
                     .html(
                         `<div style="display:flex;align-items: center;justify-content: center;">
-                            <span style="display:inline-block;margin-right:8px;border-radius:${this.property.prompt.tooltip.style.radius[0]}px ${this.property.prompt.tooltip.style.radius[1]}px;
-                            width:${this.property.prompt.tooltip.style.size[0]}px;height:${this.property.prompt.tooltip.style.size[1]}px;background-color:${d.data.color};"></span>
+                            <span style="display:inline-block;margin-right:8px;border-radius:50%;width:${this.property.prompt.tooltip.style.size[0]}px;height:${this.property.prompt.tooltip.style.size[1]}px;background-color:${d.data.color};"></span>
                             <span style="font-size:${this.property.prompt.tooltip.style.name.size}px;color:${this.property.prompt.tooltip.style.name.color}">${d.data.name}</span>
                             <span style="padding-left:${this.property.prompt.tooltip.style.paddingLeft}px;font-size:${this.property.prompt.tooltip.style.value.size}px;color:${this.property.prompt.tooltip.style.value.color}">${d.data.value}</span>
                             <span style="font-size:${this.property.prompt.tooltip.style.value.size}px;color:${this.property.prompt.tooltip.style.value.color}">${this.property.prompt.tooltip.style.unit}</span>
@@ -1414,140 +1148,220 @@ class PieChart extends SVGComponentBase {
                     .style("left", x + this.property.prompt.tooltip.background.offset[0] + "px")
                     .style("top", y + this.property.prompt.tooltip.background.offset[1] + "px");
 
-                this.currentIndex = (this.currentIndex + 1) % this.defaultData.length;
+                this.currentIndex = (this.currentIndex + 1) % this.pieData!.length;
             }, this.property.prompt.carousel.durationTime * 1000);
         }
     }
 
-    public update(data: DataItem[]): void {
+    public update(data: PieArcDatum<DataItem>[] | DataItem[]) {
         this.intervalId && clearInterval(this.intervalId);
         this.intervalId = null;
-        // this.data = [
-        //     { name: "光伏", value: Math.floor(Math.random() * (50 - 10 + 1)) + 10 },
-        //     { name: "核电", value: Math.floor(Math.random() * (50 - 10 + 1)) + 10 },
-        //     { name: "新能源", value: Math.floor(Math.random() * (50 - 10 + 1)) + 10 },
-        //     { name: "生物质", value: Math.floor(Math.random() * (50 - 10 + 1)) + 10 },
-        //     { name: "火电", value: Math.floor(Math.random() * (50 - 10 + 1)) + 10 },
-        //     { name: "水电", value: Math.floor(Math.random() * (50 - 10 + 1)) + 10 },
-        //     { name: "风电", value: Math.floor(Math.random() * (50 - 10 + 1)) + 10 },
-        // ];
 
-        if (this.property.global.pieStyle.dataSort == "desc") {
-            data.sort((a: DataItem, b: DataItem) => Number(a.value) - Number(b.value));
-        } else if (this.property.global.pieStyle.dataSort == "asc") {
-            data.sort((a: DataItem, b: DataItem) => Number(b.value) - Number(a.value));
+        this.tooltip.transition().duration(200).style("opacity", 0);
+
+        let pieData: PieArcDatum<DataItem>[];
+
+        if (data[0]?.hasOwnProperty("startAngle") || data.length === 0) {
+            pieData = data as PieArcDatum<DataItem>[];
+        } else {
+            const newPieData = this.pie!(this.handleData(data as DataItem[], false));
+            pieData = newPieData;
         }
 
-        const sum = this.arraySum(data);
-        data.map((d, i) => {
-            d.percentage = d3.format(`.${this.property.global.pieStyle.label.style.precision}f`)(
-                (d.value / sum) * 100
-            );
-            d.color = this.colorMap[d.name] ?? this.property.series.color[i];
-            d.index = i;
-        });
+        this.pieContainer!.select(".path-group")
+            .selectAll(".arc-path")
+            .data<PieArcDatum<DataItem>>(pieData, (d: any) => d.data.name)
+            .join(
+                (enter) => {
+                    enter
+                        .append("path")
+                        .attr("class", "arc-path")
+                        .attr("d", this.arc)
+                        // .attr("fill", (d: PieArcDatum<DataItem>) => d.data.color)
+                        .attr("stroke", this.property.global.pieStyle.borderColor)
+                        .attr("data-name", (d) => d.data.name)
+                        .style("stroke-width", `${this.property.global.pieStyle.borderWidth}px`)
+                        .transition()
+                        .duration(this.property.animation.durationTime * 1000)
+                        .attrTween("d", (d: PieArcDatum<DataItem>) => {
+                            const interpolate = d3.interpolate(d.endAngle, d.startAngle);
+                            return (t: number) => {
+                                d.startAngle = interpolate(t);
+                                return this.arc!(d) as string;
+                            };
+                        })
+                        .attrTween("fill", (d: PieArcDatum<DataItem>) => {
+                            const interpolate = d3.interpolateRgb("white", d.data.color);
+                            return (t: number) => {
+                                return interpolate(t);
+                            };
+                        })
+                        .end()
+                        .then(() => {
+                            this.canClick = true;
+                        });
+                },
+                (update) => {
+                    update
+                        .each((d) => {
+                            this.getPoints(d, true);
+                        })
+                        .attr("fill", (d: PieArcDatum<DataItem>) => d.data.color)
+                        .attr("stroke", this.property.global.pieStyle.borderColor)
+                        .style("stroke-width", `${this.property.global.pieStyle.borderWidth}px`)
+                        .transition()
+                        .duration(this.property.animation.durationTime * 1000)
+                        .attrTween("d", (d: PieArcDatum<DataItem>) => {
+                            this.canClick = false;
+                            const name = d.data.name;
+                            const from = this.pieData!.find((d) => d.data.name === name);
+                            const to = d;
 
-        this.hasChangeData = JSON.parse(JSON.stringify(data));
-
-        // 生成饼图数据
-        let newPieData = this.pie!(data);
-
-        newPieData.map((d) => {
-            this.textWidth[d.data.name] = this.getTrueWidth(d.data.name);
-        });
-
-        this.pieData = newPieData;
-
-        this.pieContainer!.selectAll(".arc-path")
-            .transition()
-            .duration(this.property.animation.durationTime * 1000)
-            .call((selection) =>
-                this.updateArc(
-                    selection as unknown as Transition<
-                        SVGPathElement,
-                        unknown,
-                        SVGGElement,
-                        unknown
-                    >,
-                    newPieData
-                )
+                            const interpolate = d3.interpolate(
+                                {
+                                    startAngle: from!.startAngle,
+                                    endAngle: from!.endAngle,
+                                },
+                                {
+                                    startAngle: to.startAngle,
+                                    endAngle: to.endAngle,
+                                }
+                            );
+                            return (t) => {
+                                d.startAngle = interpolate(t).startAngle;
+                                d.endAngle = interpolate(t).endAngle;
+                                return this.arc!(d) as string;
+                            };
+                        })
+                        .end()
+                        .then(() => {
+                            this.pieData = pieData;
+                            if (this.isFirstEnter) {
+                                this.canClick = false;
+                                this.isFirstEnter = false;
+                            } else {
+                                this.canClick = true;
+                            }
+                        })
+                        .catch(() => {});
+                },
+                (exit) => {
+                    exit.transition()
+                        .duration(this.property.animation.durationTime * 1000)
+                        .attrTween("d", (d: PieArcDatum<DataItem>) => {
+                            const interpolate = d3.interpolate(d.startAngle, d.endAngle);
+                            return (t) => {
+                                d.startAngle = interpolate(t);
+                                return this.arc!(d) as string;
+                            };
+                        })
+                        .remove();
+                }
             );
 
         if (this.property.global.pieStyle.label.isShow) {
-            this.pieContainer!.selectAll(".arc-polyline")
-                .transition()
-                .duration(this.property.animation.durationTime * 1000)
-                .call((selection) =>
-                    this.updatePolyline(
-                        selection as unknown as Transition<
-                            SVGPolylineElement,
-                            unknown,
-                            SVGGElement,
-                            unknown
-                        >,
-                        newPieData
-                    )
+            this.pieContainer!.select(".path-group")
+                .selectAll(".arc-polyline")
+                .data<PieArcDatum<DataItem>>(pieData, (d: any) => d.data.name)
+                .join(
+                    (enter) => {
+                        enter
+                            .append("polyline")
+                            .attr("class", "arc-polyline")
+                            .attr(
+                                "stroke-width",
+                                this.property.global.pieStyle.label.style.polylineWidth
+                            )
+                            .attr("stroke", this.property.global.pieStyle.label.style.polylineColor)
+                            .attr("fill", "none")
+                            .each((d) => {
+                                this.getPoints(d);
+                            })
+                            .transition()
+                            .duration(this.property.animation.durationTime * 1000)
+                            .attrTween("points", (d, i) => this.animatePolyline(d, i));
+                    },
+                    (update) => {
+                        update
+                            .transition()
+                            .duration(this.property.animation.durationTime * 1000)
+                            .attrTween("points", (d, i) => this.animatePolyline(d, i, true));
+                    },
+                    (exit) => {
+                        exit.transition()
+                            .duration(this.property.animation.durationTime * 1000)
+                            .style("opacity", 0)
+                            .remove();
+                    }
                 );
 
-            this.pieContainer!.selectAll(".arc-text")
-                .transition()
-                .duration(this.property.animation.durationTime * 1000)
-                .call((selection) =>
-                    this.updateText(
-                        selection as unknown as Transition<
-                            SVGTextElement,
-                            unknown,
-                            SVGGElement,
-                            unknown
-                        >,
-                        newPieData
-                    )
+            this.pieContainer!.select(".path-group")
+                .selectAll(".arc-text")
+                .data<PieArcDatum<DataItem>>(pieData, (d: any) => d.data.name)
+                .join(
+                    (enter) => {
+                        enter
+                            .append("text")
+                            .attr("class", "arc-text")
+                            .setFontStyle(this.property.global.pieStyle.label.style.font)
+                            .style("opacity", 0)
+                            .transition()
+                            .duration(this.property.animation.durationTime * 1000)
+                            .call((selection) => this.animateText(selection))
+                            .style("opacity", 1)
+                            .attr("fill", this.property.global.pieStyle.label.style.font.color)
+                            .text((d: any) => d.data.name);
+                    },
+                    (update) => {
+                        update
+                            .transition()
+                            .duration(this.property.animation.durationTime * 1000)
+                            .call((selection: any) => this.animateText(selection, true));
+                    },
+                    (exit) => {
+                        exit.transition()
+                            .duration(this.property.animation.durationTime * 1000)
+                            .style("opacity", 0)
+                            .remove();
+                    }
                 );
 
-            this.pieContainer!.selectAll(".arc-value")
-                .transition()
-                .duration(this.property.animation.durationTime * 1000)
-                .call((selection) =>
-                    this.updateValue(
-                        selection as unknown as Transition<
-                            SVGTextElement,
-                            unknown,
-                            SVGGElement,
-                            unknown
-                        >,
-                        newPieData
-                    )
+            this.pieContainer!.select(".path-group")
+                .selectAll(".arc-value")
+                .data<PieArcDatum<DataItem>>(pieData, (d: any) => d.data.name)
+                .join(
+                    (enter) => {
+                        enter
+                            .append("text")
+                            .attr("class", "arc-value")
+                            .setFontStyle(this.property.global.pieStyle.label.style.font)
+                            .style("opacity", 0)
+                            .transition()
+                            .duration(this.property.animation.durationTime * 1000)
+                            .call((selection) => this.animateValue(selection))
+                            .style("opacity", 1);
+                    },
+                    (update) => {
+                        update
+                            .transition()
+                            .duration(this.property.animation.durationTime * 1000)
+                            .call((selection: any) => this.animateValue(selection, true));
+                    },
+                    (exit) => {
+                        exit.transition()
+                            .duration(this.property.animation.durationTime * 1000)
+                            .style("opacity", 0)
+                            .remove();
+                    }
                 );
-        }
 
-        this.hasHiddenArcPath.clear();
-
-        if (this.property.global.legend.isShow) {
-            this.legendRectItems!.attr("fill", (d) => {
-                return d.data.color;
-            });
-        }
-
-        this.defaultData = data;
-
-        setTimeout(() => {
-            if (this.property.global.legend.isShow) {
-                this.pieContainer!.selectAll(".pie-legend-item")
-                    .data(this.pieData!)
-                    .select("rect")
-                    .attr("fill", (d) => {
-                        return d.data.color;
-                    });
-                this.pieContainer!.selectAll(".pie-legend-item")
-                    .data(this.pieData!)
-                    .select("text")
-                    .text((d) => {
-                        return this.computedValue(d.data);
-                    });
+            if (this.property.global.legend.isShow && this.isInterfaceData) {
+                this.hasHiddenArcPath.clear();
+                this.generateLegend(pieData);
             }
-
+            this.autoCarouselArc = null;
             this.autoCarousel();
-        }, 8);
+        }
     }
 
     private arraySum(array: DataItem[]) {
@@ -1570,8 +1384,6 @@ class PieChart extends SVGComponentBase {
         const centerX = this.arc!.centroid(d)[0];
         const centerY = this.arc!.centroid(d)[1];
         const centerZ = Math.sqrt(Math.pow(centerX, 2) + Math.pow(centerY, 2));
-        // const offsetX = this.textWidth[d.data.name];
-
         const [X, Y] = this.getAxis(
             centerX,
             centerY,
