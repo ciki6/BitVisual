@@ -1,0 +1,18 @@
+.barChart-legend {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+}
+.barChart-legnendItem {
+  display: flex;
+  align-items: center;
+}
+.barChart-prompt {
+  position: absolute;
+  top: 0;
+  left: 0;
+  .indicator {
+    position: absolute;
+  }
+}

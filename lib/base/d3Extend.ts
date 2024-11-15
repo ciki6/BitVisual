@@ -23,24 +23,27 @@ class D3Extend {
 
   setFontStyle = function (this: d3.Selection<d3.BaseType, unknown, null, undefined>, style: FontStyle): d3.Selection<d3.BaseType, unknown, null, undefined> {
     return this.each(function () {
-      const textSelection = d3.select(this);
-      textSelection
-        .attr("font-family", style.family)
-        .attr("font-size", style.size)
-        .attr("fill", style.color)
-        .attr("font-weight", style.bolder ? "bold" : "normal")
-        .attr("font-style", style.italic ? "italic" : "normal");
+      const selection = d3.select(this);
+      const isSVGElement = this instanceof SVGElement;
+      const { family, size, color, bolder, italic, underline, lineThrough } = style;
 
-      const textNode = this as SVGTextElement;
-      const { underline, lineThrough } = style;
-      const textBBox = textNode.getBBox();
-      const lineY = textBBox.y + textBBox.height;
-      const strikeY = textBBox.y + textBBox.height / 2;
+      selection
+        .style("font-family", family)
+        .style("font-size", size)
+        .style("font-weight", bolder ? "bold" : "normal")
+        .style("font-style", italic ? "italic" : "normal");
+      if (isSVGElement) {
+        selection.attr("fill", color);
+      } else {
+        selection.style("color", color);
+      }
+      if (isSVGElement) {
+        const textNode = this as SVGTextElement;
+        const textBBox = textNode.getBBox();
+        const lineY = textBBox.y + textBBox.height;
+        const strikeY = textBBox.y + textBBox.height / 2;
 
-      const parentNode = textNode.parentNode as Element | null;
-      if (parentNode) {
-        const parentSelection = d3.select(parentNode);
-
+        const parentSelection = d3.select(textNode.parentNode as Element);
         parentSelection.selectAll(".underline, .line-through").remove();
 
         if (underline) {
@@ -51,7 +54,7 @@ class D3Extend {
             .attr("y1", lineY)
             .attr("x2", textBBox.x + textBBox.width)
             .attr("y2", lineY)
-            .attr("stroke", style.color)
+            .attr("stroke", color)
             .attr("stroke-width", "1");
         }
 
@@ -63,9 +66,16 @@ class D3Extend {
             .attr("y1", strikeY)
             .attr("x2", textBBox.x + textBBox.width)
             .attr("y2", strikeY)
-            .attr("stroke", style.color)
+            .attr("stroke", color)
             .attr("stroke-width", "1");
         }
+      } else {
+        selection.style("color", color);
+
+        const textDecoration: string[] = [];
+        if (underline) textDecoration.push("underline");
+        if (lineThrough) textDecoration.push("line-through");
+        selection.style("text-decoration", textDecoration.join(" "));
       }
     });
   };

@@ -4,6 +4,7 @@ import "../base/d3Extend";
 import SVGComponentBase from "../base/svgComponentBase";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/property";
 import OptionType from "../base/optionType";
+import "./barChart.css";
 
 type DataPoint = {
   name: string;
@@ -90,7 +91,6 @@ class BarChart extends SVGComponentBase {
               bolder: false,
               italic: false,
               underline: false,
-              lineThrough: false,
             },
             type: "rect",
             size: [10, 10],
@@ -108,7 +108,7 @@ class BarChart extends SVGComponentBase {
             valueSuffix: "",
           },
           layout: {
-            position: [50, 5],
+            position: ["r", "t", 0, 0],
             direction: "h",
             margin: 10,
           },
@@ -240,7 +240,7 @@ class BarChart extends SVGComponentBase {
         },
       },
       prompt: {
-        isShow: false,
+        isShow: true,
         carousel: {
           isShow: false,
           stopTime: 5,
@@ -1530,7 +1530,7 @@ class BarChart extends SVGComponentBase {
     let dataSeriesPropertyDictionary = this.getPropertyDictionary("series.dataSeries") ?? ({} as any);
     let lastIndex = 0;
     if (dataSeriesPropertyDictionary.children.length > 0) {
-      lastIndex = Math.max(dataSeriesPropertyDictionary.children.map((d: any) => parseInt(d.name.split("_")[1]))) + 1;
+      lastIndex = (d3.max(dataSeriesPropertyDictionary.children.map((d: any) => parseInt(d.name.split("_")[1])) as number[]) as number) + 1;
     }
     let dataSeriesName = `dataSeries_${lastIndex}`;
     this.property.series.dataSeries[dataSeriesName] = _.cloneDeep(this.dataSeriesProperty);
@@ -1597,6 +1597,7 @@ class BarChart extends SVGComponentBase {
     this.renderBar(this.defaultData);
     this.renderGuideLine(this.defaultData);
     this.renderLegend(this.defaultData);
+    this.renderPrompt(this.defaultData);
   }
 
   private renderContainer(): void {
@@ -1613,6 +1614,8 @@ class BarChart extends SVGComponentBase {
     this.chartContainer.append("g").attr("class", "axes");
     this.chartContainer.append("g").attr("class", "graph");
     this.chartContainer.append("g").attr("class", "guideLine");
+    d3.select(this.container).append("div").attr("class", "barChart-legend");
+    d3.select(this.container).append("div").attr("class", "barChart-prompt").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
     this.realWidth = this.property.basic.frame[2] - this.property.global.padding[2] - this.property.global.padding[3];
     this.realHeight = this.property.basic.frame[3] - this.property.global.padding[0] - this.property.global.padding[1];
   }
@@ -1641,7 +1644,14 @@ class BarChart extends SVGComponentBase {
 
     const dataSeriesProps = this.property.series.dataSeries;
 
-    this.x0.domain(allKeys);
+    let showKeys = allKeys;
+    const barNumber = this.property.global.bar.barNumber;
+
+    if (barNumber !== 0) {
+      showKeys = allKeys.slice(0, barNumber);
+    }
+
+    this.x0.domain(showKeys);
     this.x1.domain(datasets).rangeRound([0, this.x0.bandwidth()]);
     this.y
       .domain([
@@ -1670,7 +1680,7 @@ class BarChart extends SVGComponentBase {
       this.defs.append("pattern").attr("id", `barFillImage_${this.id}_${d}`).attr("patternUnits", "objectBoundingBox").attr("width", 1).attr("height", 1).append("image").attr("href", this.property.series.dataSeries[d].style.image).attr("x", 0).attr("y", 0).attr("width", 1).attr("height", 1);
     });
 
-    const bars = this.mainSVG.select(".graph").selectAll("g.layer").data(allKeys);
+    const bars = this.mainSVG.select(".graph").selectAll("g.layer").data(showKeys);
 
     const barsEnter = bars
       .enter()
@@ -1736,12 +1746,18 @@ class BarChart extends SVGComponentBase {
 
   private renderLegend(data: DataSets) {
     const legendProp = this.property.global.legend;
+    const fontProp = legendProp.style.font;
     const layout = legendProp.layout.direction;
     const [itemW, itemH] = legendProp.style.size;
-    const valueMargin = legendProp.style.valueMargin;
     const p = legendProp.layout.position;
-    const pt = [(this.realWidth * p[0]) / 100, (this.realHeight * p[1]) / 100];
-    const legend = this.mainSVG.append("g").attr("class", "legend").style("transform", `translate(${pt[0]}px,${pt[1]}px)`);
+    const legend = d3
+      .select(this.container)
+      .select(".barChart-legend")
+      .style("width", this.property.basic.frame[2] + "px")
+      .style("height", this.property.basic.frame[3] + "px")
+      .style("transform", `translate(${p[2]}px,${p[3]}px)`)
+      .style("flex-direction", layout === "h" ? "row" : "column")
+      .style("justify-content", p[0] === "l" ? "flex-start" : p[0] === "m" ? "center" : "flex-end");
     const keys = Object.keys(data);
     const legendItems = keys.map((key: any) => ({
       key,
@@ -1749,44 +1765,19 @@ class BarChart extends SVGComponentBase {
       totalValue: d3.sum(data[key], (d) => d.y),
     }));
 
-    const spaceBetweenItems = legendProp.layout.margin;
-    let currentX = 0;
-    let currentY = 0;
-    legendItems.forEach((item) => {
-      const legendItem = legend.append("g").attr("transform", layout === "h" ? `translate(${currentX}, 0)` : `translate(0, ${currentY})`);
-      legendItem.append("rect").attr("width", itemW).attr("height", itemH).attr("fill", "steelblue");
-      // .attr("fill", color(item.key));
+    legendItems.forEach((item: any, index: number) => {
+      const legendItem = legend
+        .append("div")
+        .classed("barChart-legnendItem", true)
+        .style(layout === "h" ? "margin-left" : "margin-top", index === 0 ? "0" : legendProp.layout.margin + "px")
+        .style("align-self", p[1] === "t" ? "flex-start" : p[1] === "m" ? "center" : "flex-end");
+      legendItem
+        .append("div")
+        .style("width", itemW + "px")
+        .style("height", itemH + "px")
+        .style("background-color", "steelblue");
 
-      const text = legendItem
-        .append("text")
-        .attr("x", itemW + valueMargin)
-        .attr("y", itemH / 2)
-        .style("dominant-baseline", "central")
-        .setFontStyle(legendProp.style.font)
-        .text(item.name);
-
-      let valueLength = 0;
-
-      if (legendProp.style.showValue) {
-        const valueText = legendItem
-          .append("text")
-          .attr("x", itemW + valueMargin + text.node()!.getComputedTextLength() + valueMargin)
-          .attr("y", itemH / 2)
-          .style("dominant-baseline", "central")
-          .setFontStyle(legendProp.style.valueFont)
-          .text(`(${item.totalValue + legendProp.style.valueSuffix})`);
-
-        valueLength = valueText.node()!.getComputedTextLength();
-      }
-
-      const itemWidth = itemW + valueMargin + text.node().getComputedTextLength() + valueLength + valueMargin + spaceBetweenItems;
-      const itemHeight = itemH + spaceBetweenItems;
-
-      if (layout === "h") {
-        currentX += itemWidth;
-      } else {
-        currentY += itemHeight;
-      }
+      legendItem.append("span").setFontStyle(fontProp).text(item.name);
     });
   }
 
@@ -1794,7 +1785,6 @@ class BarChart extends SVGComponentBase {
     this.mainSVG.select(".guideLine").selectAll(".guide").remove();
     for (const key in this.property.series.guideLine) {
       const guideLineProp = this.property.series.guideLine[key];
-      console.log(guideLineProp);
       let x1: number = 0,
         y1: number = 0,
         x2: number = 0,
@@ -1842,6 +1832,38 @@ class BarChart extends SVGComponentBase {
       if (guideLineProp.dataTip.image !== "") {
         this.mainSVG.select(".guideLine").append("image").classed("guide", true).attr("href", guideLineProp.dataTip.image).attr("x", guideLineProp.dataTip.offset[0]).attr("y", guideLineProp.dataTip.offset[1]);
       }
+    }
+  }
+
+  private renderPrompt(data: DataSets) {
+    console.log(data);
+    const promptProp = this.property.prompt;
+    const promptContainer = d3.select(this.container).select(".barChart-prompt");
+    if (!promptProp.isShow) return;
+    if (promptProp.carousel.isShow) {
+      promptContainer
+        .append("div")
+        .style("width", this.x0.bandwidth() + "px")
+        .style("height", this.realHeight + "px")
+        .style("background-color", "#ffffff50");
+    } else {
+      promptContainer
+        .append("div")
+        .classed("indicator", true)
+        .style("transform", `translateX(${this.x0(this.x0.domain()[0])}px)`)
+        .style("width", this.x0.bandwidth() + "px")
+        .style("height", this.realHeight + "px")
+        .style("background-color", "#ffffff50");
+      const suspendContainer = promptContainer
+        .append("div")
+        .classed("suspend", true)
+        .style("top", this.realHeight / 2 + "px")
+        .style("left", this.x0(this.x0.domain()[0]) + "px")
+        .style("width", promptProp.suspend.background.size[0] + "px")
+        .style("height", promptProp.suspend.background.size[1] + "px")
+        .style("transform", `translate(${promptProp.suspend.background.offset[0]}px,${promptProp.suspend.background.offset[1]}px)`)
+        .style("background-color", "red");
+      suspendContainer.append("div").classed("suspend-title", true).text("AAA");
     }
   }
 
