@@ -1,0 +1,18 @@
+.pie-chart-tooltip {
+    position: absolute;
+    display: block;
+    border-style: solid;
+    white-space: nowrap;
+    z-index: 9999999;
+    box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px;
+    transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+    border-width: 1px;
+    border-radius: 4px;
+    color: rgb(102, 102, 102);
+    padding: 10px;
+    top: 0px;
+    left: 0px;
+    border-color: rgb(84, 112, 198);
+    pointer-events: none;
+    opacity: 0;
+}

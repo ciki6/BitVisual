@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropertyPanel from "@/components/PropertyPanel";
-import LineChart from "../../../lib/lineChart/lineChart";
+import RingChart from "../../../lib/ringChart/ringChart";
 
-const LineChartTest: React.FC = () => {
+const RingChartTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
   const compRef = useRef<any>(null);
   const [defaultData, setDefaultData] = useState<string>("");
@@ -64,7 +64,7 @@ const LineChartTest: React.FC = () => {
 
   useEffect(() => {
     if (compContainerRef.current) {
-      compRef.current = new LineChart(
+      compRef.current = new RingChart(
         "asd",
         "asd",
         compContainerRef.current as Element,
@@ -90,9 +90,9 @@ const LineChartTest: React.FC = () => {
 
   return (
     <div>
-    LineChart组件测试
+    RingChart组件测试
       <div className="comp_prop">
-        <div className="comp_container" ref={compContainerRef} style={{backgroundColor:'#1a8087'}}></div>
+        <div className="comp_container" ref={compContainerRef}></div>
         <div className="prop_container">
           <PropertyPanel property={property} propertyDic={propertyDic} onChange={handlePropertyChange} onAction={handleAction} />
         </div>
@@ -108,4 +108,4 @@ const LineChartTest: React.FC = () => {
   );
 };
 
-export default LineChartTest;
+export default RingChartTest;
