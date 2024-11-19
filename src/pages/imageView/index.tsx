@@ -63,10 +63,10 @@ const ImageViewTest: React.FC = () => {
   };
 
   useEffect(() => {
-    if (compContainerRef.current) {
+    if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
       compRef.current = new ImageView(
-        "asd",
-        "asd",
+        "imageview",
+        "imageview",
         compContainerRef.current as Element,
         0,
         {
