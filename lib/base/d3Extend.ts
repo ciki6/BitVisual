@@ -13,15 +13,19 @@ interface FontStyle {
 declare module "d3-selection" {
   interface Selection<GElement extends d3.BaseType, Datum, PElement extends d3.BaseType, PDatum> {
     setFontStyle(style: FontStyle): this;
+    attr(attrs: Record<string, string | number | boolean> | string, value?: string | number | boolean): this;
+    style(styles: Record<string, string | number | boolean> | string, value?: string | number | boolean, priority?: string): this;
   }
 }
 
 class D3Extend {
   constructor() {
     d3.selection.prototype.setFontStyle = this.setFontStyle;
+    this.extendAttr();
+    this.extendStyle();
   }
 
-  setFontStyle = function (this: d3.Selection<d3.BaseType, unknown, null, undefined>, style: FontStyle): d3.Selection<d3.BaseType, unknown, null, undefined> {
+  private setFontStyle = function (this: d3.Selection<d3.BaseType, unknown, null, undefined>, style: FontStyle): d3.Selection<d3.BaseType, unknown, null, undefined> {
     return this.each(function () {
       const selection = d3.select(this);
       const isSVGElement = this instanceof SVGElement;
@@ -79,6 +83,34 @@ class D3Extend {
       }
     });
   };
+
+  private extendAttr = () => {
+    const originalAttr = d3.selection.prototype.attr;
+    d3.selection.prototype.attr = function (nameOrAttrs: Record<string, string | number | boolean> | string, value?: string | number | boolean) {
+      if (typeof nameOrAttrs === "object" && nameOrAttrs !== null) {
+        for (const [key, val] of Object.entries(nameOrAttrs)) {
+          originalAttr.call(this, key, val);
+        }
+        return this;
+      } else {
+        return originalAttr.call(this, nameOrAttrs, value);
+      }
+    };
+  };
+
+  private extendStyle() {
+    const originalStyle = d3.selection.prototype.style;
+    d3.selection.prototype.style = function (nameOrStyles: Record<string, string | number | boolean> | string, value?: string | number | boolean, priority?: string) {
+      if (typeof nameOrStyles === "object" && nameOrStyles !== null) {
+        for (const [key, val] of Object.entries(nameOrStyles)) {
+          originalStyle.call(this, key, val, priority);
+        }
+        return this;
+      } else {
+        return originalStyle.call(this, nameOrStyles, value);
+      }
+    };
+  }
 }
 
 new D3Extend();
