@@ -63,10 +63,10 @@ const ChordDiagramTest: React.FC = () => {
   };
 
   useEffect(() => {
-    if (compContainerRef.current) {
+    if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
       compRef.current = new ChordDiagram(
-        "asd",
-        "asd",
+        "chorddiagram",
+        "chorddiagram",
         compContainerRef.current as Element,
         0,
         {

@@ -324,7 +324,7 @@ class LineChart extends SVGComponentBase {
               type: "solid",//solid ：实线 dashed ：虚线
               color: 'red',
               smooth: true,
-              symbolType: 'circle',//triangle circle hollowcircle rect hollowrect pin hollowpin
+              symbolType: 'hollowcircle',//triangle circle hollowcircle rect hollowrect pin hollowpin
               symbolSize: 8,
               lineWidth: 5,
             },
@@ -2046,7 +2046,7 @@ class LineChart extends SVGComponentBase {
       .scaleBand()
       .domain(xAxisValues)
       .range([padding[2], width])
-      .padding(0.1);
+      // .padding(0.9);
 
     let xAxisD = d3.axisBottom(this.xA).tickSizeOuter(0).tickSize(this.property.axis.axisX.axisTick.length);
     let xAxis = xAxisD;
@@ -2120,7 +2120,7 @@ class LineChart extends SVGComponentBase {
         .append("g")
         .attr("class", "axisY")
         .attr("transform", `translate(${padding[2]}, 0)`)
-        .call(d3.axisLeft(this.yA).tickSize(axisY.axisTick.length))
+        .call(d3.axisLeft(this.yA).tickSize(axisY.axisTick.length).ticks(4))
         .call((doms: any) => {
 
           //Y轴线
@@ -2311,10 +2311,10 @@ class LineChart extends SVGComponentBase {
                 } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
                   return dataSeries[keyClass].highlight.color;
                 } else {
-                  return fill;
+                  return dataSeries[keyClass].style.color;
                 }
               }
-              return fill;
+              return dataSeries[keyClass].style.color;
             })
             .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.symbolSize)
             .attr("fill", (d: any) => {
@@ -2357,10 +2357,10 @@ class LineChart extends SVGComponentBase {
                 } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
                   return dataSeries[keyClass].highlight.color;
                 } else {
-                  return fill;
+                  return dataSeries[keyClass].style.color;
                 }
               }
-              return fill;
+              return dataSeries[keyClass].style.color;
             })
             .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.symbolSize)
             .attr("fill", (d: any) => {
@@ -2589,6 +2589,7 @@ class LineChart extends SVGComponentBase {
   }
 
   public update(data: any) {
+    if (!data) return;
     // console.log("bar chart update", data);
     this.defaultData = data;
     this.renderAxis();
