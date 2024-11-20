@@ -63,10 +63,10 @@ const TabContainerTest: React.FC = () => {
   };
 
   useEffect(() => {
-    if (compContainerRef.current) {
+    if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
       compRef.current = new TabContainer(
-        "asd",
-        "asd",
+        "tabcontainer",
+        "tabcontainer",
         compContainerRef.current as Element,
         0,
         {
