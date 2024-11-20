@@ -21,9 +21,9 @@ class BarChart extends SVGComponentBase {
   private x1: d3.ScaleBand<string>;
   private y: d3.ScaleLinear<number, number>;
   dataSeriesProperty: any;
-  dataSeriesPropertyDictionary!: PropertyDictionaryItem[];
+  dataSeriesPropertyDictionary?: PropertyDictionaryItem[];
   guideLineProperty: any;
-  guideLinePropertyDictionary!: PropertyDictionaryItem[];
+  guideLinePropertyDictionary?: PropertyDictionaryItem[];
   chartContainer: any;
   realWidth: number;
   realHeight: number;
@@ -31,6 +31,8 @@ class BarChart extends SVGComponentBase {
   axisX: any;
   axisY: any;
   defs: any;
+  promptData!: DataSets;
+  promptInterval!: NodeJS.Timeout;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
@@ -242,8 +244,8 @@ class BarChart extends SVGComponentBase {
       prompt: {
         isShow: true,
         carousel: {
-          isShow: false,
-          stopTime: 5,
+          isShow: true,
+          stopTime: 5000,
         },
         suspend: {
           background: {
@@ -253,19 +255,43 @@ class BarChart extends SVGComponentBase {
             offset: [0, 0],
           },
           style: {
-            titleFont: "",
+            titleFont: {
+              family: "微软雅黑",
+              size: "50px",
+              color: "#ffffff",
+              bolder: false,
+              italic: false,
+              underline: false,
+              lineThrough: false,
+            },
             align: "left",
-            nameFont: "",
+            nameFont: {
+              family: "微软雅黑",
+              size: "50px",
+              color: "#ffffff",
+              bolder: false,
+              italic: false,
+              underline: false,
+              lineThrough: false,
+            },
             legendType: "rect",
             legendSize: [10, 10],
             interval: 20,
-            dataFont: "",
+            dataFont: {
+              family: "微软雅黑",
+              size: "50px",
+              color: "#ffffff",
+              bolder: false,
+              italic: false,
+              underline: false,
+              lineThrough: false,
+            },
             dataSuffix: "",
           },
-          indicator: {
-            widthPercent: 0.5,
-            color: "",
-          },
+        },
+        indicator: {
+          widthPercent: 50,
+          color: "#ffffff50",
         },
       },
     };
@@ -1197,25 +1223,26 @@ class BarChart extends SVGComponentBase {
                   },
                 ],
               },
+            ],
+          },
+          {
+            name: "indicator",
+            displayName: "指示器",
+            children: [
               {
-                name: "indicator",
-                displayName: "指示器",
-                children: [
-                  {
-                    name: "widthPercent",
-                    displayName: "宽度占比",
-                    type: OptionType.range,
-                    options: {
-                      min: 1,
-                      max: 100,
-                    },
-                  },
-                  {
-                    name: "color",
-                    displayName: "颜色",
-                    type: OptionType.color,
-                  },
-                ],
+                name: "widthPercent",
+                displayName: "宽度占比",
+                type: OptionType.range,
+                unit: "%",
+                options: {
+                  min: 1,
+                  max: 100,
+                },
+              },
+              {
+                name: "color",
+                displayName: "颜色",
+                type: OptionType.color,
               },
             ],
           },
@@ -1836,41 +1863,102 @@ class BarChart extends SVGComponentBase {
   }
 
   private renderPrompt(data: DataSets) {
-    console.log(data);
     const promptProp = this.property.prompt;
     const promptContainer = d3.select(this.container).select(".barChart-prompt");
     if (!promptProp.isShow) return;
-    if (promptProp.carousel.isShow) {
-      promptContainer
-        .append("div")
-        .style("width", this.x0.bandwidth() + "px")
-        .style("height", this.realHeight + "px")
-        .style("background-color", "#ffffff50");
+    this.promptData = this.dataByX(data);
+    const indicatorWidth = (this.x0.bandwidth() * promptProp.indicator.widthPercent) / 100;
+    promptContainer
+      .append("div")
+      .classed("indicator", true)
+      .style("left", this.x0.bandwidth() / 2 - indicatorWidth / 2 + "px")
+      .style("width", indicatorWidth + "px")
+      .style("height", this.realHeight + "px")
+      .style("background-color", promptProp.indicator.color);
+    const suspendContainer = promptContainer
+      .append("div")
+      .classed("suspend", true)
+      .style("top", this.realHeight / 2 + "px")
+      .style("left", "0px")
+      .style("width", promptProp.suspend.background.size[0] + "px")
+      .style("height", promptProp.suspend.background.size[1] + "px")
+      .style("transform", `translate(${promptProp.suspend.background.offset[0]}px,${promptProp.suspend.background.offset[1]}px)`)
+      .style("background-color", "red");
+    suspendContainer.append("div").classed("suspend-title", true).setFontStyle(promptProp.suspend.style.titleFont);
+    suspendContainer.append("div").classed("suspend-body", true);
+    if (!promptProp.carousel.isShow) {
+      this.showPrompt(0);
     } else {
-      promptContainer
-        .append("div")
-        .classed("indicator", true)
-        .style("transform", `translateX(${this.x0(this.x0.domain()[0])}px)`)
-        .style("width", this.x0.bandwidth() + "px")
-        .style("height", this.realHeight + "px")
-        .style("background-color", "#ffffff50");
-      const suspendContainer = promptContainer
-        .append("div")
-        .classed("suspend", true)
-        .style("top", this.realHeight / 2 + "px")
-        .style("left", this.x0(this.x0.domain()[0]) + "px")
-        .style("width", promptProp.suspend.background.size[0] + "px")
-        .style("height", promptProp.suspend.background.size[1] + "px")
-        .style("transform", `translate(${promptProp.suspend.background.offset[0]}px,${promptProp.suspend.background.offset[1]}px)`)
-        .style("background-color", "red");
-      suspendContainer.append("div").classed("suspend-title", true).text("AAA");
+      let showPromptIndex = 0;
+      const maxIndex = Object.keys(this.promptData).length - 1;
+      clearInterval(this.promptInterval);
+      this.promptInterval = setInterval(() => {
+        this.showPrompt(showPromptIndex);
+        if (showPromptIndex < maxIndex) {
+          showPromptIndex++;
+        } else {
+          showPromptIndex = 0;
+        }
+      }, promptProp.carousel.stopTime);
     }
+  }
+
+  showPrompt(index: number) {
+    const promptProp = this.property.prompt;
+    const promptContainer = d3.select(this.container).select(".barChart-prompt");
+    promptContainer
+      .select(".indicator")
+      .transition()
+      .duration(500)
+      .style("transform", `translateX(${this.x0(this.x0.domain()[index])}px)`);
+    const suspendContainer = promptContainer.select(".suspend");
+    suspendContainer
+      .transition()
+      .duration(500)
+      .style("left", this.x0(this.x0.domain()[index]) + "px");
+    suspendContainer.select(".suspend-title").text(this.x0.domain()[index]);
+    const susBody = suspendContainer.select(".suspend-body");
+    susBody.selectAll("div").remove();
+    this.promptData[this.x0.domain()[index]].forEach((d: DataPoint) => {
+      const con = susBody.append("div").classed("suspend-item", true);
+      con.append("div").style({
+        width: promptProp.suspend.style.legendSize[0] + "px",
+        height: promptProp.suspend.style.legendSize[1] + "px",
+        background: "steelblue",
+      });
+      con.append("div").classed("suspend-name", true).setFontStyle(promptProp.suspend.style.nameFont).text(d.name);
+      con
+        .append("div")
+        .classed("suspend-data", true)
+        .setFontStyle(promptProp.suspend.style.dataFont)
+        .style("margin-left", promptProp.suspend.style.interval + "px")
+        .text(d.y + promptProp.suspend.style.dataSuffix);
+    });
+  }
+
+  private dataByX(data: DataSets) {
+    const res: DataSets = {};
+    for (const key in data) {
+      data[key].forEach((d) => {
+        const { x } = d;
+        if (!res[x]) {
+          res[x] = [];
+        }
+        res[x].push(d);
+      });
+    }
+    return res;
   }
 
   public update(data: any) {
     console.log("bar chart update", data);
     this.renderAxis();
     this.renderBar(data);
+  }
+
+  public cleanup(): void {
+    super.cleanup();
+    clearInterval(this.promptInterval);
   }
 }
 

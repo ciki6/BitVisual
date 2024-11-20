@@ -12,7 +12,16 @@
   position: absolute;
   top: 0;
   left: 0;
-  .indicator {
+  .indicator,
+  .suspend {
     position: absolute;
+  }
+  .suspend-body {
+    display: flex;
+    flex-direction: "column";
+    .suspend-item {
+      display: flex;
+      align-items: center;
+    }
   }
 }
