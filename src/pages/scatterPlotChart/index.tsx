@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropertyPanel from "@/components/PropertyPanel";
-import AreaChart from "../../../lib/areaChart/areaChart";
+import ScatterPlotChart from "../../../lib/scatterPlotChart/scatterPlotChart";
 
-const AreaChartTest: React.FC = () => {
+const ScatterPlotChartTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
   const compRef = useRef<any>(null);
   const [defaultData, setDefaultData] = useState<string>("");
@@ -64,9 +64,9 @@ const AreaChartTest: React.FC = () => {
 
   useEffect(() => {
     if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
-      compRef.current = new AreaChart(
-        "areachart",
-        "areachart",
+      compRef.current = new ScatterPlotChart(
+        "scatterplotchart",
+        "scatterplotchart",
         compContainerRef.current as Element,
         0,
         {
@@ -90,7 +90,7 @@ const AreaChartTest: React.FC = () => {
 
   return (
     <div>
-    AreaChart组件测试
+    ScatterPlotChart组件测试
       <div className="comp_prop">
         <div className="comp_container" ref={compContainerRef} style={{backgroundColor:'#069186'}}></div>
         <div className="prop_container">
@@ -108,4 +108,4 @@ const AreaChartTest: React.FC = () => {
   );
 };
 
-export default AreaChartTest;
+export default ScatterPlotChartTest;
