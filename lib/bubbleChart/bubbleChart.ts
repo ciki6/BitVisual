@@ -13,31 +13,29 @@ interface dataType {
 }
 
 /**
- * 折线图
- * @class LineChart
+ * 气泡图
+ * @class BubbleChart
  * @extends {SVGComponentBase}
  */
-class LineChart extends SVGComponentBase {
-  private xA: d3.ScaleBand<string>;
+class BubbleChart extends SVGComponentBase {
+  private xA: d3.ScaleLinear<number, number>;
   private yA: d3.ScaleLinear<number, number>;
   private zA: d3.ScaleLinear<number, number>;
   dataSeriesProperty: any;
   dataSeriesPropertyDictionary!: PropertyDictionaryItem[];
-  guideLineProperty: any;
-  guideLinePropertyDictionary!: PropertyDictionaryItem[];
   chartContainer: any;
   realWidth: number;
   realHeight: number;
-  animeRect: any;
   promptcontentbg: any;
   aniTimer: any;
   _id: any;
+  defs: any;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
     this.realWidth = 1920;
     this.realHeight = 1080;
-    this.xA = d3.scaleBand();
+    this.xA = d3.scaleLinear();
     this.yA = d3.scaleLinear();
     this.zA = d3.scaleLinear();
     this._id = 'wiscom_' + this.id;
@@ -55,17 +53,17 @@ class LineChart extends SVGComponentBase {
     let dataSeriesDic = this.getPropertyDictionary('series.dataSeries');
     for (let i = 0; i < dataSeriesModels.length; i++) {
       // @ts-ignore
-      let lineName = dataSeriesModels[i].groupId;
+      let bubbleName = dataSeriesModels[i].groupId;
       dataSeriesModelArr.push({
-        name: lineName,
-        displayName: `数据系列${lineName.split("_")[1]}`,
-        description: lineName,
+        name: bubbleName,
+        displayName: `数据系列${bubbleName.split("_")[1]}`,
+        description: bubbleName,
         action: [
           {
             text: "删除组",
             style: "red",
             action: "deleteDataSeries",
-            param: [lineName.split("_")[1]],
+            param: [bubbleName.split("_")[1]],
           },
         ],
         children: _.cloneDeep(this.dataSeriesPropertyDictionary),
@@ -73,29 +71,6 @@ class LineChart extends SVGComponentBase {
     }
     //@ts-ignore
     dataSeriesDic.children = dataSeriesModelArr;
-
-    let guideLineModels = Object.values(this.property.series.guideLine);
-    let guideLineModelArr = [];
-    let lineStyleDic = this.getPropertyDictionary('series.guideLine');
-    for (let i = 0; i < guideLineModels.length; i++) {
-      //@ts-ignore
-      let guideLineName = guideLineModels[i].groupId;
-      guideLineModelArr.push({
-        name: guideLineName,
-        displayName: `辅助线${guideLineName.split("_")[1]}`,
-        action: [
-          {
-            text: "删除组",
-            style: "red",
-            action: "deleteGuideLine",
-            param: [guideLineName.split("_")[1]],
-          },
-        ],
-        children: _.cloneDeep(this.guideLinePropertyDictionary),
-      })
-    }
-    //@ts-ignore
-    lineStyleDic.children = guideLineModelArr;
 
     if (this.dataBind === undefined || JSON.stringify(this.dataBind) === "{}") {
       this.dataBind = {
@@ -110,71 +85,41 @@ class LineChart extends SVGComponentBase {
 
     this.defaultData = {
       'dataSeries_0': [
-        { x: "B", y: 14.5 },
-        { x: "A", y: 8.2 },
-        { x: "C", y: 2.7 },
-        { x: "D", y: 4.3 },
-        { x: "E", y: 130 },
-        { x: "F", y: 2.3 },
-        { x: "G", y: 2 },
-        { x: "H", y: 6 },
-        { x: "I", y: 7 },
-        { x: "J", y: 1 },
-        { x: "K", y: 0.8 },
-        { x: "L", y: 4 },
-        { x: "M", y: 2.4 },
-        { x: "N", y: 6.8 },
-        { x: "O", y: 7.5 },
-        { x: "P", y: 2 },
-        { x: "Q", y: 0.1 },
-        { x: "R", y: 5.9 },
-        { x: "S", y: 6.3 },
-        { x: "T", y: 9 },
-        { x: "U", y: 2.8 },
-        { x: "V", y: 0.1 },
-        { x: "W", y: 2.4 },
-        { x: "X", y: 1.5 },
-        { x: "Y", y: 1.9 },
-        { x: "Z", y: 10.0 },
+        { x: "1", y: 14.5, weight: 10 },
+        { x: "2", y: 8.2, weight: 1 },
+        { x: "3", y: 2.7, weight: 10 },
+        { x: "4", y: 4.3, weight: 80 },
+        { x: "5", y: 130, weight: 10 },
+        { x: "6", y: 2.3, weight: 11 },
+        { x: "7", y: 2, weight: 7 },
+        { x: "8", y: 6, weight: 4 },
+        { x: "9", y: 7, weight: 2 },
+        { x: "10", y: 1, weight: 20 }
       ],
       'dataSeries_1': [
-        { x: "B", y: 56 },
-        { x: "A", y: 820 },
-        { x: "C", y: 27 },
-        { x: "D", y: 43 },
-        { x: "E", y: 10 },
-        { x: "F", y: 23 },
-        { x: "G", y: 20 },
-        { x: "H", y: 60 },
-        { x: "I", y: 70 },
-        { x: "J", y: 10 },
-        { x: "K", y: 8 },
-        { x: "L", y: 40 },
-        { x: "M", y: 24 },
-        { x: "N", y: 68 },
-        { x: "O", y: 75 },
-        { x: "P", y: 20 },
-        { x: "Q", y: 1 },
-        { x: "R", y: 59 },
-        { x: "S", y: 63 },
-        { x: "T", y: 90 },
-        { x: "U", y: 28 },
-        { x: "V", y: 1 },
-        { x: "W", y: 24 },
-        { x: "X", y: 15 },
-        { x: "Y", y: 19 },
-        { x: "Z", y: 10 },
+        { x: "1", y: 56, weight: 1 },
+        { x: "2", y: 820, weight: 2 },
+        { x: "3", y: 27, weight: 3 },
+        { x: "4", y: 43, weight: 4 },
+        { x: "5", y: 10, weight: 5 },
+        { x: "6", y: 23, weight: 6 },
+        { x: "7", y: 20, weight: 7 },
+        { x: "8", y: 60, weight: 9 },
+        { x: "9", y: 70, weight: 15 },
+        { x: "10", y: 10, weight: 19 },
+        { x: "11", y: 8, weight: 60 },
+        { x: "12", y: 40, weight: 7 }
       ]
     } as any;
   }
 
-  private _addDataBind(lineName = '', isAdd = true) {
+  private _addDataBind(bubbleName = '', isAdd = true) {
     if (isAdd) {
-      if (Object.keys(this.dataBind).indexOf(lineName) < 0) {
-        this.dataBind[lineName] = { x: { bindKey: '', isCustom: false }, y: { bindKey: '', isCustom: false } };
+      if (Object.keys(this.dataBind).indexOf(bubbleName) < 0) {
+        this.dataBind[bubbleName] = { x: { bindKey: '', isCustom: false }, y: { bindKey: '', isCustom: false } };
       }
     } else {
-      delete this.dataBind[lineName];
+      delete this.dataBind[bubbleName];
     }
   }
 
@@ -182,7 +127,7 @@ class LineChart extends SVGComponentBase {
     super.initProperty();
     const property: ComponentProperty = {
       basic: {
-        className: "LineChart",
+        className: "BubbleChart",
       },
       global: {
         padding: [40, 60, 50, 40],
@@ -323,20 +268,23 @@ class LineChart extends SVGComponentBase {
         dataSeries: {
           'dataSeries_0': {
             groupId: 'dataSeries_0',
-            name: '折线1',
+            name: '气泡1',
             valueAxis: "y",
             style: {
-              type: "solid",//solid ：实线 dashed ：虚线
-              color: 'red',
-              smooth: true,
-              symbolType: 'hollowcircle',//triangle circle hollowcircle rect hollowrect pin hollowpin
-              symbolSize: 8,
-              lineWidth: 5,
+              minR: 10,
+              maxR: 20,
+              color: 'blue',
+              strokeWidth: 1,
+              stroke: '#fff',
+              outerglowColor: '#fff',
+              outerglowR: 5,
+              outerglowH: 0,
+              outerglowV: 0
             },
             highlight: {
-              isShow: false,
-              valueType: "max",//max min assign
-              value: "",
+              isShow: true,
+              valueType: "assign",//max min assign
+              value: "2",
               color: "yellow",
             },
             dataTip: {
@@ -344,50 +292,23 @@ class LineChart extends SVGComponentBase {
               font: {
                 family: "微软雅黑",
                 size: "16px",
-                color: "#000000",
+                color: "#000",
                 bolder: false,
                 italic: false,
                 underline: false,
                 lineThrough: false,
               },
               image: "",
-              offset: [0, 0],
+              offset: [0, 5],
               suffix: "",
             },
           }
-        },
-        guideLine: {
-          'guidLine_0': {
-            groupId: 'guidLine_0',
-            style: {
-              lineType: "max",
-              dataSeriesId: "dataSeries_0",
-              value: "",
-              lineStyle: "line",//dash line
-              color: "green",
-              stroke: 5,
-            },
-            dataTip: {
-              font: {
-                family: "微软雅黑",
-                size: "16px",
-                color: "#000000",
-                bolder: false,
-                italic: false,
-                underline: false,
-                lineThrough: false,
-              },
-              image: "",
-              offset: [0, 0],
-              suffix: "",
-            },
-          }
-        },
+        }
       },
       prompt: {
-        isShow: true,
+        isShow: false,
         carousel: {
-          isShow: true,
+          isShow: false,
           stopTime: 5,
         },
         suspend: {
@@ -1099,20 +1020,7 @@ class LineChart extends SVGComponentBase {
                 param: [],
               },
             ],
-          },
-          {
-            name: "guideLine",
-            displayName: "辅助线",
-            children: [],
-            action: [
-              {
-                text: "新增",
-                style: "blue",
-                action: "addGuideLine",
-                param: [],
-              },
-            ],
-          },
+          }
         ],
       },
       {
@@ -1274,16 +1182,19 @@ class LineChart extends SVGComponentBase {
         name: '',
         valueAxis: "y",
         style: {
-          type: "solid",//solid ：实线 dashed ：虚线
-          color: 'green',
-          smooth: true,
-          symbolType: 'circle',//triangle circle hollowcircle rect hollowrect pin hollowpin
-          symbolSize: 8,
-          lineWidth: 5,
+          minR: 10,
+          maxR: 20,
+          color: 'blue',
+          strokeWidth: 1,
+          stroke: '#fff',
+          outerglowColor: '#fff',
+          outerglowR: 5,
+          outerglowH: 0,
+          outerglowV: 0
         },
         highlight: {
-          isShow: false,
-          valueType: "min",
+          isShow: true,
+          valueType: "max",
           value: "",
           color: "red",
         },
@@ -1291,7 +1202,7 @@ class LineChart extends SVGComponentBase {
           isShow: true,
           font: {},
           image: "",
-          offset: [0, 0],
+          offset: [0, -10],
           suffix: "",
         },
       };
@@ -1300,14 +1211,14 @@ class LineChart extends SVGComponentBase {
       this.dataSeriesPropertyDictionary = [
         {
           name: "groupId",
-          displayName: "折线编码",
+          displayName: "气泡编码",
           type: OptionType.string,
           editable: false,
           show: true,
         },
         {
           name: "name",
-          displayName: "折线名称",
+          displayName: "气泡名称",
           type: OptionType.string,
         },
         {
@@ -1330,79 +1241,50 @@ class LineChart extends SVGComponentBase {
           displayName: "样式",
           children: [
             {
-              name: "type",
-              displayName: "折线类型",
-              type: OptionType.radio,
-              options: [
-                {
-                  name: "实线",
-                  value: "solid",
-                },
-                {
-                  name: "虚线",
-                  value: "dashed",
-                },
-              ],
+              name: "minR",
+              displayName: "最小半径",
+              type: OptionType.double,
+            },
+            {
+              name: "maxR",
+              displayName: "最大半径",
+              type: OptionType.double,
             },
             {
               name: "color",
-              displayName: "折线颜色",
+              displayName: "填充色",
               type: OptionType.color,
             },
             {
-              name: "smooth",
-              displayName: "是否平滑",
-              type: OptionType.boolean,
-            },
-            {
-              name: "symbolType",
-              displayName: "折点类型",
-              type: OptionType.radio,
-              options: [
-                {
-                  name: "无",
-                  value: "none",
-                },
-                {
-                  name: "实心方块",
-                  value: "rect",
-                },
-                {
-                  name: '空心方块',
-                  value: 'hollowrect'
-                },
-                {
-                  name: "实心圆",
-                  value: "circle",
-                },
-                {
-                  name: "空心圆",
-                  value: "hollowcircle",
-                },
-                {
-                  name: "三角形",
-                  value: "triangle",
-                },
-                {
-                  name: "大头针",
-                  value: "pin",
-                },
-                {
-                  name: "空心大头针",
-                  value: "hollowpin",
-                },
-              ],
-            },
-            {
-              name: "symbolSize",
-              displayName: "点大小",
+              name: "strokeWidth",
+              displayName: "气泡描边宽度",
               type: OptionType.double,
             },
             {
-              name: "lineWidth",
-              displayName: "折线粗细",
+              name: "stroke",
+              displayName: "气泡描边颜色",
+              type: OptionType.color,
+            },
+            {
+              name: "outerglowColor",
+              displayName: "外发光颜色",
+              type: OptionType.color,
+            },
+            {
+              name: "outerglowR",
+              displayName: "外发光程度",
               type: OptionType.double,
             },
+            {
+              name: "outerglowH",
+              displayName: "水平偏移",
+              type: OptionType.double,
+            },
+            {
+              name: "outerglowV",
+              displayName: "垂直偏移",
+              type: OptionType.double,
+            }
           ],
         },
         {
@@ -1454,127 +1336,6 @@ class LineChart extends SVGComponentBase {
               displayName: "是否显示",
               type: OptionType.boolean,
             },
-            {
-              name: "font",
-              displayName: "文本样式",
-              type: OptionType.font,
-            },
-            {
-              name: "image",
-              displayName: "图标",
-              type: OptionType.media,
-            },
-            {
-              name: "offset",
-              displayName: "位置",
-              type: OptionType.position,
-            },
-            {
-              name: "suffix",
-              displayName: "后缀",
-              type: OptionType.string,
-            },
-          ],
-        },
-      ];
-    }
-
-    if (!this.guideLineProperty) {
-      this.guideLineProperty = {
-        groupId: '',
-        style: {
-          lineType: "min",
-          dataSeriesId: "",
-          value: "",
-          lineStyle: "line",
-          color: "red",
-          stroke: 5,
-        },
-        dataTip: {
-          font: {},
-          image: "",
-          offset: [0, 0],
-          suffix: "",
-        },
-      };
-    }
-    if (!this.guideLinePropertyDictionary) {
-      this.guideLinePropertyDictionary = [
-        {
-          name: "groupId",
-          displayName: "标记线名称",
-          type: OptionType.string,
-          editable: false,
-          show: false,
-        },
-        {
-          name: "style",
-          displayName: "样式",
-          children: [
-            {
-              name: "lineType",
-              displayName: "线类型",
-              type: OptionType.select,
-              options: [
-                {
-                  name: "最大值",
-                  value: "max",
-                },
-                {
-                  name: "最小值",
-                  value: "min",
-                },
-                {
-                  name: "指定值",
-                  value: "assign",
-                },
-                {
-                  name: "平均值",
-                  value: "average",
-                },
-              ],
-            },
-            {
-              name: "dataSeriesId",
-              displayName: "轴选择",
-              type: OptionType.string,
-            },
-            {
-              name: "value",
-              displayName: "匹配值",
-              type: OptionType.string,
-            },
-            {
-              name: "线样式",
-              displayName: "lineStyle",
-              type: OptionType.radio,
-              options: [
-                {
-                  name: "虚线",
-                  value: "dash",
-                },
-                {
-                  name: "实线",
-                  value: "line",
-                },
-              ],
-            },
-            {
-              name: "颜色",
-              displayName: "color",
-              type: OptionType.color,
-            },
-            {
-              name: "粗细",
-              displayName: "stroke",
-              type: OptionType.int,
-            },
-          ],
-        },
-        {
-          name: "dataTip",
-          displayName: "值标签",
-          children: [
             {
               name: "font",
               displayName: "文本样式",
@@ -1663,10 +1424,9 @@ class LineChart extends SVGComponentBase {
     });
     this._addDataBind(dataSeriesName, true);
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this._getBubble();
+    this.renderBubble();
     this.renderLegend();
-    this._renderGuidLine();
     if (this.property.prompt.isShow) {
       this._renderPromptList();
     }
@@ -1688,54 +1448,13 @@ class LineChart extends SVGComponentBase {
 
     this._addDataBind(dataSeriesName, false);
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this._getBubble();
+    this.renderBubble();
     this.renderLegend();
-    this._renderGuidLine();
     if (this.property.prompt.isShow) {
       this._renderPromptList();
     }
     this.promptAnime('');
-  }
-
-  public addGuideLine() {
-    let guideLinePropertyDictionary = this.getPropertyDictionary("series.guideLine") ?? ({} as any);
-    let lastIndex = 0;
-    if (guideLinePropertyDictionary.children.length > 0) {
-      lastIndex = d3.max(guideLinePropertyDictionary.children.map((d: any) => parseInt(d.name.split("_")[1])) as number[]) as number + 1;
-    }
-    let guideLineName = `guideLine_${lastIndex}`;
-    this.property.series.guideLine[guideLineName] = _.cloneDeep(this.guideLineProperty);
-    this.property.series.guideLine[guideLineName].groupId = guideLineName;
-    guideLinePropertyDictionary.children.push({
-      name: guideLineName,
-      displayName: `辅助线${lastIndex}`,
-      action: [
-        {
-          text: "删除组",
-          style: "red",
-          action: "deleteGuideLine",
-          param: [lastIndex],
-        },
-      ],
-      children: _.cloneDeep(this.guideLinePropertyDictionary),
-    });
-    this._renderGuidLine();
-  }
-
-  public deleteGuideLine(index: any) {
-    let guideLinePropertyDictionary = this.getPropertyDictionary("series.guideLine") ?? ({} as any);
-    for (let j = 0; j < guideLinePropertyDictionary!.children.length; j++) {
-      let d = guideLinePropertyDictionary!.children[j];
-      if (d.name == `dataSeries_${index}`) {
-        index = j;
-        break;
-      }
-    }
-    let guideLineName = guideLinePropertyDictionary!.children![index].name;
-    guideLinePropertyDictionary!.children!.splice(index, 1);
-    delete this.property.series.guideLine[guideLineName];
-    this._renderGuidLine();
   }
 
   protected draw() {
@@ -1747,10 +1466,9 @@ class LineChart extends SVGComponentBase {
     this.renderDefs();
     this.renderContainer();
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this._getBubble();
+    this.renderBubble();
     this.renderLegend();
-    this._renderGuidLine();
     this.promptAnime('');
   }
 
@@ -1764,10 +1482,9 @@ class LineChart extends SVGComponentBase {
     this.realWidth = this.property.svgBasic.viewBox[2];
     this.realHeight = this.property.svgBasic.viewBox[3];
 
-    this.chartContainer = this.mainSVG.append("g").attr("class", "lineChart-container").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
+    this.chartContainer = this.mainSVG.append("g").attr("class", "bubbleChart-container").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
     this.chartContainer.append("g").attr("class", "axis-bg");
-    this.chartContainer.append("g").attr("class", "graph").attr('clip-path', `url(#${this._id}_clippath)`);
-    this.chartContainer.append("g").attr("class", "guide-line");
+    this.chartContainer.append("g").attr("class", "graph");
     if (prompt.isShow) {
       this.chartContainer.append('rect')
         .attr('class', `prompt-indicator prompt-sign`)
@@ -1803,7 +1520,7 @@ class LineChart extends SVGComponentBase {
     style = `position: absolute; height: auto; display: flex; transform: translate3d(${this.property.global.legend.layout.position[0] / 100 * this.realWidth}px, ${this.property.global.legend.layout.position[1] / 100 * this.realHeight}px, 0px);justify-content: center;`;
 
     this.mainSVG.append("g")
-      .attr("class", "line-legend")
+      .attr("class", "bubble-legend")
       .append("foreignObject")
       .attr("x", `0`)
       .attr("y", `0`)
@@ -1825,7 +1542,7 @@ class LineChart extends SVGComponentBase {
         .style('transform', `translate(${padding[2]}px,${padding[0]}px)`)
         .attr("class", "prompt-sign")
         .append("foreignObject")
-        .attr("class", "line-prompt")
+        .attr("class", "bubble-prompt")
         .style('pointer-events', 'none')
         .style('transform', `translate(${padding[2] + prompt.suspend.background.offset[0]}px,${padding[0] + prompt.suspend.background.offset[1]}px)`)
         .attr("width", prompt.suspend.background.size[0])
@@ -1848,12 +1565,12 @@ class LineChart extends SVGComponentBase {
   private _renderPromptList() {
     let prompt = this.property.prompt;
     const dataSeries = this.property.series.dataSeries;
-    const linekeys = this.property.prompt.isShow ? Object.keys(this.property.series.dataSeries) : [];
+    const bubblekeys = this.property.prompt.isShow ? Object.keys(this.property.series.dataSeries) : [];
     let nameFont = `font-family:${prompt.suspend.style.nameFont.family};font-size:${prompt.suspend.style.nameFont.size};color:${prompt.suspend.style.nameFont.color};font-weight:${prompt.suspend.style.nameFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.nameFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.nameFont.underline ? 'underline' : 'none'};`;
 
     let dataFont = `font-family:${prompt.suspend.style.dataFont.family};font-size:${prompt.suspend.style.dataFont.size};color:${prompt.suspend.style.dataFont.color};font-weight:${prompt.suspend.style.dataFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.dataFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.dataFont.underline ? 'underline' : 'none'};`;
     this.promptcontentbg.selectAll(`.prompt-li`)
-      .data(linekeys)
+      .data(bubblekeys)
       .join((enter: any) => {
         let divDom = enter.append('div')
           .attr('class', `prompt-li`)
@@ -1887,9 +1604,9 @@ class LineChart extends SVGComponentBase {
     let prompt = this.property.prompt;
     if (!prompt.isShow) return;
     const padding = this.property.global.padding;
-    const linekeys = Object.keys(this.property.series.dataSeries);
+    const bubblekeys = Object.keys(this.property.series.dataSeries);
     let tempData = {} as any, values = [] as number[];
-    linekeys.forEach(element => {
+    bubblekeys.forEach(element => {
       tempData[element] = this.defaultData[element] || [];
       tempData[element].map(d => d.name = element);
       values = values.concat(tempData[element]);
@@ -1907,7 +1624,7 @@ class LineChart extends SVGComponentBase {
       }
       return dic;
     })
-    let indicatorWidth = prompt.suspend.indicator.widthPercent * this.xA.bandwidth();
+    let indicatorWidth = prompt.suspend.indicator.widthPercent * 20;
     this.chartContainer.select('.prompt-indicator').attr('width', indicatorWidth);
     //提示框当前位置的下标
     let prompAniIndex = xAxisValues.indexOf(xValue) < 0 ? 0 : xAxisValues.indexOf(xValue);
@@ -1915,19 +1632,19 @@ class LineChart extends SVGComponentBase {
     let that = this;
     //提示框位置更新
     let showPromptIndex = function (aniIndex: number) {
-      for (let index = 0; index < linekeys.length; index++) {
+      for (let index = 0; index < bubblekeys.length; index++) {
         //@ts-ignore
-        that.promptcontentbg.select(`#${that._id}_${linekeys[index]}`).select('.pro-legend-value').text(promptData[aniIndex][linekeys[index]]);
+        that.promptcontentbg.select(`#${that._id}_${bubblekeys[index]}`).select('.pro-legend-value').text(promptData[aniIndex][bubblekeys[index]]);
       }
 
       that.promptcontentbg.select('.prompt-content-title').text(promptData[aniIndex]['xkey']);
-      let translateX = (that.xA(promptData[aniIndex]['xkey']) as number) + that.xA.bandwidth() / 2 + prompt.suspend.background.offset[0];
+      let translateX = (that.xA(promptData[aniIndex]['xkey']) as number) + prompt.suspend.background.offset[0];
       let translateY = padding[0] + prompt.suspend.background.offset[1];
       if (translateX + prompt.suspend.background.size[0] > that.realWidth - padding[2]) {
-        translateX = (that.xA(promptData[aniIndex]['xkey']) as number) + that.xA.bandwidth() / 2 - prompt.suspend.background.size[0] - prompt.suspend.background.offset[0];
+        translateX = (that.xA(promptData[aniIndex]['xkey']) as number) - prompt.suspend.background.size[0] - prompt.suspend.background.offset[0];
       }
-      that.mainSVG.select('.line-prompt').style('transform', `translate3d(${translateX}px,${translateY}px,0px)`);
-      that.chartContainer.select('.prompt-indicator').attr('x', (that.xA(promptData[aniIndex]['xkey']) as number) + that.xA.bandwidth() / 2 - indicatorWidth / 2);
+      that.mainSVG.select('.bubble-prompt').style('transform', `translate3d(${translateX}px,${translateY}px,0px)`);
+      that.chartContainer.select('.prompt-indicator').attr('x', (that.xA(promptData[aniIndex]['xkey']) as number) - indicatorWidth / 2);
     }
     showPromptIndex(prompAniIndex);
     if (prompt.isShow && prompt.carousel.isShow) {
@@ -1946,34 +1663,45 @@ class LineChart extends SVGComponentBase {
   /**
    * 绘制裁剪框
    * @private
-   * @memberof LineChart
+   * @memberof BubbleChart
    */
   private renderDefs() {
-    this.animeRect = this.mainSVG.append('defs')
-      .append('clipPath')
-      .attr('id', `${this._id}_clippath`)
-      .append('rect')
-      .style('transform', `translate(${this.property.global.padding[2]}px,0px)`)
-      .style('height', `${this.realHeight}px`)
-      .style('width', `0px`)
+    this.defs = this.mainSVG.append('defs')
+
+    const filter = this.defs.append('filter')
+      .attr('id', 'glow')
+      .attr('filterUnits', 'userSpaceOnUse')
+      .attr('width', '200%')
+      .attr('height', '200%');
+
+    filter.append('feGaussianBlur')
+      .attr('in', 'SourceAlpha')
+      .attr('stdDeviation', 5)
+      .attr('result', 'blur');
+
+    filter.append('feOffset')
+      .attr('in', 'blur')
+      .attr('dx', 0)
+      .attr('dy', 0)
+      .attr('result', 'offsetBlur');
   }
 
   /**
    *初始化图例
    * @private
-   * @memberof LineChart
+   * @memberof BubbleChart
    */
   private renderLegend(): void {
 
     const legend = this.property.global.legend;
-    this.mainSVG.select('.line-legend').style('display', legend.isShow ? 'block' : 'none');
+    this.mainSVG.select('.bubble-legend').style('display', legend.isShow ? 'block' : 'none');
     if (legend.isShow) {
       const dataSeries = this.property.series.dataSeries;
-      const linekeys = legend.isShow ? Object.keys(this.property.series.dataSeries) : [];
+      const bubblekeys = legend.isShow ? Object.keys(this.property.series.dataSeries) : [];
       let divStyle = `font-family:${legend.style.font.family};font-size:${legend.style.font.size};color:${legend.style.font.color};font-weight:${legend.style.font.bolder ? 'bolder' : 'normal'};font-style:${legend.style.font.italic ? 'italic' : 'normal'};text-decoration:${legend.style.font.underline ? 'underline' : 'none'}`;
       this.mainSVG.select('.legend')
         .selectAll('.li_dom')
-        .data(linekeys)
+        .data(bubblekeys)
         .join((enter: any) => {
           let liDom = enter.append('li')
             .attr('class', `li_dom`)
@@ -1998,14 +1726,25 @@ class LineChart extends SVGComponentBase {
     }
   }
 
+  private sortData(dataKey: string) {
+    let tempMax = d3.max(this.defaultData[dataKey], (d: dataType) => d.y) as number;
+    let tempMin = d3.min(this.defaultData[dataKey], (d: dataType) => d.y) as number;
+    this.defaultData[dataKey].forEach(element => {
+      element.s = dataKey;
+      element.max = tempMax;
+      element.min = tempMin;
+    });
+    return this.defaultData[dataKey];
+  }
+
   /**
    *绘制x y轴
    * @private
    * @returns {void}
-   * @memberof LineChart
+   * @memberof BubbleChart
    */
   private renderAxis(): void {
-    const linekeys = Object.keys(this.property.series.dataSeries);
+    const bubblekeys = Object.keys(this.property.series.dataSeries);
     let maxValue = 1, minValue = 0, maxValues = [] as number[], minValues = [] as number[];
     let zmaxValue = 1, zminValue = 0, zmaxValues = [] as number[], zminValues = [] as number[];
     if (this.property.axis.axisY.axisTick.rangeType == 'auto') {
@@ -2036,22 +1775,23 @@ class LineChart extends SVGComponentBase {
       zminValue = this.property.axis.axisZ.axisTick.rangeValue[0];
     }
 
-    if (linekeys.length < 1) return;
-    let tempData = {} as any;
-    linekeys.forEach(element => {
+    if (bubblekeys.length < 1) return;
+    let tempData = {} as any, allData = [] as any;
+    bubblekeys.forEach(element => {
       tempData[element] = this.defaultData[element] || [];
+      allData = allData.concat(this.sortData(element))
     });
-    const xAxisValues = [...new Set(Object.values(tempData).flatMap((value: any) => value.map((d: any) => d.x)))];//解构赋值
+    const xAxisValues = [...new Set(Object.values(tempData).flatMap((value: any) => value.map((d: any) => parseFloat(d.x))))];//解构赋值
+
     const padding = this.property.global.padding;
     const width = this.realWidth - padding[2] - padding[3];
     const height = this.realHeight - padding[0] - padding[1];
 
     this.mainSVG.select(".axis-bg").selectAll(".axis").remove();
     this.xA = d3
-      .scaleBand()
-      .domain(xAxisValues)
-      .range([padding[2], width])
-      // .padding(0.9);
+      .scaleLinear()
+      .domain([d3.min(xAxisValues), d3.max(xAxisValues)] as [number, number])
+      .range([padding[2], width]);
 
     let xAxisD = d3.axisBottom(this.xA).tickSizeOuter(0).tickSize(this.property.axis.axisX.axisTick.length);
     let xAxis = xAxisD;
@@ -2192,416 +1932,137 @@ class LineChart extends SVGComponentBase {
   /**
    * 初始化线条函数
    * @private
-   * @memberof LineChart
+   * @memberof BubbleChart
    */
-  private _getLine(): void {
+  private _getBubble(): void {
+    // this.wRange = d3.scaleLinear().rangeRound([0, 100]);
+    // this.wRange.domain([0, wMaxValue]).nice();
     // @ts-ignore
     const dataSeries = this.property.series.dataSeries;
-    const linekeys = Object.keys(dataSeries);
-    for (let index = 0; index < linekeys.length; index++) {
-      let lineKey = linekeys[index];
-      if (dataSeries[lineKey].style.smooth) {
-        if (dataSeries[lineKey].valueAxis == 'y') {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.yA(d.y)).curve(d3.curveCatmullRom);
-        } else {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.zA(d.y)).curve(d3.curveCatmullRom);
-        }
-      } else {
-        if (dataSeries[lineKey].valueAxis == 'y') {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.yA(d.y));
-        } else {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.zA(d.y));
-        }
-      }
+    const bubblekeys = Object.keys(dataSeries);
+    for (let index = 0; index < bubblekeys.length; index++) {
+      let bubbleKey = bubblekeys[index];
+      let values = this.defaultData[bubbleKey].map((d: any) => d.weight) as number[];
+      dataSeries[bubbleKey].weightRange = d3.scaleLinear().domain([d3.min(values), d3.max(values)] as [number, number]).range([dataSeries[bubbleKey].style.minR, dataSeries[bubbleKey].style.maxR]).nice();
     }
   }
 
   /**
    * 绘制曲线
    * @private
-   * @memberof LineChart
+   * @memberof BubbleChart
    */
-  private renderLine(): void {
-    const data = this.defaultData;
+  private renderBubble(): void {
     const dataSeries = this.property.series.dataSeries;
-    const linekeys = Object.keys(this.property.series.dataSeries);
+    const bubblekeys = Object.keys(this.property.series.dataSeries);
+
+    let allData = [] as any;
+    bubblekeys.forEach(element => {
+      allData = allData.concat(this.defaultData[element] || [])
+    });
     let that = this;
-    // this.animeRect.style('width', `0px`)
-    this.animeRect
-      .transition().duration(100).style('width', `0px`)
-      .transition().duration(1000).style('width', `${this.realWidth}px`)
     this.chartContainer.select('.graph')
-      .selectAll('g')
-      .data(linekeys)
-      .join(
-        (enter: any) => {
-          enter
-            .append('g')
-            .attr('class', (d: any) => `${d}_line`)
-            .append("path")
-            .attr("transform", `translate(${that.xA.bandwidth() / 2}, 0)`)
-            .attr("d", (d: any) => dataSeries[d].line(data[d] || []))
-            .attr("stroke", (d: any) => dataSeries[d].style.color != '' ? dataSeries[d].style.color : 'red')
-            .attr("stroke-width", (d: any) => dataSeries[d].style.lineWidth)
-            .attr("stroke-dasharray", (d: any) => dataSeries[d].style.type == 'solid' ? '' : dataSeries[d].style.lineWidth)
-            .attr("fill", "none")
-        },
-        (update: any) => {
-          update.attr('class', (d: any) => `${d}_line`)
-            .select('path')
-            .attr("d", (d: any) => dataSeries[d].line(data[d] || []));
-        },
-        (exit: any) => exit.remove()
-      );
-
-    for (let index = 0; index < linekeys.length; index++) {
-      let keyClass = linekeys[index];
-      let fill = '', dPth = '', tempMax = 0, tempMin = 0;
-      switch (dataSeries[keyClass].style.symbolType) {
-        case 'rect':
-          fill = dataSeries[keyClass].style.color;
-          dPth = getSymbol('rect');
-          break;
-        case 'hollowrect':
-          fill = 'none';
-          dPth = getSymbol('rect');
-          break;
-        case 'circle':
-          fill = dataSeries[keyClass].style.color;
-          dPth = getSymbol('circle');
-          break;
-        case 'hollowcircle':
-          fill = 'none';
-          dPth = getSymbol('circle');
-          break;
-        case 'triangle':
-          fill = dataSeries[keyClass].style.color;
-          dPth = getSymbol('triangle');
-          break;
-        case 'pin':
-          fill = dataSeries[keyClass].style.color;
-          dPth = getSymbol('pin');
-          break;
-        case 'hollowpin':
-          fill = 'none';
-          dPth = getSymbol('pin');
-          break;
-        default:
-          fill = 'none';
-          dPth = '';
-          break;
-      }
-      if (dataSeries[keyClass].highlight.isShow && (dataSeries[keyClass].highlight.valueType == 'min' || dataSeries[keyClass].highlight.valueType == 'max')) {
-        tempMax = d3.max(data[keyClass], (d: dataType) => d.y) as number;
-        tempMin = d3.min(data[keyClass], (d: dataType) => d.y) as number;
-      }
-      this.chartContainer.select('.graph')
-        .select(`.${keyClass}_line`)
-        .selectAll(`.item`)
-        .data(data[keyClass] || [])
-        .join((enter: any) => {
-          enter.append("path")
-            .attr('class', `item`)
-            .attr("d", dPth)
-            .attr("stroke", (d: any) => {
-              if (dataSeries[keyClass].highlight.isShow) {
-                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
-                  return dataSeries[keyClass].highlight.color;
-                } else {
-                  return dataSeries[keyClass].style.color;
-                }
-              }
-              return dataSeries[keyClass].style.color;
-            })
-            .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.symbolSize)
-            .attr("fill", (d: any) => {
-              if (dataSeries[keyClass].highlight.isShow) {
-                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
-                  return dataSeries[keyClass].highlight.color;
-                } else {
-                  return fill;
-                }
-              }
-              return fill;
-            })
-            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.symbolSize})`)
-            .on('mouseover', (d: any) => {
-              let prompt = that.property.prompt;
-              if (prompt.isShow && !prompt.carousel.isShow) {
-                that.mainSVG.selectAll('.prompt-sign').style('display', 'block')
-                that.promptAnime(d.currentTarget.__data__.x);
-              }
-            })
-            .on('mouseout', (d: any) => {
-              let prompt = that.property.prompt;
-              if (prompt.isShow && !prompt.carousel.isShow) {
-                that.mainSVG.selectAll('.prompt-sign').style('display', 'none')
-              }
-            });
-        }, (update: any) => {
-          update.attr('class', `item`)
-            .attr("d", dPth)
-            .attr("stroke", (d: any) => {
-              if (dataSeries[keyClass].highlight.isShow) {
-                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
-                  return dataSeries[keyClass].highlight.color;
-                } else {
-                  return dataSeries[keyClass].style.color;
-                }
-              }
-              return dataSeries[keyClass].style.color;
-            })
-            .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.symbolSize)
-            .attr("fill", (d: any) => {
-              if (dataSeries[keyClass].highlight.isShow) {
-                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
-                  return dataSeries[keyClass].highlight.color;
-                } else {
-                  return fill;
-                }
-              }
-              return fill;
-            })
-            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.symbolSize})`)
-        }, (exit: any) => exit.remove());
-
-      if (dataSeries[keyClass].dataTip.isShow) {
-        this.chartContainer.select('.graph')
-          .select(`.${keyClass}_line`)
-          .selectAll(`text`)
-          .data(data[keyClass] || [])
-          .join((enter: any) => {
-            enter.append("text")
-              .attr("fill", dataSeries[keyClass].dataTip.color != '' ? dataSeries[keyClass].dataTip.color : 'red')
-              .style('text-anchor', "middle")
-              .style("transform", (d: any) => {
-                let translateX = (that.xA(d.x) as number) + that.xA.bandwidth() / 2 + dataSeries[keyClass].dataTip.offset[0];
-                let translateY = 0;
-                if (dataSeries[keyClass].valueAxis == 'y') {
-                  translateY = that.yA(d.y) - dataSeries[keyClass].style.symbolSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
-                } else if (dataSeries[keyClass].valueAxis == 'z') {
-                  translateY = that.zA(d.y) - dataSeries[keyClass].style.symbolSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
-                }
-                return `translate(${translateX}px, ${translateY}px)`;
-              })
-              .text((d: any) => `${d.y}${dataSeries[keyClass].dataTip.suffix}`)
-          }, (update: any) => {
-            update.attr("fill", dataSeries[keyClass].dataTip.color != '' ? dataSeries[keyClass].dataTip.color : 'red')
-              .style('text-anchor', "middle")
-              .style("transform", (d: any) => {
-                let translateX = (that.xA(d.x) as number) + that.xA.bandwidth() / 2 + dataSeries[keyClass].dataTip.offset[0];
-                let translateY = 0;
-                if (dataSeries[keyClass].valueAxis == 'y') {
-                  translateY = that.yA(d.y) - dataSeries[keyClass].style.symbolSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
-                } else if (dataSeries[keyClass].valueAxis == 'z') {
-                  translateY = that.zA(d.y) - dataSeries[keyClass].style.symbolSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
-                }
-                return `translate(${translateX}px, ${translateY}px)`;
-              })
-              .text((d: any) => `${d.y}${dataSeries[keyClass].dataTip.suffix}`)
-          }, (exit: any) => exit.remove());
-
-        this.chartContainer.select('.graph').select(`.${keyClass}_line`).selectAll(`text`).setFontStyle(dataSeries[keyClass].dataTip.font);
-      }
-    }
-    // this.animeRect.transition().duration(1000).style('width', `${this.realWidth}px`)
-  }
-
-  /**
-   * 绘制引导线
-   * @private
-   * @memberof LineChart
-   */
-  private _renderGuidLine() {
-
-    const linekeys = Object.keys(this.property.series.dataSeries);
-
-    let tempData = {} as any, extremum = {} as any;
-    linekeys.forEach(element => {
-      tempData[element] = this.defaultData[element] || [];
-      let values = tempData[element].map((d: any) => d.y);
-      let dic = {} as any;
-      dic['yAxis'] = this.property.series.dataSeries[element].valueAxis;
-      dic['max'] = d3.max(values);
-      dic['min'] = d3.min(values);
-      dic['averge'] = d3.mean(values)?.toFixed(2);
-      extremum[element] = dic;
-    });
-
-    const padding = this.property.global.padding;
-    const width = this.realWidth - padding[3];
-    let guideLine = this.property.series.guideLine;
-    let guideLineKeys = Object.keys(guideLine);
-
-    guideLineKeys.forEach(element => {
-      guideLine[element].extremumData = extremum[guideLine[element].style.dataSeriesId] || undefined
-    });
-
-    this.chartContainer.select(".guide-line")
-      .selectAll('g')
-      .data(guideLineKeys)
+      .selectAll('circle')
+      .data(allData)
       .join((enter: any) => {
-        let guideDom = enter.append('g').attr('class', (d: any) => d);
-        guideDom.append('line')
-          .attr('x1', padding[2])
-          .attr('y1', (d: any) => {
-            if (!guideLine[d].extremumData) return 0;
-            let lineScale = guideLine[d].extremumData.yAxis == 'y' ? this.yA : this.zA;
-            if (guideLine[d].style.lineType == 'max') {
-              return lineScale(guideLine[d].extremumData['max']);
-            } else if (guideLine[d].style.lineType == 'min') {
-              return lineScale(guideLine[d].extremumData['min']);
-            } else if (guideLine[d].style.lineType == 'average') {
-              return lineScale(guideLine[d].extremumData['average']);
-            } else if (guideLine[d].style.lineType == 'assign') {
-              return lineScale(guideLine[d].style.value);
+        enter.append('circle')
+          .attr('r', (d: any) => dataSeries[d.s].weightRange(d.weight))
+          .attr('fill', (d: any) => {
+            if (dataSeries[d.s].highlight.isShow) {
+              if (dataSeries[d.s].highlight.valueType == 'min' && d.y == d.min) {
+                return dataSeries[d.s].highlight.color;
+              } else if (dataSeries[d.s].highlight.valueType == 'max' && d.y == d.max) {
+                return dataSeries[d.s].highlight.color;
+              } else if (dataSeries[d.s].highlight.valueType == 'assign' && d.x == dataSeries[d.s].highlight.value) {
+                return dataSeries[d.s].highlight.color;
+              } else {
+                return dataSeries[d.s].style.color;
+              }
             }
+            return dataSeries[d.s].style.color;
           })
-          .attr('x2', width - padding[2])
-          .attr('y2', (d: any) => {
-            if (!guideLine[d].extremumData) return 0;
-            let lineScale = guideLine[d].extremumData.yAxis == 'y' ? this.yA : this.zA;
-            if (guideLine[d].style.lineType == 'max') {
-              return lineScale(guideLine[d].extremumData['max']);
-            } else if (guideLine[d].style.lineType == 'min') {
-              return lineScale(guideLine[d].extremumData['min']);
-            } else if (guideLine[d].style.lineType == 'average') {
-              return lineScale(guideLine[d].extremumData['average']);
-            } else if (guideLine[d].style.lineType == 'assign') {
-              return lineScale(guideLine[d].style.value);
-            }
-          })
-          .attr('stroke', (d: any) => guideLine[d].extremumData ? guideLine[d].style.color : '')
-          .attr('stroke-width', (d: any) => guideLine[d].style.stroke)
-          .attr('stroke-dasharray', (d: any) => guideLine[d].style.lineStyle == 'line' ? '0' : `${guideLine[d].style.stroke}`);
-
-        guideDom.append('text').attr('y', (d: any) => {
-          if (!guideLine[d].extremumData) return 0;
-          let lineScale = guideLine[d].extremumData.yAxis == 'y' ? this.yA : this.zA;
-          let translateY: any;
-          if (guideLine[d].style.lineType == 'max') {
-            translateY = lineScale(guideLine[d].extremumData['max']);
-          } else if (guideLine[d].style.lineType == 'min') {
-            translateY = lineScale(guideLine[d].extremumData['min']);
-          } else if (guideLine[d].style.lineType == 'average') {
-            translateY = lineScale(guideLine[d].extremumData['average']);
-          } else if (guideLine[d].style.lineType == 'assign') {
-            translateY = lineScale(guideLine[d].style.value);
-          }
-          return translateY + guideLine[d].dataTip.offset[1]
-        })
-          .attr('x', (d: any) => padding[2] + guideLine[d].dataTip.offset[0])
-          .text((d: any) => {
-            if (!guideLine[d].extremumData) return '';
-            if (guideLine[d].style.lineType == 'max') {
-              return `${guideLine[d].extremumData['max']}${guideLine[d].dataTip.suffix}`;
-            } else if (guideLine[d].style.lineType == 'min') {
-              return `${guideLine[d].extremumData['min']}${guideLine[d].dataTip.suffix}`;
-            } else if (guideLine[d].style.lineType == 'average') {
-              return `${guideLine[d].extremumData['average']}${guideLine[d].dataTip.suffix}`;
-            } else if (guideLine[d].style.lineType == 'assign') {
-              return `${guideLine[d].style.value}${guideLine[d].dataTip.suffix}`;
-            }
+          .attr('stroke', (d: any) => dataSeries[d.s].style.stroke)
+          .attr('stroke-width', (d: any) => dataSeries[d.s].style.strokeWidth)
+          .attr('filter', (d: any) => `drop-shadow(${dataSeries[d.s].style.outerglowH}px ${dataSeries[d.s].style.outerglowV}px ${dataSeries[d.s].style.outerglowR}px ${dataSeries[d.s].style.outerglowColor})`)
+          .attr('cx', (d: any) => this.xA(d.x))
+          .attr('cy', (d: any) => dataSeries[d.s].valueAxis == 'y' ? this.yA(d.y) : this.zA(d.y))
+          .on('mouseover', (d: any) => {
+            // let prompt = that.property.prompt;
+            // if (prompt.isShow && !prompt.carousel.isShow) {
+            //   that.mainSVG.selectAll('.prompt-sign').style('display', 'block')
+            //   that.promptAnime(d.currentTarget.__data__.x);
+            // }
           })
       }, (update: any) => {
-        update.select('line')
-          .attr('x1', padding[2])
-          .attr('y1', (d: any) => {
-            if (!guideLine[d].extremumData) return 0;
-            let lineScale = guideLine[d].extremumData.yAxis == 'y' ? this.yA : this.zA;
-            if (guideLine[d].style.lineType == 'max') {
-              return lineScale(guideLine[d].extremumData['max']);
-            } else if (guideLine[d].style.lineType == 'min') {
-              return lineScale(guideLine[d].extremumData['min']);
-            } else if (guideLine[d].style.lineType == 'average') {
-              return lineScale(guideLine[d].extremumData['average']);
-            } else if (guideLine[d].style.lineType == 'assign') {
-              return lineScale(guideLine[d].style.value);
+        update.attr('filter', (d: any) => `drop-shadow(${dataSeries[d.s].style.outerglowH}px ${dataSeries[d.s].style.outerglowV}px ${dataSeries[d.s].style.outerglowR}px ${dataSeries[d.s].style.outerglowColor})`)
+          .attr('r', (d: any) => dataSeries[d.s].weightRange(d.weight))
+          .attr('fill', (d: any) => {
+            if (dataSeries[d.s].highlight.isShow) {
+              if (dataSeries[d.s].highlight.valueType == 'min' && d.y == d.min) {
+                return dataSeries[d.s].highlight.color;
+              } else if (dataSeries[d.s].highlight.valueType == 'max' && d.y == d.max) {
+                return dataSeries[d.s].highlight.color;
+              } else if (dataSeries[d.s].highlight.valueType == 'assign' && d.x == dataSeries[d.s].highlight.value) {
+                return dataSeries[d.s].highlight.color;
+              } else {
+                return dataSeries[d.s].style.color;
+              }
             }
+            return dataSeries[d.s].style.color;
           })
-          .attr('x2', width - padding[2])
-          .attr('y2', (d: any) => {
-            if (!guideLine[d].extremumData) return 0;
-            let lineScale = guideLine[d].extremumData.yAxis == 'y' ? this.yA : this.zA;
-            if (guideLine[d].style.lineType == 'max') {
-              return lineScale(guideLine[d].extremumData['max']);
-            } else if (guideLine[d].style.lineType == 'min') {
-              return lineScale(guideLine[d].extremumData['min']);
-            } else if (guideLine[d].style.lineType == 'average') {
-              return lineScale(guideLine[d].extremumData['average']);
-            } else if (guideLine[d].style.lineType == 'assign') {
-              return lineScale(guideLine[d].style.value);
-            }
-          })
-          .attr('stroke', (d: any) => guideLine[d].extremumData ? guideLine[d].style.color : '')
-          .attr('stroke-width', (d: any) => guideLine[d].style.stroke)
-          .attr('stroke-dasharray', (d: any) => guideLine[d].style.lineStyle == 'line' ? '0' : `${guideLine[d].style.stroke}`);
-
-        update.select('text')
-          .attr('y', (d: any) => {
-            if (!guideLine[d].extremumData) return 0;
-            let lineScale = guideLine[d].extremumData.yAxis == 'y' ? this.yA : this.zA;
-            let translateY: any;
-            if (guideLine[d].style.lineType == 'max') {
-              translateY = lineScale(guideLine[d].extremumData['max']);
-            } else if (guideLine[d].style.lineType == 'min') {
-              translateY = lineScale(guideLine[d].extremumData['min']);
-            } else if (guideLine[d].style.lineType == 'average') {
-              translateY = lineScale(guideLine[d].extremumData['average']);
-            } else if (guideLine[d].style.lineType == 'assign') {
-              translateY = lineScale(guideLine[d].style.value);
-            }
-            return translateY + guideLine[d].dataTip.offset[1]
-          })
-          .attr('x', (d: any) => padding[2] + guideLine[d].dataTip.offset[0])
-          .text((d: any) => {
-            if (!guideLine[d].extremumData) return '';
-            if (guideLine[d].style.lineType == 'max') {
-              return `${guideLine[d].extremumData['max']}${guideLine[d].dataTip.suffix}`;
-            } else if (guideLine[d].style.lineType == 'min') {
-              return `${guideLine[d].extremumData['min']}${guideLine[d].dataTip.suffix}`;
-            } else if (guideLine[d].style.lineType == 'average') {
-              return `${guideLine[d].extremumData['average']}${guideLine[d].dataTip.suffix}`;
-            } else if (guideLine[d].style.lineType == 'assign') {
-              return `${guideLine[d].style.value}${guideLine[d].dataTip.suffix}`;
-            }
-          })
+          .attr('stroke', (d: any) => dataSeries[d.s].style.stroke)
+          .attr('stroke-width', (d: any) => dataSeries[d.s].style.strokeWidth)
+          .attr('cx', (d: any) => this.xA(d.x))
+          .attr('cy', (d: any) => dataSeries[d.s].valueAxis == 'y' ? this.yA(d.y) : this.zA(d.y))
       }, (exit: any) => exit.remove())
 
-    guideLineKeys.forEach(guideClass => {
-      this.chartContainer.select(".guide-line").select(`.${guideClass}`).select('text').setFontStyle(guideLine[guideClass].dataTip.font)
+    this.chartContainer.select('.graph')
+      .selectAll(`text`)
+      .data(allData)
+      .join((enter: any) => {
+        enter.append("text")
+          .attr('class', (d: any) => d.s)
+          .attr("fill", (d: any) => dataSeries[d.s].dataTip.color != '' ? dataSeries[d.s].dataTip.color : 'red')
+          .style('text-anchor', "middle")
+          .style("transform", (d: any) => {
+            let translateX = (that.xA(d.x) as number) + dataSeries[d.s].dataTip.offset[0];
+            let translateY = 0;
+            if (dataSeries[d.s].valueAxis == 'y') {
+              translateY = that.yA(d.y);
+            } else if (dataSeries[d.s].valueAxis == 'z') {
+              translateY = that.zA(d.y);
+            }
+            return `translate(${translateX}px, ${translateY + dataSeries[d.s].dataTip.offset[1]}px)`;
+          })
+          .text((d: any) => `${d.y}${dataSeries[d.s].dataTip.suffix}`)
+      }, (update: any) => {
+        update.attr('class', (d: any) => d.s)
+          .attr("fill", (d: any) => dataSeries[d.s].dataTip.color != '' ? dataSeries[d.s].dataTip.color : 'red')
+          .style('text-anchor', "middle")
+          .style("transform", (d: any) => {
+            let translateX = (that.xA(d.x) as number) + dataSeries[d.s].dataTip.offset[0];
+            let translateY = 0;
+            if (dataSeries[d.s].valueAxis == 'y') {
+              translateY = that.yA(d.y);
+            } else if (dataSeries[d.s].valueAxis == 'z') {
+              translateY = that.zA(d.y);
+            }
+            return `translate(${translateX}px, ${translateY + dataSeries[d.s].dataTip.offset[1]}px)`;
+          })
+          .text((d: any) => `${d.y}${dataSeries[d.s].dataTip.suffix}`)
+      }, (exit: any) => exit.remove());
+
+      bubblekeys.forEach(element => {
+      this.chartContainer.select('.graph').selectAll(`.${element}`).setFontStyle(dataSeries[element].dataTip.font);
     });
   }
 
   public update(data: any) {
     if (!data) return;
-    // console.log("bar chart update", data);
     this.defaultData = data;
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
-    // this.renderLegend();
-    this._renderGuidLine();
+    this._getBubble();
+    this.renderBubble();
   }
 
   private clearTimer() {
@@ -2615,4 +2076,4 @@ class LineChart extends SVGComponentBase {
   }
 }
 
-export default LineChart;
+export default BubbleChart;

@@ -12,13 +12,12 @@ interface dataType {
   y: number;
 }
 
+/**
+ * 面积图
+ * @class AreaChart
+ * @extends {SVGComponentBase}
+ */
 class AreaChart extends SVGComponentBase {
-  private margin: {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  };
   private xA: d3.ScaleBand<string>;
   private yA: d3.ScaleLinear<number, number>;
   private zA: d3.ScaleLinear<number, number>;

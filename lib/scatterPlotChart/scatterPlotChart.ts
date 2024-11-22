@@ -12,6 +12,11 @@ interface dataType {
   y: number;
 }
 
+/**
+ * 散点图
+ * @class ScatterPlotChart
+ * @extends {SVGComponentBase}
+ */
 class ScatterPlotChart extends SVGComponentBase {
   private xA: d3.ScaleLinear<number, number>;
   private yA: d3.ScaleLinear<number, number>;
@@ -48,17 +53,17 @@ class ScatterPlotChart extends SVGComponentBase {
     let dataSeriesDic = this.getPropertyDictionary('series.dataSeries');
     for (let i = 0; i < dataSeriesModels.length; i++) {
       // @ts-ignore
-      let lineName = dataSeriesModels[i].groupId;
+      let plotName = dataSeriesModels[i].groupId;
       dataSeriesModelArr.push({
-        name: lineName,
-        displayName: `数据系列${lineName.split("_")[1]}`,
-        description: lineName,
+        name: plotName,
+        displayName: `数据系列${plotName.split("_")[1]}`,
+        description: plotName,
         action: [
           {
             text: "删除组",
             style: "red",
             action: "deleteDataSeries",
-            param: [lineName.split("_")[1]],
+            param: [plotName.split("_")[1]],
           },
         ],
         children: _.cloneDeep(this.dataSeriesPropertyDictionary),
@@ -89,7 +94,7 @@ class ScatterPlotChart extends SVGComponentBase {
         { x: "7", y: 2 },
         { x: "8", y: 6 },
         { x: "9", y: 7 },
-        { x: "10", y: 1 }
+        { x: "10", y: 0 }
       ],
       'dataSeries_1': [
         { x: "1", y: 56 },
@@ -108,13 +113,13 @@ class ScatterPlotChart extends SVGComponentBase {
     } as any;
   }
 
-  private _addDataBind(lineName = '', isAdd = true) {
+  private _addDataBind(plotName = '', isAdd = true) {
     if (isAdd) {
-      if (Object.keys(this.dataBind).indexOf(lineName) < 0) {
-        this.dataBind[lineName] = { x: { bindKey: '', isCustom: false }, y: { bindKey: '', isCustom: false } };
+      if (Object.keys(this.dataBind).indexOf(plotName) < 0) {
+        this.dataBind[plotName] = { x: { bindKey: '', isCustom: false }, y: { bindKey: '', isCustom: false } };
       }
     } else {
-      delete this.dataBind[lineName];
+      delete this.dataBind[plotName];
     }
   }
 
@@ -263,10 +268,10 @@ class ScatterPlotChart extends SVGComponentBase {
         dataSeries: {
           'dataSeries_0': {
             groupId: 'dataSeries_0',
-            name: '折线1',
+            name: '散点1',
             valueAxis: "y",
             style: {
-              color: 'red', symbolType: 'hollowcircle',//triangle circle hollowcircle rect hollowrect pin hollowpin
+              color: 'red',
               radius: 8,
             },
             highlight: {
@@ -1192,14 +1197,14 @@ class ScatterPlotChart extends SVGComponentBase {
       this.dataSeriesPropertyDictionary = [
         {
           name: "groupId",
-          displayName: "折线编码",
+          displayName: "散点编码",
           type: OptionType.string,
           editable: false,
           show: true,
         },
         {
           name: "name",
-          displayName: "折线名称",
+          displayName: "散点名称",
           type: OptionType.string,
         },
         {
@@ -1370,8 +1375,7 @@ class ScatterPlotChart extends SVGComponentBase {
     });
     this._addDataBind(dataSeriesName, true);
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this.renderPlot();
     this.renderLegend();
     if (this.property.prompt.isShow) {
       this._renderPromptList();
@@ -1394,8 +1398,7 @@ class ScatterPlotChart extends SVGComponentBase {
 
     this._addDataBind(dataSeriesName, false);
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this.renderPlot();
     this.renderLegend();
     if (this.property.prompt.isShow) {
       this._renderPromptList();
@@ -1412,8 +1415,7 @@ class ScatterPlotChart extends SVGComponentBase {
     this.renderDefs();
     this.renderContainer();
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this.renderPlot();
     this.renderLegend();
     this.promptAnime('');
   }
@@ -1466,7 +1468,7 @@ class ScatterPlotChart extends SVGComponentBase {
     style = `position: absolute; height: auto; display: flex; transform: translate3d(${this.property.global.legend.layout.position[0] / 100 * this.realWidth}px, ${this.property.global.legend.layout.position[1] / 100 * this.realHeight}px, 0px);justify-content: center;`;
 
     this.mainSVG.append("g")
-      .attr("class", "line-legend")
+      .attr("class", "plot-legend")
       .append("foreignObject")
       .attr("x", `0`)
       .attr("y", `0`)
@@ -1488,7 +1490,7 @@ class ScatterPlotChart extends SVGComponentBase {
         .style('transform', `translate(${padding[2]}px,${padding[0]}px)`)
         .attr("class", "prompt-sign")
         .append("foreignObject")
-        .attr("class", "line-prompt")
+        .attr("class", "plot-prompt")
         .style('pointer-events', 'none')
         .style('transform', `translate(${padding[2] + prompt.suspend.background.offset[0]}px,${padding[0] + prompt.suspend.background.offset[1]}px)`)
         .attr("width", prompt.suspend.background.size[0])
@@ -1511,12 +1513,12 @@ class ScatterPlotChart extends SVGComponentBase {
   private _renderPromptList() {
     let prompt = this.property.prompt;
     const dataSeries = this.property.series.dataSeries;
-    const linekeys = this.property.prompt.isShow ? Object.keys(this.property.series.dataSeries) : [];
+    const plotkeys = this.property.prompt.isShow ? Object.keys(this.property.series.dataSeries) : [];
     let nameFont = `font-family:${prompt.suspend.style.nameFont.family};font-size:${prompt.suspend.style.nameFont.size};color:${prompt.suspend.style.nameFont.color};font-weight:${prompt.suspend.style.nameFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.nameFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.nameFont.underline ? 'underline' : 'none'};`;
 
     let dataFont = `font-family:${prompt.suspend.style.dataFont.family};font-size:${prompt.suspend.style.dataFont.size};color:${prompt.suspend.style.dataFont.color};font-weight:${prompt.suspend.style.dataFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.dataFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.dataFont.underline ? 'underline' : 'none'};`;
     this.promptcontentbg.selectAll(`.prompt-li`)
-      .data(linekeys)
+      .data(plotkeys)
       .join((enter: any) => {
         let divDom = enter.append('div')
           .attr('class', `prompt-li`)
@@ -1550,9 +1552,9 @@ class ScatterPlotChart extends SVGComponentBase {
     let prompt = this.property.prompt;
     if (!prompt.isShow) return;
     const padding = this.property.global.padding;
-    const linekeys = Object.keys(this.property.series.dataSeries);
+    const plotkeys = Object.keys(this.property.series.dataSeries);
     let tempData = {} as any, values = [] as number[];
-    linekeys.forEach(element => {
+    plotkeys.forEach(element => {
       tempData[element] = this.defaultData[element] || [];
       tempData[element].map(d => d.name = element);
       values = values.concat(tempData[element]);
@@ -1578,9 +1580,9 @@ class ScatterPlotChart extends SVGComponentBase {
     let that = this;
     //提示框位置更新
     let showPromptIndex = function (aniIndex: number) {
-      for (let index = 0; index < linekeys.length; index++) {
+      for (let index = 0; index < plotkeys.length; index++) {
         //@ts-ignore
-        that.promptcontentbg.select(`#${that._id}_${linekeys[index]}`).select('.pro-legend-value').text(promptData[aniIndex][linekeys[index]]);
+        that.promptcontentbg.select(`#${that._id}_${plotkeys[index]}`).select('.pro-legend-value').text(promptData[aniIndex][plotkeys[index]]);
       }
 
       that.promptcontentbg.select('.prompt-content-title').text(promptData[aniIndex]['xkey']);
@@ -1589,7 +1591,7 @@ class ScatterPlotChart extends SVGComponentBase {
       if (translateX + prompt.suspend.background.size[0] > that.realWidth - padding[2]) {
         translateX = (that.xA(promptData[aniIndex]['xkey']) as number) - prompt.suspend.background.size[0] - prompt.suspend.background.offset[0];
       }
-      that.mainSVG.select('.line-prompt').style('transform', `translate3d(${translateX}px,${translateY}px,0px)`);
+      that.mainSVG.select('.plot-prompt').style('transform', `translate3d(${translateX}px,${translateY}px,0px)`);
       that.chartContainer.select('.prompt-indicator').attr('x', (that.xA(promptData[aniIndex]['xkey']) as number) - indicatorWidth / 2);
     }
     showPromptIndex(prompAniIndex);
@@ -1623,14 +1625,14 @@ class ScatterPlotChart extends SVGComponentBase {
   private renderLegend(): void {
 
     const legend = this.property.global.legend;
-    this.mainSVG.select('.line-legend').style('display', legend.isShow ? 'block' : 'none');
+    this.mainSVG.select('.plot-legend').style('display', legend.isShow ? 'block' : 'none');
     if (legend.isShow) {
       const dataSeries = this.property.series.dataSeries;
-      const linekeys = legend.isShow ? Object.keys(this.property.series.dataSeries) : [];
+      const plotkeys = legend.isShow ? Object.keys(this.property.series.dataSeries) : [];
       let divStyle = `font-family:${legend.style.font.family};font-size:${legend.style.font.size};color:${legend.style.font.color};font-weight:${legend.style.font.bolder ? 'bolder' : 'normal'};font-style:${legend.style.font.italic ? 'italic' : 'normal'};text-decoration:${legend.style.font.underline ? 'underline' : 'none'}`;
       this.mainSVG.select('.legend')
         .selectAll('.li_dom')
-        .data(linekeys)
+        .data(plotkeys)
         .join((enter: any) => {
           let liDom = enter.append('li')
             .attr('class', `li_dom`)
@@ -1669,7 +1671,7 @@ class ScatterPlotChart extends SVGComponentBase {
    * @memberof ScatterPlotChart
    */
   private renderAxis(): void {
-    const linekeys = Object.keys(this.property.series.dataSeries);
+    const plotkeys = Object.keys(this.property.series.dataSeries);
     let maxValue = 1, minValue = 0, maxValues = [] as number[], minValues = [] as number[];
     let zmaxValue = 1, zminValue = 0, zmaxValues = [] as number[], zminValues = [] as number[];
     if (this.property.axis.axisY.axisTick.rangeType == 'auto') {
@@ -1700,9 +1702,9 @@ class ScatterPlotChart extends SVGComponentBase {
       zminValue = this.property.axis.axisZ.axisTick.rangeValue[0];
     }
 
-    if (linekeys.length < 1) return;
+    if (plotkeys.length < 1) return;
     let tempData = {} as any, allData = [] as any;
-    linekeys.forEach(element => {
+    plotkeys.forEach(element => {
       tempData[element] = this.defaultData[element] || [];
       allData = allData.concat(this.sortData(element))
     });
@@ -1855,48 +1857,17 @@ class ScatterPlotChart extends SVGComponentBase {
   }
 
   /**
-   * 初始化线条函数
-   * @private
-   * @memberof ScatterPlotChart
-   */
-  private _getLine(): void {
-    // @ts-ignore
-    const dataSeries = this.property.series.dataSeries;
-    const linekeys = Object.keys(dataSeries);
-    for (let index = 0; index < linekeys.length; index++) {
-      let lineKey = linekeys[index];
-      if (dataSeries[lineKey].style.smooth) {
-        if (dataSeries[lineKey].valueAxis == 'y') {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.yA(d.y)).curve(d3.curveCatmullRom);
-        } else {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.zA(d.y)).curve(d3.curveCatmullRom);
-        }
-      } else {
-        if (dataSeries[lineKey].valueAxis == 'y') {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.yA(d.y));
-        } else {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.zA(d.y));
-        }
-      }
-    }
-  }
-
-  /**
    * 绘制曲线
    * @private
    * @memberof ScatterPlotChart
    */
-  private renderLine(): void {
+  private renderPlot(): void {
     const data = this.defaultData;
     const dataSeries = this.property.series.dataSeries;
-    const linekeys = Object.keys(this.property.series.dataSeries);
+    const plotkeys = Object.keys(this.property.series.dataSeries);
 
     let allData = [] as any;
-    linekeys.forEach(element => {
+    plotkeys.forEach(element => {
       allData = allData.concat(this.defaultData[element] || [])
     });
     let that = this;
@@ -1959,7 +1930,7 @@ class ScatterPlotChart extends SVGComponentBase {
           .text((d: any) => `${d.y}${dataSeries[d.s].dataTip.suffix}`)
       }, (exit: any) => exit.remove());
 
-    linekeys.forEach(element => {
+    plotkeys.forEach(element => {
       this.chartContainer.select('.graph').selectAll(`.${element}`).setFontStyle(dataSeries[element].dataTip.font);
     });
   }
@@ -1968,8 +1939,7 @@ class ScatterPlotChart extends SVGComponentBase {
     if (!data) return;
     this.defaultData = data;
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this.renderPlot();
   }
 
   private clearTimer() {
