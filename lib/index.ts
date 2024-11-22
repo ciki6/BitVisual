@@ -4,6 +4,7 @@ import ImageView from "./imageView/imageView";
 import LineChart from "./lineChart/lineChart";
 import AreaChart from "./areaChart/areaChart";
 import ScatterPlotChart from "./scatterPlotChart/scatterPlotChart";
+import BubbleChart from "./bubbleChart/bubbleChart";
 const WisChart = {
   BarChart,
   ChordDiagram,
@@ -11,5 +12,6 @@ const WisChart = {
   LineChart,
   AreaChart,
   ScatterPlotChart,
+  BubbleChart
 };
 export default WisChart;
