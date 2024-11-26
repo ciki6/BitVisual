@@ -5,6 +5,7 @@ import LineChart from "./lineChart/lineChart";
 import AreaChart from "./areaChart/areaChart";
 import ScatterPlotChart from "./scatterPlotChart/scatterPlotChart";
 import BubbleChart from "./bubbleChart/bubbleChart";
+import BarGraph from "./barGraph/barGraph";
 const WisChart = {
   BarChart,
   ChordDiagram,
@@ -12,6 +13,7 @@ const WisChart = {
   LineChart,
   AreaChart,
   ScatterPlotChart,
-  BubbleChart
+  BubbleChart,
+  BarGraph,
 };
 export default WisChart;
