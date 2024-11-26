@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 
 import "./index.css";
 
 const Layout: React.FC = () => {
   const [menus, setMenus] = useState<Set<string>>(new Set());
+  const navigate = useNavigate();
 
   useEffect(() => {
     const pages = import.meta.glob("../pages/**/*.tsx");
@@ -21,13 +22,14 @@ const Layout: React.FC = () => {
 
   return (
     <div className="container vertical">
-      <header>header</header>
+      <header>单组件测试页面</header>
       <section className="container">
         <aside className="vertical">
+          <div className="menu-title">组件列表</div>
           {[...menus].map((item, index) => (
-            <Link key={index} to={`/${item}`}>
+            <div className="menu-item" key={index} onClick={() => navigate(`/${item}`)}>
               {item}
-            </Link>
+            </div>
           ))}
         </aside>
         <section>

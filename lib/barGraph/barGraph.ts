@@ -1867,19 +1867,19 @@ class BarGraph extends SVGComponentBase {
     const promptContainer = d3.select(this.container).select(".barGraph-prompt");
     if (!promptProp.isShow) return;
     this.promptData = this.dataByX(data);
-    const indicatorWidth = (this.x0.bandwidth() * promptProp.indicator.widthPercent) / 100;
+    const indicatorHeight = (this.x0.bandwidth() * promptProp.indicator.widthPercent) / 100;
     promptContainer
       .append("div")
       .classed("indicator", true)
-      .style("left", this.x0.bandwidth() / 2 - indicatorWidth / 2 + "px")
-      .style("width", indicatorWidth + "px")
-      .style("height", this.realHeight + "px")
+      .style("top", this.x0.bandwidth() / 2 - indicatorHeight / 2 + "px")
+      .style("height", indicatorHeight + "px")
+      .style("width", this.realWidth + "px")
       .style("background-color", promptProp.indicator.color);
     const suspendContainer = promptContainer
       .append("div")
       .classed("suspend", true)
-      .style("top", this.realHeight / 2 + "px")
-      .style("left", "0px")
+      .style("left", this.realWidth / 2 + "px")
+      .style("top", "0px")
       .style("width", promptProp.suspend.background.size[0] + "px")
       .style("height", promptProp.suspend.background.size[1] + "px")
       .style("transform", `translate(${promptProp.suspend.background.offset[0]}px,${promptProp.suspend.background.offset[1]}px)`)
@@ -1910,12 +1910,12 @@ class BarGraph extends SVGComponentBase {
       .select(".indicator")
       .transition()
       .duration(500)
-      .style("transform", `translateX(${this.x0(this.x0.domain()[index])}px)`);
+      .style("transform", `translateY(${this.x0(this.x0.domain()[index])}px)`);
     const suspendContainer = promptContainer.select(".suspend");
     suspendContainer
       .transition()
       .duration(500)
-      .style("left", this.x0(this.x0.domain()[index]) + "px");
+      .style("top", this.x0(this.x0.domain()[index]) + "px");
     suspendContainer.select(".suspend-title").text(this.x0.domain()[index]);
     const susBody = suspendContainer.select(".suspend-body");
     susBody.selectAll("div").remove();

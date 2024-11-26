@@ -1,14 +1,14 @@
-.barChart-legend {
+.barGraph-legend {
   position: absolute;
   top: 0;
   left: 0;
   display: flex;
 }
-.barChart-legnendItem {
+.barGraph-legnendItem {
   display: flex;
   align-items: center;
 }
-.barChart-prompt {
+.barGraph-prompt {
   position: absolute;
   top: 0;
   left: 0;
