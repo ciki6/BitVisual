@@ -70,7 +70,8 @@ class DataModule {
       }
       for (let i = 0; i < this.instance.getDataScripts.length; i++) {
         try {
-          eval(this.instance.getDataScripts[i]);
+          const fn = new Function(this.instance.getDataScripts[i]);
+          fn();
         } catch (error) {
           console.log(`脚本error=${error}:${this.instance.getDataScripts[i]}`);
         }

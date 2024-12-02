@@ -33,7 +33,7 @@ class D3Extend {
 
       selection
         .style("font-family", family)
-        .style("font-size", size)
+        .style("font-size", size+'px')
         .style("font-weight", bolder ? "bold" : "normal")
         .style("font-style", italic ? "italic" : "normal");
       if (isSVGElement) {

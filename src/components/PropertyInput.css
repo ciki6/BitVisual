@@ -1,0 +1,16 @@
+.font-container {
+  display: flex;
+}
+.font-select {
+  border: 1px solid #000;
+  box-shadow: 3px 3px #4d4d4d;
+}
+.font-item {
+  margin: 0 5px;
+}
+.font-selected {
+  background-color: #bcbcbc;
+}
+.font-unselected {
+  background-color: #fff;
+}

@@ -1,3 +1,4 @@
+import type { WisChartType } from "./types";
 import BarChart from "./barChart/barChart";
 import ChordDiagram from "./chordDiagram/chordDiagram";
 import ImageView from "./imageView/imageView";
@@ -6,7 +7,7 @@ import AreaChart from "./areaChart/areaChart";
 import ScatterPlotChart from "./scatterPlotChart/scatterPlotChart";
 import BubbleChart from "./bubbleChart/bubbleChart";
 import BarGraph from "./barGraph/barGraph";
-const WisChart = {
+const WisChart: WisChartType = {
   BarChart,
   ChordDiagram,
   ImageView,

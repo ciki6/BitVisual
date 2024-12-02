@@ -88,7 +88,7 @@ class BarChart extends SVGComponentBase {
           style: {
             font: {
               family: "微软雅黑",
-              size: "50px",
+              size: 50,
               color: "#ffffff",
               bolder: false,
               italic: false,
@@ -100,7 +100,7 @@ class BarChart extends SVGComponentBase {
             valueMargin: 5,
             valueFont: {
               family: "微软雅黑",
-              size: "50px",
+              size: 50,
               color: "#ffffff",
               bolder: false,
               italic: false,
@@ -123,7 +123,7 @@ class BarChart extends SVGComponentBase {
             isShow: true,
             font: {
               family: "微软雅黑",
-              size: "50px",
+              size: 50,
               color: "#ffffff",
               bolder: false,
               italic: false,
@@ -161,7 +161,7 @@ class BarChart extends SVGComponentBase {
             isShow: true,
             font: {
               family: "微软雅黑",
-              size: "50px",
+              size: 50,
               color: "#ffffff",
               bolder: false,
               italic: false,
@@ -199,7 +199,7 @@ class BarChart extends SVGComponentBase {
             isShow: true,
             font: {
               family: "微软雅黑",
-              size: "50px",
+              size: 50,
               color: "#ffffff",
               bolder: false,
               italic: false,
@@ -257,7 +257,7 @@ class BarChart extends SVGComponentBase {
           style: {
             titleFont: {
               family: "微软雅黑",
-              size: "50px",
+              size: 50,
               color: "#ffffff",
               bolder: false,
               italic: false,
@@ -267,7 +267,7 @@ class BarChart extends SVGComponentBase {
             align: "left",
             nameFont: {
               family: "微软雅黑",
-              size: "50px",
+              size: 50,
               color: "#ffffff",
               bolder: false,
               italic: false,
@@ -279,7 +279,7 @@ class BarChart extends SVGComponentBase {
             interval: 20,
             dataFont: {
               family: "微软雅黑",
-              size: "50px",
+              size: 50,
               color: "#ffffff",
               bolder: false,
               italic: false,
@@ -1205,7 +1205,7 @@ class BarChart extends SVGComponentBase {
                   },
                   {
                     name: "interval",
-                    displayName: "图例大小",
+                    displayName: "显示间隔",
                     description: "数值与名称之间的间隔",
                     type: OptionType.doubleArray,
                     placeholder: ["长", "宽"],
@@ -1269,7 +1269,7 @@ class BarChart extends SVGComponentBase {
       dataTip: {
         font: {
           family: "微软雅黑",
-          size: "50px",
+          size: 50,
           color: "#ffffff",
           bolder: false,
           italic: false,
@@ -1422,7 +1422,7 @@ class BarChart extends SVGComponentBase {
       dataTip: {
         font: {
           family: "微软雅黑",
-          size: "50px",
+          size: 50,
           color: "#ffffff",
           bolder: false,
           italic: false,
