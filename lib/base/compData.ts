@@ -127,25 +127,25 @@ class DataModule {
       action.compParams = [];
       oldParam.forEach(function (param: string) {
         let evalString = param;
-        //如果evalString的类型为string则去判断里面是否包含@data@字符串并做数据替换，否则直接跳过
+
+        // 如果 evalString 是字符串，则判断是否包含 @_data@ 的模式，并进行数据替换
         if (typeof evalString === "string") {
-          let valueStringList = param.match(/(?<=@)_data.[^,]+(?=@)/g);
-          let valueReplaceList = param.match(/@_data.[^,]+@/g);
-          let valueList: any[] = [];
-          if (valueStringList && valueStringList.length > 0) {
-            valueStringList.forEach((eachStr: string) => {
-              valueList.push(eval(eachStr));
-            });
-            if (valueReplaceList && valueReplaceList.length > 0) {
-              for (let i = 0; i < valueReplaceList.length; i++) {
-                if (valueList[i]) {
-                  evalString = evalString.replace(valueReplaceList[i], valueList[i]);
-                }
+          // 使用正则匹配出需要替换的值
+          const valueStringList = param.match(/(?<=@)_data\.[^@]+(?=@)/g);
+          const valueReplaceList = param.match(/@_data\.[^@]+@/g);
+
+          if (valueStringList && valueReplaceList) {
+            // 遍历匹配的值进行替换
+            valueReplaceList.forEach((replaceItem, index) => {
+              const valuePath = valueStringList[index];
+              if (valuePath) {
+                // 根据路径访问对象的值，替换对应内容
+                const resolvedValue = resolvePath(_data, valuePath);
+                evalString = evalString.replace(replaceItem, resolvedValue !== undefined ? resolvedValue : "");
               }
-            }
+            });
           }
         }
-
         action.compParams.push(evalString);
       });
     });
@@ -162,6 +162,14 @@ class DataModule {
       return actions;
     }
     return null;
+  }
+}
+
+function resolvePath(obj: any, path: string): any {
+  try {
+    return path.split(".").reduce((acc, key) => acc && acc[key], obj);
+  } catch {
+    return undefined;
   }
 }
 

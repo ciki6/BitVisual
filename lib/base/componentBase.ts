@@ -3,7 +3,8 @@ import _ from "lodash";
 import * as d3 from "d3";
 
 import PropertyManager from "./property";
-import { BaseProperty, PropertyDictionaryItem } from "../types/property";
+import { BaseProperty, PropertyDictionaryItem } from "../types/compProperty";
+import { ComponentOption } from "lib/types/compOption";
 import OptionType from "./optionType";
 import DataModule from "./compData";
 import SyncModule from "./compSync";
@@ -55,7 +56,7 @@ abstract class ComponentBase {
   public syncModule: { [key: string]: Function } = {};
   public animeModule: { [key: string]: Function } = {};
 
-  constructor(id: string, code: string, container: Element, workMode: number, option: any = {}, useDefaultOpt: boolean = true) {
+  constructor(id: string, code: string, container: Element, workMode: number, option: ComponentOption = {}, useDefaultOpt: boolean = true) {
     this.id = id;
     this.code = code;
     this.container = container;
@@ -104,7 +105,7 @@ abstract class ComponentBase {
     });
   }
 
-  protected initConf(option: any): void {
+  protected initConf(option: ComponentOption): void {
     this.property = $.extend(true, this.property, option.property);
     if (typeof option.compDataBind === "string") {
       try {

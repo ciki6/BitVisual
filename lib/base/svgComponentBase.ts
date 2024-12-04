@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import $ from "jquery";
 import ComponentBase from "./componentBase";
 import OptionType from "./optionType";
-import { ComponentProperty, PropertyDictionaryItem } from "../types/property";
+import { ComponentProperty, PropertyDictionaryItem } from "../types/compProperty";
 
 abstract class SVGComponentBase extends ComponentBase {
   mainSVG: any;

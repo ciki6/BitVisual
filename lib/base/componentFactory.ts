@@ -71,29 +71,20 @@ export class ComponentsFactory {
         resourceId: this.opts.resourceId || "",
       };
 
-      div = this._createDivElement(frame, compId, compCode);
+      div = this.createDivElement(frame, compId, compCode);
       this.container.node().appendChild(div);
       try {
         object = new ComponentFactory(className, compId, compCode, div, this.workMode, compOption, false);
-      } catch (error) {}
+      } catch (error) {
+        console.error(`Failed to create component : ${className}, id:${compId}, code:${compCode}`);
+      }
       this.components[i] = object;
 
       if (zIndex.length > 0) d3.select(div).style("z-index", Number(zIndex));
     }
   }
 
-  /**
-   * 创建组件外层div
-   * @param {*} frame
-   * @param {*} name
-   */
-  _createDivElement(frame: number[], name: string, compCode: string) {
-    var div = document.createElement("div");
-    var style = `position:absolute; left: ${frame[0]}px; top: ${frame[1]}px; width: ${frame[2]}px; height: ${frame[3]}px;`;
-    div.setAttribute("id", `comp_${name}`);
-    div.setAttribute("name", name);
-    div.setAttribute("data-compCode", compCode);
-    div.setAttribute("style", style);
-    return div;
+  private createDivElement(frame: number[], name: string, compCode: string): HTMLDivElement {
+    return d3.create("div").attr("id", `comp_${name}`).attr("name", name).attr("data-compCode", compCode).attr("style", `position:absolute; left: ${frame[0]}px; top: ${frame[1]}px; width: ${frame[2]}px; height: ${frame[3]}px;`).node() as HTMLDivElement;
   }
 }

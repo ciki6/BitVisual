@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import "../base/d3Extend";
 import "./ringChart.css";
 import SVGComponentBase from "../base/svgComponentBase";
-import type { ComponentProperty, PropertyDictionaryItem } from "lib/types/property";
+import type { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
 import OptionType from "../base/optionType";
 import type { Pie, Arc, PieArcDatum } from "d3-shape";
 import type { Selection, BaseType } from "d3-selection";

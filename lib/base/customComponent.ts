@@ -1,4 +1,4 @@
-import { BaseProperty, PropertyDictionaryItem } from "lib/types/property";
+import { BaseProperty, PropertyDictionaryItem } from "lib/types/compProperty";
 import OptionType from "./optionType";
 import PropertyManager from "./property";
 import * as d3 from "d3";

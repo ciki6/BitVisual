@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import _ from "lodash";
 import "../base/d3Extend";
 import SVGComponentBase from "../base/svgComponentBase";
-import { ComponentProperty, PropertyDictionaryItem } from "lib/types/property";
+import { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
 import OptionType from "../base/optionType";
 import "./barGraph.css";
 
