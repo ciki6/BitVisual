@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import "../base/d3Extend";
-import "./pieChart.css";
+import "./rosePieChart.css";
 import SVGComponentBase from "../base/svgComponentBase";
 import type { ComponentProperty, PropertyDictionaryItem } from "lib/types/property";
 import OptionType from "../base/optionType";
@@ -12,15 +12,16 @@ interface DataItem {
     name: string;
     value: number;
     color: string;
-    percentage: number | string;
+    percentage?: number | string;
     index?: number;
+    r: number;
 }
 
 type d3Data = BaseType & {
     __data__: PieArcDatum<DataItem>;
 };
 
-class PieChart extends SVGComponentBase {
+class RosePieChart extends SVGComponentBase {
     private width: number;
     private height: number;
     private textWidth: Record<string, number>;
@@ -105,7 +106,7 @@ class PieChart extends SVGComponentBase {
         super.initProperty();
         const property: ComponentProperty = {
             basic: {
-                className: "PieChart",
+                className: "RosePieChart",
                 frame: [0, 0, 1920, 1080],
             },
             global: {
@@ -142,13 +143,6 @@ class PieChart extends SVGComponentBase {
                             valueOffsetY: -100,
                             valueOffsetX: 0,
                             precision: 1,
-                        },
-                    },
-                    maskStyle: {
-                        isShow: true,
-                        style: {
-                            percentage: 85,
-                            opacity: 0.4,
                         },
                     },
                 },
@@ -383,42 +377,6 @@ class PieChart extends SVGComponentBase {
                                                 options: {
                                                     min: 0,
                                                     max: 5,
-                                                },
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                            {
-                                name: "maskStyle",
-                                displayName: "遮罩物",
-                                children: [
-                                    {
-                                        name: "isShow",
-                                        displayName: "是否显示",
-                                        type: OptionType.boolean,
-                                    },
-                                    {
-                                        name: "style",
-                                        displayName: "样式",
-                                        children: [
-                                            {
-                                                name: "percentage",
-                                                displayName: "占比",
-                                                type: OptionType.range,
-                                                options: {
-                                                    min: 0,
-                                                    max: 100,
-                                                },
-                                                unit: "%",
-                                            },
-                                            {
-                                                name: "opacity",
-                                                displayName: "透明度",
-                                                type: OptionType.range,
-                                                options: {
-                                                    min: 0,
-                                                    max: 1,
                                                 },
                                             },
                                         ],
@@ -692,14 +650,15 @@ class PieChart extends SVGComponentBase {
     }
 
     private handleData(data: DataItem[], isChange = true) {
-        this.generateRadialGradientColor();
         const sum = this.arraySum(data);
+        const maxValue = Math.max(...data.map((d: DataItem) => d.value));
         data.map((d: DataItem, i: number) => {
             d.percentage = d3.format(`.${this.property.global.pieStyle.label.style.precision}f`)(
                 (d.value / sum) * 100
             );
             d.index = i;
             d.color = this.property.series.color[i];
+            d.r = this.property.global.pieStyle.pie.radius * (d.value / maxValue);
             if (isChange) {
                 this.hasChangeValue[d.name] = {
                     value: d.value,
@@ -712,49 +671,6 @@ class PieChart extends SVGComponentBase {
             this.textWidth[d.name] = this.getTrueWidth(d.name);
         });
         return data;
-    }
-
-    private generateRadialGradientColor() {
-        if (this.pieContainer!.select(".radialGradient")) {
-            this.pieContainer!.select(".radialGradient").remove();
-        }
-        const defs = this.pieContainer!.append("defs").attr("class", "radialGradient");
-        this.property.series.color.forEach((d: string) => {
-            const gradient = defs
-                .append("radialGradient")
-                .attr("id", `gradient-${d}`)
-                .attr("gradientUnits", "userSpaceOnUse")
-                .attr("cx", 0)
-                .attr("cy", 0)
-                .attr("r", this.property.global.pieStyle.pie.radius);
-
-            gradient
-                .append("stop")
-                .attr("offset", "0%")
-                .attr("stop-color", d)
-                .attr("stop-opacity", this.property.global.pieStyle.maskStyle.style.opacity);
-
-            gradient
-                .append("stop")
-                .attr("offset", `${this.property.global.pieStyle.maskStyle.style.percentage}%`)
-                .attr("stop-color", d)
-                .attr("stop-opacity", this.property.global.pieStyle.maskStyle.style.opacity);
-
-            gradient
-                .append("stop")
-                .attr(
-                    "offset",
-                    `${this.property.global.pieStyle.maskStyle.style.percentage + 0.1}%`
-                )
-                .attr("stop-color", d)
-                .attr("stop-opacity", 1);
-
-            gradient
-                .append("stop")
-                .attr("offset", "100%")
-                .attr("stop-color", d)
-                .attr("stop-opacity", 1);
-        });
     }
 
     private createSVGContainer() {
@@ -783,11 +699,11 @@ class PieChart extends SVGComponentBase {
     }
 
     private createTooltip() {
-        d3.select(".pie-chart-tooltip").remove();
+        d3.select(".rose-pie-chart-tooltip").remove();
         this.tooltip = d3
             .select(this.mainSVG.node().parentNode)
             .append("div")
-            .attr("class", "pie-chart-tooltip")
+            .attr("class", "rose-pie-chart-tooltip")
             .style(
                 "background",
                 this.property.prompt.tooltip.background.backgroundImage == ""
@@ -798,7 +714,7 @@ class PieChart extends SVGComponentBase {
 
         this.pieContainer!.append("defs")
             .append("filter")
-            .attr("id", "pie-filter")
+            .attr("id", "rose-pie-filter")
             .attr("x", "-100%")
             .attr("y", "-100%")
             .attr("width", "300%")
@@ -829,7 +745,7 @@ class PieChart extends SVGComponentBase {
         this.arc = d3
             .arc<any, PieArcDatum<DataItem>>()
             .innerRadius(0)
-            .outerRadius(this.property.global.pieStyle.pie.radius)
+            .outerRadius((d) => d.data.r)
             .cornerRadius(0)
             .padAngle(0);
 
@@ -841,14 +757,14 @@ class PieChart extends SVGComponentBase {
     }
 
     private animatePolyline = (data: PieArcDatum<DataItem>, _: number, isChange = false) => {
-        const { name } = data.data;
+        const { name, r } = data.data;
         const [centerX, centerY, centerZ] = isChange
             ? this.hasChangeCentroid[name]
             : this.centroid[name];
 
         // const offsetX = this.textWidth[name];
         const offsetX = this.property.global.pieStyle.label.style.polylineDistance2;
-        const [cos, sin, arcEdgeX, arcEdgeY] = this.getAecEdgePoints(centerX, centerY, centerZ);
+        const [cos, sin, arcEdgeX, arcEdgeY] = this.getAecEdgePoints(centerX, centerY, centerZ, r);
         const [pointX, pointY] = this.points[name]; //折点
         if (isChange) {
             const from = [pointX, pointY, ...this.topCentroid[name]];
@@ -1053,7 +969,7 @@ class PieChart extends SVGComponentBase {
         this.legend = d3
             .select(this.mainSVG.node().parentNode)
             .append("div")
-            .attr("class", "pie-chart-legend")
+            .attr("class", "rose-pie-chart-legend")
             .style("position", "absolute")
             .style("top", `${this.property.global.legend.layout.position[0]}px`)
             .style("left", `${this.property.global.legend.layout.position[1]}px`)
@@ -1167,7 +1083,7 @@ class PieChart extends SVGComponentBase {
                                 .transition()
                                 .duration(200)
                                 .attr("d", that.arcHighlight as any)
-                                .attr("filter", "url(#pie-filter)");
+                                .attr("filter", "url(#rose-pie-filter)");
                         }
                     });
             })
@@ -1196,7 +1112,7 @@ class PieChart extends SVGComponentBase {
                     .transition()
                     .duration(200)
                     .attr("d", this.arcHighlight as any)
-                    .attr("filter", "url(#pie-filter)");
+                    .attr("filter", "url(#rose-pie-filter)");
 
                 this.tooltip
                     .transition()
@@ -1274,7 +1190,7 @@ class PieChart extends SVGComponentBase {
                             .transition()
                             .duration(200)
                             .attr("d", that.arcHighlight as any)
-                            .attr("filter", "url(#pie-filter)");
+                            .attr("filter", "url(#rose-pie-filter)");
 
                         d3.select(that.autoCarouselArc)
                             .transition()
@@ -1349,14 +1265,11 @@ class PieChart extends SVGComponentBase {
                         .append("path")
                         .attr("class", "arc-path")
                         .attr("d", this.arc)
+                        // .attr("fill", (d: PieArcDatum<DataItem>) => d.data.color)
                         .attr("stroke", this.property.global.pieStyle.pie.borderColor)
                         .attr("data-name", (d) => d.data.name)
                         .style("stroke-width", `${this.property.global.pieStyle.pie.borderWidth}px`)
-                        .attr("fill", (d) =>
-                            this.property.global.pieStyle.maskStyle.isShow
-                                ? `url(#gradient-${d.data.color})`
-                                : d.data.color
-                        )
+                        .attr("fill", (d) => d.data.color)
                         .transition()
                         .duration(this.property.animation.durationTime * 1000)
                         .attrTween("d", (d: PieArcDatum<DataItem>) => {
@@ -1376,11 +1289,7 @@ class PieChart extends SVGComponentBase {
                         .each((d) => {
                             this.getPoints(d, true);
                         })
-                        .attr("fill", (d) =>
-                            this.property.global.pieStyle.maskStyle.isShow
-                                ? `url(#gradient-${d.data.color})`
-                                : d.data.color
-                        )
+                        .attr("fill", (d) => d.data.color)
                         .attr("stroke", this.property.global.pieStyle.pie.borderColor)
                         .style("stroke-width", `${this.property.global.pieStyle.pie.borderWidth}px`)
                         .transition()
@@ -1597,7 +1506,7 @@ class PieChart extends SVGComponentBase {
         return [x, y];
     }
 
-    private getAecEdgePoints(centerX: number, centerY: number, centerZ: number) {
+    private getAecEdgePoints(centerX: number, centerY: number, centerZ: number, r: number) {
         let cos = 0;
         let sin = 0;
         let arcEdgeX = 0;
@@ -1605,19 +1514,13 @@ class PieChart extends SVGComponentBase {
         if (centerY <= 0) {
             cos = Math.abs(centerX / centerZ);
             sin = Math.abs(centerY / centerZ);
-            arcEdgeX =
-                centerX >= 0
-                    ? cos * this.property.global.pieStyle.pie.radius
-                    : -cos * this.property.global.pieStyle.pie.radius;
-            arcEdgeY = -sin * this.property.global.pieStyle.pie.radius;
+            arcEdgeX = centerX >= 0 ? cos * r : -cos * r;
+            arcEdgeY = -sin * r;
         } else {
             cos = Math.abs(centerY / centerZ);
             sin = Math.abs(centerX / centerZ);
-            arcEdgeX =
-                centerX > 0
-                    ? sin * this.property.global.pieStyle.pie.radius
-                    : -sin * this.property.global.pieStyle.pie.radius;
-            arcEdgeY = cos * this.property.global.pieStyle.pie.radius;
+            arcEdgeX = centerX > 0 ? sin * r : -sin * r;
+            arcEdgeY = cos * r;
         }
         return [cos, sin, arcEdgeX, arcEdgeY];
     }
@@ -1634,4 +1537,4 @@ class PieChart extends SVGComponentBase {
     }
 }
 
-export default PieChart;
+export default RosePieChart;
