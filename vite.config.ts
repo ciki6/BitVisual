@@ -2,16 +2,6 @@ import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
-// import fs from "fs";
-// import path from "path";
-
-// const entryFiles = fs.readdirSync(path.resolve(__dirname, 'lib'))
-//   .filter(file => file.endsWith('.ts'))
-//   .reduce((entries, file) => {
-//     const name = path.basename(file, '.ts');
-//     entries[name] = path.resolve(__dirname, 'lib', file);
-//     return entries;
-//   }, {});
 
 export default defineConfig({
   build: {
@@ -53,10 +43,13 @@ export default defineConfig({
   },
   plugins: [
     dts({
-      include: ["lib"],
+      entryRoot: "lib",
       outDir: "dist/@types",
       staticImport: true,
       insertTypesEntry: true,
+      include: ["./lib/**/*", "./lib/types/**/*"],
+      tsconfigPath: "./tsconfig.app.json",
+      copyDtsFiles: true,
     }),
     react(),
   ],

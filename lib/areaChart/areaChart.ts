@@ -3,7 +3,7 @@ import _ from "lodash";
 import $ from "jquery";
 import "../base/d3Extend";
 import SVGComponentBase from "../base/svgComponentBase";
-import { ComponentProperty, PropertyDictionaryItem } from "lib/types/property";
+import { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
 import OptionType from "../base/optionType";
 import { getSymbol, formatDate } from "../base/compUtil";
 
@@ -12,13 +12,12 @@ interface dataType {
   y: number;
 }
 
+/**
+ * 面积图
+ * @class AreaChart
+ * @extends {SVGComponentBase}
+ */
 class AreaChart extends SVGComponentBase {
-  private margin: {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  };
   private xA: d3.ScaleBand<string>;
   private yA: d3.ScaleLinear<number, number>;
   private zA: d3.ScaleLinear<number, number>;
@@ -339,11 +338,11 @@ class AreaChart extends SVGComponentBase {
             valueAxis: "y",
             style: {
               fillType: 'color',//color texture
-              fill: 'green',
+              fill: 'red',
               filltexture: '',
               fillopacity: 0.1,
               type: "dashed",//solid ：实线 dashed ：虚线
-              color: 'red',
+              color: '#84ef02',
               smooth: false,
               symbolType: 'circle',//triangle circle hollowcircle rect hollowrect pin hollowpin
               symbolSize: 8,
@@ -1306,7 +1305,7 @@ class AreaChart extends SVGComponentBase {
           filltexture: '',
           fillopacity: 0.5,
           type: "solid",//solid ：实线 dashed ：虚线
-          color: 'green',
+          color: '#018eff',
           smooth: true,
           symbolType: 'circle',//triangle circle hollowcircle rect hollowrect pin hollowpin
           symbolSize: 8,
@@ -2292,15 +2291,23 @@ class AreaChart extends SVGComponentBase {
         if (dataSeries[lineKey].valueAxis == 'y') {//面积
           // @ts-ignore
           dataSeries[lineKey].area = !this.xA && !this.yA ? null : d3.area().x((d: any) => this.xA(d.x)).y0(height).y1((d: any) => this.yA(d.y)).curve(d3.curveCatmullRom);;
+          // @ts-ignore
+          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.yA(d.y)).curve(d3.curveCatmullRom);
         } else {//面积
+          // @ts-ignore
+          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.zA(d.y)).curve(d3.curveCatmullRom);
           // @ts-ignore
           dataSeries[lineKey].area = !this.xA && !this.zA ? null : d3.area().x((d: any) => this.xA(d.x)).y0(height).y1((d: any) => this.zA(d.y)).curve(d3.curveCatmullRom);;
         }
       } else {
         if (dataSeries[lineKey].valueAxis == 'y') {//面积
           // @ts-ignore
+          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.yA(d.y));
+          // @ts-ignore
           dataSeries[lineKey].area = !this.xA && !this.yA ? null : d3.area().x((d: any) => this.xA(d.x)).y0(height).y1((d: any) => this.yA(d.y));
         } else {//面积
+          // @ts-ignore
+          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.zA(d.y));
           // @ts-ignore
           dataSeries[lineKey].area = !this.xA && !this.zA ? null : d3.area().x((d: any) => this.xA(d.x)).y0(height).y1((d: any) => this.zA(d.y));
         }
@@ -2326,14 +2333,15 @@ class AreaChart extends SVGComponentBase {
       .data(linekeys)
       .join(
         (enter: any) => {
-          enter.append('g')
+          let domg = enter.append('g')
             .attr('class', (d: any) => `${d}_line`)
-            .append("path")
+          domg.append("path")
+            .attr('class', 'area-path-0')
             .attr("transform", `translate(${that.xA.bandwidth() / 2}, 0)`)
             .attr("d", (d: any) => dataSeries[d].area(data[d] || []))
-            .style("stroke", (d: any) => dataSeries[d].style.color != '' ? dataSeries[d].style.color : 'red')
-            .style("stroke-width", (d: any) => dataSeries[d].style.lineWidth)
-            .attr("stroke-dasharray", (d: any) => dataSeries[d].style.type == 'solid' ? '' : dataSeries[d].style.lineWidth)
+            // .style("stroke", (d: any) => dataSeries[d].style.color != '' ? dataSeries[d].style.color : 'red')
+            // .style("stroke-width", (d: any) => dataSeries[d].style.lineWidth)
+            // .attr("stroke-dasharray", (d: any) => dataSeries[d].style.type == 'solid' ? '' : dataSeries[d].style.lineWidth)
             .style("fill", (d: any) => {
               if (dataSeries[d].style.fillType == 'texture') {
                 return `url(#area-texture_${that.id}_${dataSeries[d].groupId})`
@@ -2349,18 +2357,40 @@ class AreaChart extends SVGComponentBase {
               }
             });
 
+          domg.append("path")
+            .attr('class', 'area-path-1')
+            .attr("transform", `translate(${that.xA.bandwidth() / 2}, 0)`)
+            .attr("d", (d: any) => dataSeries[d].line(data[d] || []))
+            .attr("stroke", (d: any) => dataSeries[d].style.color != '' ? dataSeries[d].style.color : 'red')
+            .attr("stroke-width", (d: any) => dataSeries[d].style.lineWidth)
+            .attr("stroke-dasharray", (d: any) => dataSeries[d].style.type == 'solid' ? '' : dataSeries[d].style.lineWidth)
+            .attr("fill", "none")
         },
         (update: any) => {
-          update.select('path')
+          update.attr('class', (d: any) => `${d}_line`)
+          update.select('.area-path-0')
             .attr("d", (d: any) => dataSeries[d].area(data[d] || []))
-            // .style("fill", "green");
             .style("fill", (d: any) => {
               if (dataSeries[d].style.fillType == 'texture') {
                 return `url(#area-texture_${that.id}_${dataSeries[d].groupId})`
               } else {
-                return '';
+                return dataSeries[d].style.fill;
               }
             })
+            .style('fill-opacity', (d: any) => {
+              if (dataSeries[d].style.fillType == 'texture') {
+                return dataSeries[d].style.fillopacity
+              } else {
+                return '';
+              }
+            });
+
+          update.select('.area-path-1')
+            .attr("d", (d: any) => dataSeries[d].line(data[d] || []))
+            .attr("stroke", (d: any) => dataSeries[d].style.color != '' ? dataSeries[d].style.color : 'red')
+            .attr("stroke-width", (d: any) => dataSeries[d].style.lineWidth)
+            .attr("stroke-dasharray", (d: any) => dataSeries[d].style.type == 'solid' ? '' : dataSeries[d].style.lineWidth)
+            .attr("fill", "none")
         },
         (exit: any) => exit.remove()
       );
@@ -2423,10 +2453,10 @@ class AreaChart extends SVGComponentBase {
                 } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
                   return dataSeries[keyClass].highlight.color;
                 } else {
-                  return fill;
+                  return dataSeries[keyClass].style.color;
                 }
               }
-              return fill;
+              return dataSeries[keyClass].style.color;
             })
             .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.symbolSize)
             .attr("fill", (d: any) => {
@@ -2469,10 +2499,10 @@ class AreaChart extends SVGComponentBase {
                 } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
                   return dataSeries[keyClass].highlight.color;
                 } else {
-                  return fill;
+                  return dataSeries[keyClass].style.color;
                 }
               }
-              return fill;
+              return dataSeries[keyClass].style.color;
             })
             .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.symbolSize)
             .attr("fill", (d: any) => {

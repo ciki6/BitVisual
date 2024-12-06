@@ -63,10 +63,10 @@ const RingChartTest: React.FC = () => {
   };
 
   useEffect(() => {
-    if (compContainerRef.current) {
+    if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
       compRef.current = new RingChart(
-        "asd",
-        "asd",
+        "ringchart",
+        "ringchart",
         compContainerRef.current as Element,
         0,
         {

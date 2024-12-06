@@ -94,10 +94,10 @@ const ${componentClassName}Test: React.FC = () => {
   };
 
   useEffect(() => {
-    if (compContainerRef.current) {
+    if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
       compRef.current = new ${componentClassName}(
-        "asd",
-        "asd",
+        "${componentClassName.toLowerCase()}",
+        "${componentClassName.toLowerCase()}",
         compContainerRef.current as Element,
         0,
         {

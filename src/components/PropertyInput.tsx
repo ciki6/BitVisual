@@ -1,4 +1,5 @@
 import React from "react";
+import "./PropertyInput.css";
 
 interface SelectOption {
   name: string;
@@ -21,6 +22,7 @@ interface PropertyInputProps {
 }
 
 const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, value, placeholder, options, onChange }) => {
+  const fonts = ["宋体", "黑体", "微软雅黑", "楷体", "仿宋"];
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     let newValue;
     if (type === "Boolean") {
@@ -33,6 +35,11 @@ const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, 
   const handleArrayChange = (index: number, newValue: any) => {
     const updatedValue = [...(value || [])];
     updatedValue[index] = newValue;
+    onChange(name, updatedValue);
+  };
+  const handleObjectChange = (key: string, newValue: any) => {
+    let updatedValue = value;
+    updatedValue[key] = newValue;
     onChange(name, updatedValue);
   };
 
@@ -99,7 +106,45 @@ const PropertyInput: React.FC<PropertyInputProps> = ({ name, displayName, type, 
         );
       }
       break;
-    // 添加其他类型的处理逻辑...
+    case "Font":
+      return (
+        <div>
+          <label>{displayName}:</label>
+          <div className="font-container">
+            <div className="font-item">
+              <select value={value.family || ""} onChange={(e) => handleObjectChange("family", String(e.target.value))}>
+                {fonts.map((font: string, index: number) => (
+                  <option key={index} value={font}>
+                    {font}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="font-item">
+              <input value={value.size || ""} style={{ width: "50px" }} onChange={(e) => handleObjectChange("size", String(e.target.value))} />
+              px
+            </div>
+            <div className="font-item">
+              <input type="color" value={value.color || ""} onChange={(e) => handleObjectChange("color", String(e.target.value))} />
+            </div>
+            <div className="font-item">
+              <button type="button" className={value.bolder ? "font-selected" : "font-unselected"} onClick={() => handleObjectChange("bolder", !value.bolder)}>
+                加粗
+              </button>
+            </div>
+            <div className="font-item">
+              <button type="button" className={value.italic ? "font-selected" : "font-unselected"} onClick={() => handleObjectChange("bolder", !value.italic)}>
+                倾斜
+              </button>
+            </div>
+            <div className="font-item">
+              <button type="button" className={value.underline ? "font-selected" : "font-unselected"} onClick={() => handleObjectChange("bolder", !value.underline)}>
+                下划线
+              </button>
+            </div>
+          </div>
+        </div>
+      );
     default:
       return null;
   }

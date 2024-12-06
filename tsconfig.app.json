@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "rootDir": ".",
     "typeRoots": ["./node_modules/@types", "./lib/types"],
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -25,7 +26,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+
+    // "declaration": true,
+    // "declarationDir": "./dist",
   },
-  "include": ["src", "lib"]
+  "include": ["lib/**/*", "src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

@@ -1,4 +1,4 @@
-import { BaseProperty, PropertyDictionaryItem } from "../types/property";
+import { BaseProperty, PropertyDictionaryItem } from "../types/compProperty";
 import * as _ from "lodash";
 
 type Callback = (path: string, value: any) => void;

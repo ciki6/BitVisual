@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropertyPanel from "@/components/PropertyPanel";
-import ImageView from "../../../lib/imageView/imageView";
+import BubbleChart from "../../../lib/bubbleChart/bubbleChart";
 
-const ImageViewTest: React.FC = () => {
+const BubbleChartTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
   const compRef = useRef<any>(null);
   const [defaultData, setDefaultData] = useState<string>("");
@@ -64,9 +64,9 @@ const ImageViewTest: React.FC = () => {
 
   useEffect(() => {
     if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
-      compRef.current = new ImageView(
-        "imageview",
-        "imageview",
+      compRef.current = new BubbleChart(
+        "bubblechart",
+        "bubblechart",
         compContainerRef.current as Element,
         0,
         {
@@ -90,9 +90,9 @@ const ImageViewTest: React.FC = () => {
 
   return (
     <div>
-    ImageView组件测试
+    BubbleChart组件测试
       <div className="comp_prop">
-        <div className="comp_container" ref={compContainerRef}></div>
+        <div className="comp_container" ref={compContainerRef} style={{backgroundColor:'#069186'}}></div>
         <div className="prop_container">
           <PropertyPanel property={property} propertyDic={propertyDic} onChange={handlePropertyChange} onAction={handleAction} />
         </div>
@@ -108,4 +108,4 @@ const ImageViewTest: React.FC = () => {
   );
 };
 
-export default ImageViewTest;
+export default BubbleChartTest;

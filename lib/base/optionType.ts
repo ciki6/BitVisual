@@ -23,7 +23,9 @@ enum OptionType {
   colorList = "ColorList",
   //media uploader
   media = "Media",
-  // has default value of position (x,y)
+  // has default value of position (direction1 direction2,,x,y)
+  //direction1 include 'l','m','r'
+  //direction2 include 't','m','b'
   position = "Position",
   //input of x, y, w , h and has lock of width and height
   size = "Size",

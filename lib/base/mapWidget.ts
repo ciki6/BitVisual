@@ -1,4 +1,4 @@
-import { ComponentProperty } from "lib/types/property";
+import { ComponentProperty } from "lib/types/compProperty";
 import DIVComponentBase from "./divComponentBase";
 
 class MapWidget extends DIVComponentBase {

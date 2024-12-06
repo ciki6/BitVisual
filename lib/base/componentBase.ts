@@ -3,7 +3,8 @@ import _ from "lodash";
 import * as d3 from "d3";
 
 import PropertyManager from "./property";
-import { BaseProperty, PropertyDictionaryItem } from "../types/property";
+import { BaseProperty, PropertyDictionaryItem } from "../types/compProperty";
+import { ComponentOption } from "lib/types/compOption";
 import OptionType from "./optionType";
 import DataModule from "./compData";
 import SyncModule from "./compSync";
@@ -55,7 +56,7 @@ abstract class ComponentBase {
   public syncModule: { [key: string]: Function } = {};
   public animeModule: { [key: string]: Function } = {};
 
-  constructor(id: string, code: string, container: Element, workMode: number, option: any = {}, useDefaultOpt: boolean = true) {
+  constructor(id: string, code: string, container: Element, workMode: number, option: ComponentOption = {}, useDefaultOpt: boolean = true) {
     this.id = id;
     this.code = code;
     this.container = container;
@@ -86,7 +87,7 @@ abstract class ComponentBase {
     this.initMethods(DataModule, this.dataModule);
     this.initMethods(SyncModule, this.syncModule);
 
-    this.initProperty(); 
+    this.initProperty();
     this.initEvents();
     this.initConf(option);
     this.setupDefaultValues();
@@ -104,7 +105,7 @@ abstract class ComponentBase {
     });
   }
 
-  protected initConf(option: any): void {
+  protected initConf(option: ComponentOption): void {
     this.property = $.extend(true, this.property, option.property);
     if (typeof option.compDataBind === "string") {
       try {
@@ -157,7 +158,7 @@ abstract class ComponentBase {
             displayName: "组件编码",
             description: "组件编码",
             type: OptionType.string,
-            
+
             editable: false,
           },
           {
@@ -165,15 +166,13 @@ abstract class ComponentBase {
             displayName: "组件名称",
             description: "组件名称",
             type: OptionType.string,
-            
-            
           },
           {
             name: "type",
             displayName: "组件类型",
             description: "组件类型",
             type: OptionType.string,
-            
+
             editable: false,
           },
           {
@@ -181,7 +180,7 @@ abstract class ComponentBase {
             displayName: "组件类名",
             description: "组件类名",
             type: OptionType.string,
-            
+
             editable: false,
           },
           {
@@ -190,68 +189,50 @@ abstract class ComponentBase {
             description: "组件位置以及大小",
             type: OptionType.doubleArray,
             placeholder: ["x", "y", "宽", "高"],
-            
-            
           },
           {
             name: "isVisible",
             displayName: "是否可见",
             description: "组件是否可见",
             type: OptionType.boolean,
-            
-            
           },
           {
             name: "translateZ",
             displayName: "启用Z轴位移",
             description: "是否启用Z轴位移(启用分层渲染)",
             type: OptionType.boolean,
-            
-            
           },
           {
             name: "needSync",
             displayName: "是否同步",
             description: "跨屏组件是否启动事件同步",
             type: OptionType.boolean,
-            
-            
           },
           {
             name: "zIndex",
             displayName: "组件层级",
             description: "组件的所在画布的层级",
             type: OptionType.int,
-            
-            
           },
           {
             name: "isSendData",
             displayName: "是否发送数据",
             description: "组件在接收到数据后是否发送数据",
             type: OptionType.boolean,
-            
-            
           },
           {
             name: "isAnimate",
             displayName: "是否有动画",
             description: "当前组件是否绑定动画",
             type: OptionType.boolean,
-            
-            
           },
           {
             name: "isDataLinked",
             displayName: "是否有组件联动",
             description: "当前组件是否有组件联动",
             type: OptionType.boolean,
-            
-            
           },
         ],
-        
-        
       },
     ];
     this.addProperty(property, propertyDictionary);
@@ -363,7 +344,8 @@ abstract class ComponentBase {
 
     d3.select(this.container).on("click", () => {
       this.clickScript.forEach((s) => {
-        eval(s);
+        const fn = new Function(s);
+        fn();
       });
     });
   }
@@ -371,7 +353,8 @@ abstract class ComponentBase {
   protected draw(): void {
     if (this.workMode !== 2) {
       this.beforeDrawScripts.forEach((s) => {
-        eval(s);
+        const fn = new Function(s);
+        fn();
       });
     }
     let d3Container = d3.select(this.container);

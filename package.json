@@ -1,17 +1,15 @@
 {
-  "name": "wiscomponent",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@wiscom/wiscomponent",
+  "version": "0.0.2",
   "type": "module",
   "files": [
-    "dist",
-    "index.d.ts"
+    "dist"
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
-  "types": "./index.d.ts",
+  "types": "./dist/@types/index.d.ts",
   "exports": {
-    "types": "./index.d.ts",
+    "types": "./dist/@types/index.d.ts",
     "import": "./dist/index.js",
     "require": "./dist/index.js"
   },
@@ -41,5 +39,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0"
+  },
+  "publishConfig": {
+    "registry": "http://172.19.136.209:8081/repository/npm-hosted/"
   }
 }

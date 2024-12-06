@@ -4,7 +4,7 @@ import "../base/d3Extend";
 import SVGComponentBase from "../base/svgComponentBase";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
 import OptionType from "../base/optionType";
-import "./barChart.css";
+import "./barGraph.css";
 
 type DataPoint = {
   name: string;
@@ -16,7 +16,7 @@ type DataSets = {
   [key: string]: DataPoint[];
 };
 
-class BarChart extends SVGComponentBase {
+class BarGraph extends SVGComponentBase {
   private x0: d3.ScaleBand<string>;
   private x1: d3.ScaleBand<string>;
   private y: d3.ScaleLinear<number, number>;
@@ -68,7 +68,7 @@ class BarChart extends SVGComponentBase {
     this.initAddedProperty();
     const property: ComponentProperty = {
       basic: {
-        className: "BarChart",
+        className: "BarGraph",
       },
       global: {
         padding: [80, 30, 50, 10],
@@ -1637,12 +1637,12 @@ class BarChart extends SVGComponentBase {
       this.defs = this.mainSVG.select("defs");
     }
     const padding = this.property.global.padding;
-    this.chartContainer = this.mainSVG.append("g").attr("class", "barChart-container").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
+    this.chartContainer = this.mainSVG.append("g").attr("class", "barGraph-container").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
     this.chartContainer.append("g").attr("class", "axes");
     this.chartContainer.append("g").attr("class", "graph");
     this.chartContainer.append("g").attr("class", "guideLine");
-    d3.select(this.container).append("div").attr("class", "barChart-legend");
-    d3.select(this.container).append("div").attr("class", "barChart-prompt").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
+    d3.select(this.container).append("div").attr("class", "barGraph-legend");
+    d3.select(this.container).append("div").attr("class", "barGraph-prompt").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
     this.realWidth = this.property.basic.frame[2] - this.property.global.padding[2] - this.property.global.padding[3];
     this.realHeight = this.property.basic.frame[3] - this.property.global.padding[0] - this.property.global.padding[1];
   }
@@ -1652,16 +1652,16 @@ class BarChart extends SVGComponentBase {
 
     this.x0 = d3
       .scaleBand<string>()
-      .rangeRound([0, this.realWidth])
+      .rangeRound([this.realHeight, 0])
       .padding(this.property.global.bar.barStyle.groupMarginPercent / 100);
 
     this.x1 = d3.scaleBand<string>().padding(this.property.global.bar.barStyle.barMarginPercent / 100);
 
-    this.y = d3.scaleLinear().range([this.realHeight, 0]);
+    this.y = d3.scaleLinear().range([0, this.realWidth]);
 
-    this.axisX = this.mainSVG.select(".axes").append("g").attr("class", "axisX").attr("transform", `translate(0,${this.realHeight})`);
+    this.axisY = this.mainSVG.select(".axes").append("g").attr("class", "axisY").attr("transform", `translate(0,${this.realHeight})`);
 
-    this.axisY = this.mainSVG.select(".axes").append("g").attr("class", "axisY");
+    this.axisX = this.mainSVG.select(".axes").append("g").attr("class", "axisX");
   }
 
   private renderBar(data: DataSets): void {
@@ -1690,13 +1690,13 @@ class BarChart extends SVGComponentBase {
       ])
       .nice();
 
-    this.axisX.call(d3.axisBottom(this.x0).tickSize(10));
+    this.axisX.call(d3.axisLeft(this.x0).tickSize(10));
 
     this.axisX.selectAll("text").setFontStyle(this.property.axis.axisX.axisLabel.font).style("transform", `rotate(${this.property.axis.axisX.axisLabel.textRotate}deg)`);
     this.axisX.select(".domain").style("stroke-width", this.property.axis.axisX.axisLine.stroke).style("stroke", this.property.axis.axisX.axisLine.color);
     this.axisX.selectAll(".tick").selectAll("line").style("stroke-width", this.property.axis.axisX.axisTick.stroke).style("stroke", this.property.axis.axisX.axisTick.color);
 
-    this.axisY.transition().duration(750).call(d3.axisLeft(this.y).tickSize(10));
+    this.axisY.transition().duration(750).call(d3.axisBottom(this.y).tickSize(10));
 
     this.axisY.selectAll("text").setFontStyle(this.property.axis.axisY.axisLabel.font);
     this.axisY.select(".domain").style("stroke-width", this.property.axis.axisY.axisLine.stroke).style("stroke", this.property.axis.axisY.axisLine.color);
@@ -1713,19 +1713,19 @@ class BarChart extends SVGComponentBase {
       .enter()
       .append("g")
       .classed("layer", "true")
-      .attr("transform", (d: any) => `translate(${this.x0(d)}, 0)`);
+      .attr("transform", (d: any) => `translate(0, ${this.x0(d)})`);
 
     barsEnter
       .merge(bars)
       .transition()
       .duration(750)
-      .attr("transform", (d: any) => `translate(${this.x0(d)}, 0)`);
+      .attr("transform", (d: any) => `translate(0, ${this.x0(d)})`);
 
     bars.exit().remove();
 
     const barBgColor = this.property.global.bar.barStyle.barBg;
 
-    barsEnter.append("rect").attr("class", "background").attr("width", this.x0.bandwidth()).attr("height", this.realHeight).attr("fill", barBgColor);
+    barsEnter.append("rect").attr("class", "background").attr("height", this.x0.bandwidth()).attr("width", this.realHeight).attr("fill", barBgColor);
 
     const rects = this.mainSVG
       .select(".graph")
@@ -1743,18 +1743,18 @@ class BarChart extends SVGComponentBase {
       .enter()
       .append("rect")
       .classed("bar", true)
-      .attr("x", (d: any) => this.x1(d.key) as number)
-      .attr("width", this.x1.bandwidth())
+      .attr("x", 0)
+      .attr("height", this.x1.bandwidth())
       .attr("fill", (d: any) => this.barFill(d))
-      .attr("y", this.y(0))
-      .attr("height", 0)
+      .attr("y", (d: any) => this.x1(d.key) as number)
+      .attr("width", this.y(0))
       .merge(rects)
       .transition()
       .duration(750)
-      .attr("x", (d: any) => this.x1(d.key) as number)
-      .attr("width", this.x1.bandwidth())
-      .attr("y", (d: any) => this.y(d.value))
-      .attr("height", (d: any) => this.y(0) - this.y(d.value));
+      .attr("y", (d: any) => this.x1(d.key) as number)
+      .attr("height", this.x1.bandwidth())
+      .attr("x", 0)
+      .attr("width", (d: any) => this.y(d.value));
 
     rects.exit().transition().duration(750).attr("y", this.y(0)).attr("height", 0).remove();
   }
@@ -1779,7 +1779,7 @@ class BarChart extends SVGComponentBase {
     const p = legendProp.layout.position;
     const legend = d3
       .select(this.container)
-      .select(".barChart-legend")
+      .select(".barGraph-legend")
       .style("width", this.property.basic.frame[2] + "px")
       .style("height", this.property.basic.frame[3] + "px")
       .style("transform", `translate(${p[2]}px,${p[3]}px)`)
@@ -1795,7 +1795,7 @@ class BarChart extends SVGComponentBase {
     legendItems.forEach((item: any, index: number) => {
       const legendItem = legend
         .append("div")
-        .classed("barChart-legnendItem", true)
+        .classed("barGraph-legnendItem", true)
         .style(layout === "h" ? "margin-left" : "margin-top", index === 0 ? "0" : legendProp.layout.margin + "px")
         .style("align-self", p[1] === "t" ? "flex-start" : p[1] === "m" ? "center" : "flex-end");
       legendItem
@@ -1864,22 +1864,22 @@ class BarChart extends SVGComponentBase {
 
   private renderPrompt(data: DataSets) {
     const promptProp = this.property.prompt;
-    const promptContainer = d3.select(this.container).select(".barChart-prompt");
+    const promptContainer = d3.select(this.container).select(".barGraph-prompt");
     if (!promptProp.isShow) return;
     this.promptData = this.dataByX(data);
-    const indicatorWidth = (this.x0.bandwidth() * promptProp.indicator.widthPercent) / 100;
+    const indicatorHeight = (this.x0.bandwidth() * promptProp.indicator.widthPercent) / 100;
     promptContainer
       .append("div")
       .classed("indicator", true)
-      .style("left", this.x0.bandwidth() / 2 - indicatorWidth / 2 + "px")
-      .style("width", indicatorWidth + "px")
-      .style("height", this.realHeight + "px")
+      .style("top", this.x0.bandwidth() / 2 - indicatorHeight / 2 + "px")
+      .style("height", indicatorHeight + "px")
+      .style("width", this.realWidth + "px")
       .style("background-color", promptProp.indicator.color);
     const suspendContainer = promptContainer
       .append("div")
       .classed("suspend", true)
-      .style("top", this.realHeight / 2 + "px")
-      .style("left", "0px")
+      .style("left", this.realWidth / 2 + "px")
+      .style("top", "0px")
       .style("width", promptProp.suspend.background.size[0] + "px")
       .style("height", promptProp.suspend.background.size[1] + "px")
       .style("transform", `translate(${promptProp.suspend.background.offset[0]}px,${promptProp.suspend.background.offset[1]}px)`)
@@ -1905,17 +1905,17 @@ class BarChart extends SVGComponentBase {
 
   showPrompt(index: number) {
     const promptProp = this.property.prompt;
-    const promptContainer = d3.select(this.container).select(".barChart-prompt");
+    const promptContainer = d3.select(this.container).select(".barGraph-prompt");
     promptContainer
       .select(".indicator")
       .transition()
       .duration(500)
-      .style("transform", `translateX(${this.x0(this.x0.domain()[index])}px)`);
+      .style("transform", `translateY(${this.x0(this.x0.domain()[index])}px)`);
     const suspendContainer = promptContainer.select(".suspend");
     suspendContainer
       .transition()
       .duration(500)
-      .style("left", this.x0(this.x0.domain()[index]) + "px");
+      .style("top", this.x0(this.x0.domain()[index]) + "px");
     suspendContainer.select(".suspend-title").text(this.x0.domain()[index]);
     const susBody = suspendContainer.select(".suspend-body");
     susBody.selectAll("div").remove();
@@ -1962,4 +1962,4 @@ class BarChart extends SVGComponentBase {
   }
 }
 
-export default BarChart;
+export default BarGraph;

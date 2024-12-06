@@ -63,10 +63,10 @@ const LineChartTest: React.FC = () => {
   };
 
   useEffect(() => {
-    if (compContainerRef.current) {
+    if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
       compRef.current = new LineChart(
-        "asd",
-        "asd",
+        "linechart",
+        "linechart",
         compContainerRef.current as Element,
         0,
         {
@@ -92,7 +92,7 @@ const LineChartTest: React.FC = () => {
     <div>
     LineChart组件测试
       <div className="comp_prop">
-        <div className="comp_container" ref={compContainerRef} style={{backgroundColor:'#1a8087'}}></div>
+        <div className="comp_container" ref={compContainerRef} style={{backgroundColor:'#069186'}}></div>
         <div className="prop_container">
           <PropertyPanel property={property} propertyDic={propertyDic} onChange={handlePropertyChange} onAction={handleAction} />
         </div>
