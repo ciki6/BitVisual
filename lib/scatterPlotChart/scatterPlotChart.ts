@@ -13,7 +13,7 @@ interface dataType {
 }
 
 /**
- * 散点图
+ * 基础散点图
  * @class ScatterPlotChart
  * @extends {SVGComponentBase}
  */
@@ -1658,9 +1658,7 @@ class ScatterPlotChart extends SVGComponentBase {
   }
 
   private sortData(dataKey: string) {
-    this.defaultData[dataKey].forEach(element => {
-      element.s = dataKey;
-    });
+    this.defaultData[dataKey] = this.defaultData[dataKey].map((item: any) => ({ ...item, s: dataKey }));
     return this.defaultData[dataKey];
   }
 

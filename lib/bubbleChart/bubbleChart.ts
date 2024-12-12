@@ -10,10 +10,11 @@ import { getSymbol, formatDate } from "../base/compUtil";
 interface dataType {
   x: string;
   y: number;
+  weight: number
 }
 
 /**
- * 气泡图
+ * 基础气泡图
  * @class BubbleChart
  * @extends {SVGComponentBase}
  */
@@ -1729,11 +1730,7 @@ class BubbleChart extends SVGComponentBase {
   private sortData(dataKey: string) {
     let tempMax = d3.max(this.defaultData[dataKey], (d: dataType) => d.y) as number;
     let tempMin = d3.min(this.defaultData[dataKey], (d: dataType) => d.y) as number;
-    this.defaultData[dataKey].forEach(element => {
-      element.s = dataKey;
-      element.max = tempMax;
-      element.min = tempMin;
-    });
+    this.defaultData[dataKey] = this.defaultData[dataKey].map((item: any) => ({ ...item, s: dataKey, max: tempMax, min: tempMin }));
     return this.defaultData[dataKey];
   }
 
@@ -2052,7 +2049,7 @@ class BubbleChart extends SVGComponentBase {
           .text((d: any) => `${d.y}${dataSeries[d.s].dataTip.suffix}`)
       }, (exit: any) => exit.remove());
 
-      bubblekeys.forEach(element => {
+    bubblekeys.forEach(element => {
       this.chartContainer.select('.graph').selectAll(`.${element}`).setFontStyle(dataSeries[element].dataTip.font);
     });
   }
