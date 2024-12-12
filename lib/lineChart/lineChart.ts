@@ -13,7 +13,7 @@ interface dataType {
 }
 
 /**
- * 折线图
+ * 基础折线图
  * @class LineChart
  * @extends {SVGComponentBase}
  */

@@ -13,7 +13,7 @@ interface dataType {
 }
 
 /**
- * 面积图
+ * 基础面积图
  * @class AreaChart
  * @extends {SVGComponentBase}
  */
