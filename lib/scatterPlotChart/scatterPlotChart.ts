@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import _, { forEach } from "lodash";
+import _ from "lodash";
 import $ from "jquery";
 import "../base/d3Extend";
 import SVGComponentBase from "../base/svgComponentBase";
