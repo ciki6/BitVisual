@@ -1,0 +1,5 @@
+.line-legend-parent {
+  position: absolute;
+  height: auto;
+  display: flex;
+}

@@ -6,6 +6,7 @@ import SVGComponentBase from "../base/svgComponentBase";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
 import OptionType from "../base/optionType";
 import { getSymbol, formatDate } from "../base/compUtil";
+import './areaChart.css'
 
 interface dataType {
   x: string;
@@ -117,60 +118,18 @@ class AreaChart extends SVGComponentBase {
 
     this.defaultData = {
       'dataSeries_0': [
-        { x: "B", y: 16 },
-        { x: "A", y: 16 },
-        { x: "C", y: 2.7 },
-        { x: "D", y: 4.3 },
-        { x: "E", y: 190 },
-        { x: "F", y: 145 },
-        { x: "G", y: 200 },
-        { x: "H", y: 156 },
-        { x: "I", y: 210 },
-        { x: "J", y: 180 },
-        { x: "K", y: 230 },
-        { x: "L", y: 250 },
-        { x: "M", y: 204 },
-        { x: "N", y: 210 },
-        { x: "O", y: 230 },
-        { x: "P", y: 200 },
-        { x: "Q", y: 190 },
-        { x: "R", y: 5.9 },
-        { x: "S", y: 6.3 },
-        { x: "T", y: 9 },
-        { x: "U", y: 2.8 },
-        { x: "V", y: 0.1 },
-        { x: "W", y: 2.4 },
-        { x: "X", y: 1.5 },
-        { x: "Y", y: 1.9 },
-        { x: "Z", y: 10.0 },
+        { x: "2020", y: 8 },
+        { x: "2021", y: 11 },
+        { x: "2022", y: 15 },
+        { x: "2023", y: 22.3 },
+        { x: "2024", y: 25 }
       ],
       'dataSeries_1': [
-        { x: "B", y: 56 },
-        { x: "A", y: 820 },
-        { x: "C", y: 27 },
-        { x: "D", y: 43 },
-        { x: "E", y: 10 },
-        { x: "F", y: 23 },
-        { x: "G", y: 20 },
-        { x: "H", y: 60 },
-        { x: "I", y: 70 },
-        { x: "J", y: 10 },
-        { x: "K", y: 8 },
-        { x: "L", y: 40 },
-        { x: "M", y: 24 },
-        { x: "N", y: 68 },
-        { x: "O", y: 75 },
-        { x: "P", y: 20 },
-        { x: "Q", y: 1 },
-        { x: "R", y: 59 },
-        { x: "S", y: 63 },
-        { x: "T", y: 90 },
-        { x: "U", y: 28 },
-        { x: "V", y: 1 },
-        { x: "W", y: 24 },
-        { x: "X", y: 15 },
-        { x: "Y", y: 19 },
-        { x: "Z", y: 10 },
+        { x: "2020", y: 18 },
+        { x: "2021", y: 19 },
+        { x: "2022", y: 29 },
+        { x: "2023", y: 38 },
+        { x: "2024", y: 56 }
       ]
     } as any;
   }
@@ -193,7 +152,7 @@ class AreaChart extends SVGComponentBase {
         className: "AreaChart",
       },
       global: {
-        padding: [40, 60, 50, 40],
+        padding: [60, 60, 80, 40],
         bgImage: "",
         area: {
           carousel: false,
@@ -203,17 +162,18 @@ class AreaChart extends SVGComponentBase {
           style: {
             font: {
               family: "微软雅黑",
-              size: "16px",
-              color: "#000000",
+              size: "55",
+              color: "#fff",
               bolder: false,
               italic: false,
               underline: false,
             },
-            size: [16, 5],
+            size: [100, 46],
+            width: 5,
             valueMargin: 5,
           },
           layout: {
-            position: [50, 0],
+            position: ['m', 't', 0, 0],
             direction: "h",
             margin: 20,
           },
@@ -226,14 +186,15 @@ class AreaChart extends SVGComponentBase {
             isShow: true,
             font: {
               family: "微软雅黑",
-              size: "16px",
-              color: "#000000",
+              size: "60",
+              color: "#fff",
               bolder: false,
               italic: false,
               underline: false,
               lineThrough: false,
             },
             showMargin: 10,
+            tickpadding: 10,
             textRotate: 0,
             textOffset: [0, 0],
             labelFormat: 'category',//time category
@@ -241,12 +202,12 @@ class AreaChart extends SVGComponentBase {
           },
           axisLine: {
             isShow: true,
-            color: "gray",
-            stroke: 5,
+            color: "#fff",
+            stroke: 3,
           },
           axisTick: {
             isShow: true,
-            color: "gray",
+            color: "#fff",
             stroke: 5,
             length: 2,
             rangeType: "auto",
@@ -255,8 +216,8 @@ class AreaChart extends SVGComponentBase {
           gridLine: {
             isShow: true,
             style: "dash",
-            color: "#c5bcbc",
-            stroke: 5,
+            color: "#fff",
+            stroke: 3,
           },
         },
         axisY: {
@@ -265,8 +226,8 @@ class AreaChart extends SVGComponentBase {
             isShow: true,
             font: {
               family: "微软雅黑",
-              size: "16px",
-              color: "#000000",
+              size: "60",
+              color: "#fff",
               bolder: false,
               italic: false,
               underline: false,
@@ -276,21 +237,21 @@ class AreaChart extends SVGComponentBase {
           },
           axisLine: {
             isShow: true,
-            color: "gray",
+            color: "#fff",
             stroke: 5,
           },
           axisTick: {
             isShow: true,
-            color: "gray",
+            color: "#fff",
             stroke: 5,
-            length: 6,
+            length: 2,
             rangeType: "auto",//value auto
-            rangeValue: [0, 1000],
+            rangeValue: [1, 1000],
           },
           gridLine: {
             isShow: true,
             style: "dash",
-            color: "#c5bcbc",
+            color: "#fff",
             stroke: 5,
           },
         },
@@ -300,8 +261,8 @@ class AreaChart extends SVGComponentBase {
             isShow: true,
             font: {
               family: "微软雅黑",
-              size: "16px",
-              color: "#000000",
+              size: "60",
+              color: "#fff",
               bolder: false,
               italic: false,
               underline: false,
@@ -310,23 +271,23 @@ class AreaChart extends SVGComponentBase {
             showMargin: 0,
           },
           axisLine: {
-            isShow: true,
-            color: "gray",
-            stroke: 5,
+            isShow: false,
+            color: "#fff",
+            stroke: 3,
           },
           axisTick: {
             isShow: true,
-            color: "gray",
+            color: "#fff",
             stroke: 5,
             length: 2,
             rangeType: "auto",
             rangeValue: [1, 1000],
           },
           gridLine: {
-            isShow: false,
+            isShow: true,
             style: "dash",
-            color: "#c5bcbc",
-            stroke: 5,
+            color: "#fff",
+            stroke: 3,
           },
         },
       },
@@ -338,28 +299,33 @@ class AreaChart extends SVGComponentBase {
             valueAxis: "y",
             style: {
               fillType: 'color',//color texture
-              fill: 'red',
+              fill: 'rgba(0,146,255,0.2)',
               filltexture: '',
               fillopacity: 0.1,
-              type: "dashed",//solid ：实线 dashed ：虚线
-              color: '#84ef02',
+              type: "solid",//solid ：实线 dashed ：虚线
+              color: '#0092ff',
               smooth: false,
-              symbolType: 'circle',//triangle circle hollowcircle rect hollowrect pin hollowpin
-              symbolSize: 8,
+              symbolType: 'circle',//circle line
+              outSize: 12,
+              outfill: 'rgba(0,146,255,0.5)',
+              innerSize: 5,
+              innerfill: '#001637',
               lineWidth: 5,
             },
             highlight: {
               isShow: false,
               valueType: "max",//max min assign
               value: "",
-              color: "yellow",
+              color: "#f84619",
+              outfill: 'rgba(248,70,25,0.5)',
+              innerfill: '#6f1600',
             },
             dataTip: {
-              isShow: true,
+              isShow: false,
               font: {
                 family: "微软雅黑",
-                size: "16px",
-                color: "#000000",
+                size: "30",
+                color: "#fff",
                 bolder: false,
                 italic: false,
                 underline: false,
@@ -369,7 +335,50 @@ class AreaChart extends SVGComponentBase {
               offset: [0, 0],
               suffix: "",
             },
-          }
+          },
+          // 'dataSeries_1': {
+          //   groupId: 'dataSeries_1',
+          //   name: '面积2',
+          //   valueAxis: "y",
+          //   style: {
+          //     fillType: 'color',//color texture
+          //     fill: 'rgba(239,232,73,0.2)',
+          //     filltexture: '',
+          //     fillopacity: 0.1,
+          //     type: "solid",//solid ：实线 dashed ：虚线
+          //     color: '#efe849',
+          //     smooth: false,
+          //     symbolType: 'circle',//circle line
+          //     outSize: 12,
+          //     outfill: 'rgba(239,232,73,0.5)',
+          //     innerSize: 5,
+          //     innerfill: '#373500',
+          //     lineWidth: 5,
+          //   },
+          //   highlight: {
+          //     isShow: false,
+          //     valueType: "max",//max min assign
+          //     value: "",
+          //     color: "#f84619",
+          //     outfill: 'rgba(248,70,25,0.5)',
+          //     innerfill: '#6f1600',
+          //   },
+          //   dataTip: {
+          //     isShow: false,
+          //     font: {
+          //       family: "微软雅黑",
+          //       size: "30",
+          //       color: "#fff",
+          //       bolder: false,
+          //       italic: false,
+          //       underline: false,
+          //       lineThrough: false,
+          //     },
+          //     image: "",
+          //     offset: [0, 0],
+          //     suffix: "",
+          //   }
+          // }
         },
         guideLine: {
           // 'guidLine_0': {
@@ -409,23 +418,24 @@ class AreaChart extends SVGComponentBase {
           background: {
             image: "",
             opacity: 0.5,
-            size: [160, 100],
+            color: 'rgba(73,25,0,0.5)',
+            size: [400, 300],
             offset: [0, 0],
           },
           style: {
             titleFont: {
               family: "微软雅黑",
-              size: "16px",
-              color: "#000000",
+              size: "70",
+              color: "#fff",
               bolder: false,
               italic: false,
               underline: false,
             },
-            align: "left",
+            align: "center",
             nameFont: {
               family: "微软雅黑",
-              size: "16px",
-              color: "#000000",
+              size: "60",
+              color: "#fff",
               bolder: false,
               italic: false,
               underline: false,
@@ -434,8 +444,8 @@ class AreaChart extends SVGComponentBase {
             interval: 20,
             dataFont: {
               family: "微软雅黑",
-              size: "16px",
-              color: "#000000",
+              size: "60",
+              color: "#fff",
               bolder: false,
               italic: false,
               underline: false,
@@ -501,6 +511,11 @@ class AreaChart extends SVGComponentBase {
                     type: OptionType.doubleArray,
                     placeholder: ["长", "宽"],
                     unit: "px",
+                  },
+                  {
+                    name: "width",
+                    displayName: "线条粗细",
+                    type: OptionType.double
                   },
                   {
                     name: "valueMargin",
@@ -575,7 +590,12 @@ class AreaChart extends SVGComponentBase {
                   {
                     name: "showMargin",
                     displayName: "显示间隔",
-                    type: OptionType.int,
+                    type: OptionType.double,
+                  },
+                  {
+                    name: "tickpadding",
+                    displayName: "显示间隔",
+                    type: OptionType.double,
                   },
                   {
                     name: "textRotate",
@@ -620,16 +640,37 @@ class AreaChart extends SVGComponentBase {
                         value: '',
                       },
                       {
-                        name: '年',
-                        value: 'yyyy',
+                        name: '年-月-日',
+                        value: 'yyyy-MM-dd',
                       },
                       {
-                        name: '月',
-                        value: 'MM',
+                        name: 'X年X月',
+                        value: 'yyyy年MM月',
+                      },
+
+                      {
+                        name: 'X年',
+                        value: 'yyyy年',
                       },
                       {
-                        name: '日',
-                        value: 'dd',
+                        name: 'X月',
+                        value: 'MM月',
+                      },
+                      {
+                        name: 'X日',
+                        value: 'dd日',
+                      },
+                      {
+                        name: 'X月X日',
+                        value: 'MM月dd日',
+                      },
+                      {
+                        name: '月/日',
+                        value: 'MM/dd',
+                      },
+                      {
+                        name: '年.月',
+                        value: 'yyyy.MM',
                       },
                       {
                         name: '时',
@@ -642,14 +683,6 @@ class AreaChart extends SVGComponentBase {
                       {
                         name: '秒',
                         value: 'ss',
-                      },
-                      {
-                        name: '月/日',
-                        value: 'MM/dd',
-                      },
-                      {
-                        name: '年-月-日',
-                        value: 'yyyy-MM-dd',
                       },
                       {
                         name: '时:分:秒',
@@ -1190,6 +1223,11 @@ class AreaChart extends SVGComponentBase {
                     },
                   },
                   {
+                    name: "color",
+                    displayName: "背景色",
+                    type: OptionType.color
+                  },
+                  {
                     name: "size",
                     displayName: "大小",
                     type: OptionType.doubleArray,
@@ -1306,9 +1344,12 @@ class AreaChart extends SVGComponentBase {
           fillopacity: 0.5,
           type: "solid",//solid ：实线 dashed ：虚线
           color: '#018eff',
-          smooth: true,
-          symbolType: 'circle',//triangle circle hollowcircle rect hollowrect pin hollowpin
-          symbolSize: 8,
+          smooth: false,
+          symbolType: 'circle',//circle line
+          outSize: 12,
+          outfill: 'rgba(0,146,255,0.5)',
+          innerSize: 5,
+          innerfill: '#001637',
           lineWidth: 5,
         },
         highlight: {
@@ -1316,10 +1357,20 @@ class AreaChart extends SVGComponentBase {
           valueType: "min",
           value: "",
           color: "red",
+          outfill: 'rgba(111,22,0,0.5)',
+          innerfill: '#6f1600',
         },
         dataTip: {
           isShow: true,
-          font: {},
+          font: {
+            family: "微软雅黑",
+            size: 60,
+            color: "#ffffff",
+            bolder: false,
+            italic: false,
+            underline: false,
+            lineThrough: false,
+          },
           image: "",
           offset: [0, 0],
           suffix: "",
@@ -1410,43 +1461,34 @@ class AreaChart extends SVGComponentBase {
               type: OptionType.radio,
               options: [
                 {
-                  name: "无",
-                  value: "none",
+                  name: "线",
+                  value: "line",
                 },
                 {
-                  name: "实心方块",
-                  value: "rect",
-                },
-                {
-                  name: '空心方块',
-                  value: 'hollowrect'
-                },
-                {
-                  name: "实心圆",
+                  name: "圆形",
                   value: "circle",
-                },
-                {
-                  name: "空心圆",
-                  value: "hollowcircle",
-                },
-                {
-                  name: "三角形",
-                  value: "triangle",
-                },
-                {
-                  name: "大头针",
-                  value: "pin",
-                },
-                {
-                  name: "空心大头针",
-                  value: "hollowpin",
                 },
               ],
             },
             {
-              name: "symbolSize",
-              displayName: "点大小",
+              name: "outSize",
+              displayName: "外圆大小",
               type: OptionType.double,
+            },
+            {
+              name: "outfill",
+              displayName: "外圆颜色",
+              type: OptionType.color,
+            },
+            {
+              name: "innerSize",
+              displayName: "内圆大小",
+              type: OptionType.double,
+            },
+            {
+              name: "innerfill",
+              displayName: "内圆颜色",
+              type: OptionType.color,
             },
             {
               name: "lineWidth",
@@ -1490,7 +1532,17 @@ class AreaChart extends SVGComponentBase {
             },
             {
               name: "color",
-              displayName: "颜色",
+              displayName: "内圆描边颜色",
+              type: OptionType.color,
+            },
+            {
+              name: "outfill",
+              displayName: "外圆颜色",
+              type: OptionType.color,
+            },
+            {
+              name: "innerfill",
+              displayName: "内圆填充色",
               type: OptionType.color,
             },
           ],
@@ -1541,7 +1593,15 @@ class AreaChart extends SVGComponentBase {
           stroke: 5,
         },
         dataTip: {
-          font: {},
+          font: {
+            family: "微软雅黑",
+            size: 60,
+            color: "#ffffff",
+            bolder: false,
+            italic: false,
+            underline: false,
+            lineThrough: false,
+          },
           image: "",
           offset: [0, 0],
           suffix: "",
@@ -1828,29 +1888,30 @@ class AreaChart extends SVGComponentBase {
         .attr('y', padding[0])
     }
 
-    // if (this.property.global.legend.isShow) {
-    //[0,0](左上角) [50,0](上中间) [100,0](右上角) .style("justify-content", `center`)
-    //[0,50](左中间) [100,50](右中间)
-    //[0,100](左下角) [50,100](下中间) [100,100](右下角) .style("justify-content", `center`)
+    //l t->左上角 l m->左中间 l b->左下角
+    //m t->上中间 m m->正中间 m b->下中间
+    //r t->右上角 r m->右中间 m b->右下角
+    let legendposition = this.property.global.legend.layout.position;
     let style = '';
-    // if (this.property.global.legend.layout.position[0] == 0 && this.property.global.legend.layout.position[1] == 0) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); top: 5px; right: 0px; left: 0px; justify-content: flex-start;`;
-    // } else if (this.property.global.legend.layout.position[0] == 50 && this.property.global.legend.layout.position[1] == 0) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); top: 5px; right: 0px; left: 0px; justify-content: center;`;
-    // } else if (this.property.global.legend.layout.position[0] == 100 && this.property.global.legend.layout.position[1] == 0) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); top: 5px; right: 0px; left: 0px; justify-content: flex-end;`;
-    // } else if (this.property.global.legend.layout.position[0] == 0 && this.property.global.legend.layout.position[1] == 50) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); top: 0px; left: 10px; bottom: 0px; align-items: center;`;
-    // } else if (this.property.global.legend.layout.position[0] == 100 && this.property.global.legend.layout.position[1] == 50) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); top: 0px; bottom: 0px; align-items: center; right: 10px;`;
-    // } else if (this.property.global.legend.layout.position[0] == 0 && this.property.global.legend.layout.position[1] == 100) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); bottom: 5px; right: 0px; left: 0px; justify-content: flex-start;`;
-    // } else if (this.property.global.legend.layout.position[0] == 50 && this.property.global.legend.layout.position[1] == 100) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); bottom: 5px; right: 0px; left: 0px; justify-content: center;`;
-    // } else if (this.property.global.legend.layout.position[0] == 100 && this.property.global.legend.layout.position[1] == 100) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); bottom: 5px; right: 0px; left: 0px; justify-content: flex-end;`;
-    // }
-    style = `position: absolute; height: auto; display: flex; transform: translate3d(${this.property.global.legend.layout.position[0] / 100 * this.realWidth}px, ${this.property.global.legend.layout.position[1] / 100 * this.realHeight}px, 0px);justify-content: center;`;
+    if (legendposition[0] == 'l' && legendposition[1] == 't') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: flex-start; top: 0px; right: 0px; left: 0px; `;
+    } else if (legendposition[0] == 'm' && legendposition[1] == 't') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: center; top: 0px; right: 0px; left: 0px; `;
+    } else if (legendposition[0] == 'r' && legendposition[1] == 't') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: flex-end; top: 0px; right: 0px; left: 0px; `;
+    } else if (legendposition[0] == 'l' && legendposition[1] == 'm') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); align-items: center; top: 0px; left: 0px; bottom: 0px;`;
+    } else if (legendposition[0] == 'm' && legendposition[1] == 'm') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); align-items: center; justify-content: center; top: 0px; left: 0px; bottom: 0px; right: 0px;`;
+    } else if (legendposition[0] == 'r' && legendposition[1] == 'm') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); align-items: center; top: 0px; bottom: 0px; right: 0px;`;
+    } else if (legendposition[0] == 'l' && legendposition[1] == 'b') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: flex-start; bottom: 0px; right: 0px; left: 0px; `;
+    } else if (legendposition[0] == 'm' && legendposition[1] == 'b') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: center;bottom: 0px; right: 0px; left: 0px;`;
+    } else if (legendposition[0] == 'r' && legendposition[1] == 'b') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: flex-end;bottom: 0px; right: 0px; left: 0px;`;
+    }
 
     this.mainSVG.append("g")
       .attr("class", "area-legend")
@@ -1861,6 +1922,7 @@ class AreaChart extends SVGComponentBase {
       .attr("height", '100%')
       .style('pointer-events', 'none')
       .append("xhtml:div")
+      .attr("class", "area-legend-parent")
       .attr('style', style)
       .append("ul")
       .attr('class', 'legend')
@@ -1870,7 +1932,7 @@ class AreaChart extends SVGComponentBase {
     // }
 
     if (prompt.isShow) {
-      let prompttitle = `font-family:${prompt.suspend.style.titleFont.family};font-size:${prompt.suspend.style.titleFont.size};color:${prompt.suspend.style.titleFont.color};font-weight:${prompt.suspend.style.titleFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.titleFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.titleFont.underline ? 'underline' : 'none'};text-align:${prompt.suspend.style.align}`;
+      let prompttitle = `font-family:${prompt.suspend.style.titleFont.family};font-size:${prompt.suspend.style.titleFont.size}px;color:${prompt.suspend.style.titleFont.color};font-weight:${prompt.suspend.style.titleFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.titleFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.titleFont.underline ? 'underline' : 'none'};text-align:${prompt.suspend.style.align}`;
       this.promptcontentbg = this.mainSVG.append("g")
         .style('transform', `translate(${padding[2]}px,${padding[0]}px)`)
         .attr("class", "prompt-sign")
@@ -1881,7 +1943,7 @@ class AreaChart extends SVGComponentBase {
         .attr("width", prompt.suspend.background.size[0])
         .attr("height", prompt.suspend.background.size[1])
         .append("xhtml:div")
-        .attr('style', `pointer-events: none; width: ${prompt.suspend.background.size[0]}px; min-height: ${prompt.suspend.background.size[1]}px;background-color: ${'rgba(1, 81, 200, 0.85)'};letter-spacing: 0px;background-image:url(${prompt.suspend.background.image})`)
+        .attr('style', `pointer-events: none; width: ${prompt.suspend.background.size[0]}px; min-height: ${prompt.suspend.background.size[1]}px;background-color: ${prompt.suspend.background.color};letter-spacing: 0px;background-image:url(${prompt.suspend.background.image})`)
         .append("div")
         .attr('style', `display: flex;flex-direction: column;justify-content: space-between;gap: 5px;height: 100%;padding:10px`)
       this.promptcontentbg.append('div')
@@ -1899,16 +1961,16 @@ class AreaChart extends SVGComponentBase {
     let prompt = this.property.prompt;
     const dataSeries = this.property.series.dataSeries;
     const linekeys = this.property.prompt.isShow ? Object.keys(this.property.series.dataSeries) : [];
-    let nameFont = `font-family:${prompt.suspend.style.nameFont.family};font-size:${prompt.suspend.style.nameFont.size};color:${prompt.suspend.style.nameFont.color};font-weight:${prompt.suspend.style.nameFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.nameFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.nameFont.underline ? 'underline' : 'none'};`;
+    let nameFont = `font-family:${prompt.suspend.style.nameFont.family};font-size:${prompt.suspend.style.nameFont.size}px;color:${prompt.suspend.style.nameFont.color};font-weight:${prompt.suspend.style.nameFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.nameFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.nameFont.underline ? 'underline' : 'none'};`;
 
-    let dataFont = `font-family:${prompt.suspend.style.dataFont.family};font-size:${prompt.suspend.style.dataFont.size};color:${prompt.suspend.style.dataFont.color};font-weight:${prompt.suspend.style.dataFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.dataFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.dataFont.underline ? 'underline' : 'none'};`;
+    let dataFont = `font-family:${prompt.suspend.style.dataFont.family};font-size:${prompt.suspend.style.dataFont.size}px;color:${prompt.suspend.style.dataFont.color};font-weight:${prompt.suspend.style.dataFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.dataFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.dataFont.underline ? 'underline' : 'none'};`;
     this.promptcontentbg.selectAll(`.prompt-li`)
       .data(linekeys)
       .join((enter: any) => {
         let divDom = enter.append('div')
           .attr('class', `prompt-li`)
           .attr('id', (d: any) => `${this._id}_${d}`)
-          .attr('style', `display: flex; justify-content: space-between; line-height: 24px;`);
+          .attr('style', `display: flex; justify-content: space-between;`);
         let legendDom = divDom.append('span')
           .attr('style', `display: flex; align-items: center; gap: 5px;`);
         legendDom.append('span')
@@ -2048,21 +2110,30 @@ class AreaChart extends SVGComponentBase {
   private renderLegend(): void {
 
     const legend = this.property.global.legend;
-    this.mainSVG.select('.area-legend').style('display', legend.isShow ? 'block' : 'none');
+    this.mainSVG.select('.line-legend').style('display', legend.isShow ? 'block' : 'none');
     if (legend.isShow) {
       const dataSeries = this.property.series.dataSeries;
       const linekeys = legend.isShow ? Object.keys(this.property.series.dataSeries) : [];
-      let divStyle = `font-family:${legend.style.font.family};font-size:${legend.style.font.size};color:${legend.style.font.color};font-weight:${legend.style.font.bolder ? 'bolder' : 'normal'};font-style:${legend.style.font.italic ? 'italic' : 'normal'};text-decoration:${legend.style.font.underline ? 'underline' : 'none'}`;
+      let divStyle = `font-family:${legend.style.font.family};font-size:${legend.style.font.size}px;color:${legend.style.font.color};font-weight:${legend.style.font.bolder ? 'bolder' : 'normal'};font-style:${legend.style.font.italic ? 'italic' : 'normal'};text-decoration:${legend.style.font.underline ? 'underline' : 'none'}`;
       this.mainSVG.select('.legend')
         .selectAll('.li_dom')
         .data(linekeys)
         .join((enter: any) => {
           let liDom = enter.append('li')
             .attr('class', `li_dom`)
-            .attr('style', `display: flex; opacity: 1; align-items: center; cursor: pointer; gap: ${legend.style.valueMargin}px;`);
+            .attr('style', `display: flex; opacity: 1; align-items: center; cursor: pointer; gap: ${legend.style.valueMargin}px;position:relative`);
 
           liDom.append('span')
-            .attr('style', (d: any) => `height: ${legend.style.size[1]}px; background: ${dataSeries[d].style.color}; width: ${legend.style.size[0]}px; gap: ${legend.style.valueMargin}px; min-width: ${legend.style.size[0]}px; `);
+            .attr('class', 'line')
+            .attr('style', (d: any) => `height: ${legend.style.width}px; background: ${dataSeries[d].style.color}; width: ${legend.style.size[0]}px; gap: ${legend.style.valueMargin}px; min-width: ${legend.style.size[0]}px; `);
+
+          liDom.append('span')
+            .attr('class', 'outer')
+            .attr('style', (d: any) => `display:${dataSeries[d].style.symbolType == 'line' ? 'none' : 'block'};left:${(legend.style.size[0] - legend.style.size[1]) / 2}px;height: ${legend.style.size[1]}px; background: ${dataSeries[d].style.outfill}; width: ${legend.style.size[1]}px; gap: ${legend.style.valueMargin}px;position: absolute;border-radius: 50%;box-sizing: border-box;`);
+
+          liDom.append('span')
+            .attr('class', 'inner')
+            .attr('style', (d: any) => `display:${dataSeries[d].style.symbolType == 'line' ? 'none' : 'block'};left:${(legend.style.size[0] - (legend.style.size[1] - legend.style.width * 2)) / 2}px;height: ${legend.style.size[1] - legend.style.width * 2}px; background: ${dataSeries[d].style.innerfill}; width: ${legend.style.size[1] - legend.style.width * 2}px; gap: ${legend.style.valueMargin}px;position: absolute;border: ${legend.style.width}px solid ${dataSeries[d].style.color};border-radius: 50%;box-sizing: border-box;`);
 
           liDom.append('div')
             .attr('style', divStyle)
@@ -2070,7 +2141,9 @@ class AreaChart extends SVGComponentBase {
         }, (update: any) => {
           update.attr('class', `li_dom`).attr('style', `display: flex; opacity: 1; align-items: center; cursor: pointer; gap: ${legend.style.valueMargin}px;`);
 
-          update.select('span').attr('style', (d: any) => `height: ${legend.style.size[1]}px; background: ${dataSeries[d].style.color}; width: ${legend.style.size[0]}px; gap: ${legend.style.valueMargin}px; min-width: ${legend.style.size[0]}px; `);
+          update.select('line').attr('style', (d: any) => `height: ${legend.style.size[1]}px; background: ${dataSeries[d].style.color}; width: ${legend.style.size[0]}px; gap: ${legend.style.valueMargin}px; min-width: ${legend.style.size[0]}px;`);
+          update.select('outer').attr('style', (d: any) => `display:${dataSeries[d].style.symbolType == 'line' ? 'none' : 'block'};left:${(legend.style.size[0] - legend.style.size[1]) / 2}px;height: ${legend.style.size[1]}px; background: ${dataSeries[d].style.outfill}; width: ${legend.style.size[1]}px; gap: ${legend.style.valueMargin}px;position: absolute;border-radius: 50%;box-sizing: border-box;`);
+          update.select('inner').attr('style', (d: any) => `display:${dataSeries[d].style.symbolType == 'line' ? 'none' : 'block'};left:${(legend.style.size[0] - (legend.style.size[1] - legend.style.width * 2)) / 2}px;height: ${legend.style.size[1] - legend.style.width * 2}px; background: ${dataSeries[d].style.innerfill}; width: ${legend.style.size[1] - legend.style.width * 2}px; gap: ${legend.style.valueMargin}px;position: absolute;border: ${legend.style.width}px solid ${dataSeries[d].style.color};border-radius: 50%;box-sizing: border-box;`);
 
           update.select('div').attr('style', divStyle)
             .text((d: any) => dataSeries[d].name)
@@ -2098,7 +2171,7 @@ class AreaChart extends SVGComponentBase {
         }
       }
       maxValue = (d3.max(maxValues) as number) * 1.1 || 1;
-      minValue = (d3.max(minValues) as number) * 0.9 || 0;
+      minValue = (d3.min(minValues) as number) * 0.9 || 0;
     } else {
       maxValue = this.property.axis.axisY.axisTick.rangeValue[1];
       minValue = this.property.axis.axisY.axisTick.rangeValue[0];
@@ -2133,9 +2206,8 @@ class AreaChart extends SVGComponentBase {
       .scaleBand()
       .domain(xAxisValues)
       .range([padding[2], width])
-      .padding(0.1);
 
-    let xAxisD = d3.axisBottom(this.xA).tickSizeOuter(0).tickSize(this.property.axis.axisX.axisTick.length);
+    let xAxisD = d3.axisBottom(this.xA).tickSizeOuter(0).tickSize(this.property.axis.axisX.axisTick.length).tickPadding(this.property.axis.axisX.axisLabel.tickpadding);
     let xAxis = xAxisD;
     // if (this.property.axis.axisX.axisLabel.isShow) {
     //   xAxis = xAxis.ticks(this.property.axis.axisX.axisLabel.showMargin);
@@ -2329,19 +2401,16 @@ class AreaChart extends SVGComponentBase {
       .transition().duration(100).style('width', `0px`)
       .transition().duration(1000).style('width', `${this.realWidth}px`)
     this.chartContainer.select('.graph')
-      .selectAll('g')
+      .selectAll('.line-group')
       .data(linekeys)
       .join(
         (enter: any) => {
           let domg = enter.append('g')
-            .attr('class', (d: any) => `${d}_line`)
+            .attr('class', (d: any) => `line-group ${d}_line`)
           domg.append("path")
             .attr('class', 'area-path-0')
             .attr("transform", `translate(${that.xA.bandwidth() / 2}, 0)`)
             .attr("d", (d: any) => dataSeries[d].area(data[d] || []))
-            // .style("stroke", (d: any) => dataSeries[d].style.color != '' ? dataSeries[d].style.color : 'red')
-            // .style("stroke-width", (d: any) => dataSeries[d].style.lineWidth)
-            // .attr("stroke-dasharray", (d: any) => dataSeries[d].style.type == 'solid' ? '' : dataSeries[d].style.lineWidth)
             .style("fill", (d: any) => {
               if (dataSeries[d].style.fillType == 'texture') {
                 return `url(#area-texture_${that.id}_${dataSeries[d].groupId})`
@@ -2367,7 +2436,7 @@ class AreaChart extends SVGComponentBase {
             .attr("fill", "none")
         },
         (update: any) => {
-          update.attr('class', (d: any) => `${d}_line`)
+          update.attr('class', (d: any) => `line-group ${d}_line`)
           update.select('.area-path-0')
             .attr("d", (d: any) => dataSeries[d].area(data[d] || []))
             .style("fill", (d: any) => {
@@ -2397,52 +2466,47 @@ class AreaChart extends SVGComponentBase {
 
     for (let index = 0; index < linekeys.length; index++) {
       let keyClass = linekeys[index];
-      let fill = '', dPth = '', tempMax = 0, tempMin = 0;
-      switch (dataSeries[keyClass].style.symbolType) {
-        case 'rect':
-          fill = dataSeries[keyClass].style.color;
-          dPth = getSymbol('rect');
-          break;
-        case 'hollowrect':
-          fill = 'none';
-          dPth = getSymbol('rect');
-          break;
-        case 'circle':
-          fill = dataSeries[keyClass].style.color;
-          dPth = getSymbol('circle');
-          break;
-        case 'hollowcircle':
-          fill = 'none';
-          dPth = getSymbol('circle');
-          break;
-        case 'triangle':
-          fill = dataSeries[keyClass].style.color;
-          dPth = getSymbol('triangle');
-          break;
-        case 'pin':
-          fill = dataSeries[keyClass].style.color;
-          dPth = getSymbol('pin');
-          break;
-        case 'hollowpin':
-          fill = 'none';
-          dPth = getSymbol('pin');
-          break;
-        default:
-          fill = 'none';
-          dPth = '';
-          break;
-      }
+      let dPth = '', tempMax = 0, tempMin = 0;
+
       if (dataSeries[keyClass].highlight.isShow && (dataSeries[keyClass].highlight.valueType == 'min' || dataSeries[keyClass].highlight.valueType == 'max')) {
         tempMax = d3.max(data[keyClass], (d: dataType) => d.y) as number;
         tempMin = d3.min(data[keyClass], (d: dataType) => d.y) as number;
       }
+
+      if (dataSeries[keyClass].style.symbolType == 'circle') {
+        dPth = getSymbol('circle');
+      }
+
       this.chartContainer.select('.graph')
         .select(`.${keyClass}_line`)
         .selectAll(`.item`)
         .data(data[keyClass] || [])
         .join((enter: any) => {
-          enter.append("path")
+
+          let enterBg = enter.append("g")
             .attr('class', `item`)
+
+          enterBg.append("path")
+            .attr('class', `outer`)
+            .attr("d", dPth)
+            .attr("fill", (d: any) => {
+              if (dataSeries[keyClass].highlight.isShow) {
+                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
+                  return dataSeries[keyClass].highlight.outfill;
+                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
+                  return dataSeries[keyClass].highlight.outfill;
+                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
+                  return dataSeries[keyClass].highlight.outfill;
+                } else {
+                  return dataSeries[keyClass].style.outfill;
+                }
+              }
+              return dataSeries[keyClass].style.outfill;
+            })
+            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.outSize})`)
+
+          enterBg.append("path")
+            .attr('class', `inner`)
             .attr("d", dPth)
             .attr("stroke", (d: any) => {
               if (dataSeries[keyClass].highlight.isShow) {
@@ -2458,7 +2522,7 @@ class AreaChart extends SVGComponentBase {
               }
               return dataSeries[keyClass].style.color;
             })
-            .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.symbolSize)
+            .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.innerSize)
             .attr("fill", (d: any) => {
               if (dataSeries[keyClass].highlight.isShow) {
                 if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
@@ -2468,12 +2532,12 @@ class AreaChart extends SVGComponentBase {
                 } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
                   return dataSeries[keyClass].highlight.color;
                 } else {
-                  return fill;
+                  return dataSeries[keyClass].style.innerfill;;
                 }
               }
-              return fill;
+              return dataSeries[keyClass].style.innerfill;;
             })
-            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.symbolSize})`)
+            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.innerSize})`)
             .on('mouseover', (d: any) => {
               let prompt = that.property.prompt;
               if (prompt.isShow && !prompt.carousel.isShow) {
@@ -2488,7 +2552,25 @@ class AreaChart extends SVGComponentBase {
               }
             });
         }, (update: any) => {
-          update.attr('class', `item`)
+          update.select('.outer')
+            .attr("d", dPth)
+            .attr("fill", (d: any) => {
+              if (dataSeries[keyClass].highlight.isShow) {
+                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
+                  return dataSeries[keyClass].highlight.outfill;
+                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
+                  return dataSeries[keyClass].highlight.outfill;
+                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
+                  return dataSeries[keyClass].highlight.outfill;
+                } else {
+                  return dataSeries[keyClass].style.outfill;
+                }
+              }
+              return dataSeries[keyClass].style.outfill;
+            })
+            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.outSize})`)
+
+          update.attr('class', `inner`)
             .attr("d", dPth)
             .attr("stroke", (d: any) => {
               if (dataSeries[keyClass].highlight.isShow) {
@@ -2504,7 +2586,7 @@ class AreaChart extends SVGComponentBase {
               }
               return dataSeries[keyClass].style.color;
             })
-            .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.symbolSize)
+            .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.innerSize)
             .attr("fill", (d: any) => {
               if (dataSeries[keyClass].highlight.isShow) {
                 if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
@@ -2514,12 +2596,12 @@ class AreaChart extends SVGComponentBase {
                 } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
                   return dataSeries[keyClass].highlight.color;
                 } else {
-                  return fill;
+                  return dataSeries[keyClass].style.innerfill;
                 }
               }
-              return fill;
+              return dataSeries[keyClass].style.innerfill;
             })
-            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.symbolSize})`)
+            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.innerSize})`)
         }, (exit: any) => exit.remove());
 
       if (dataSeries[keyClass].dataTip.isShow) {
@@ -2535,9 +2617,9 @@ class AreaChart extends SVGComponentBase {
                 let translateX = (that.xA(d.x) as number) + that.xA.bandwidth() / 2 + dataSeries[keyClass].dataTip.offset[0];
                 let translateY = 0;
                 if (dataSeries[keyClass].valueAxis == 'y') {
-                  translateY = that.yA(d.y) - dataSeries[keyClass].style.symbolSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
+                  translateY = that.yA(d.y) - dataSeries[keyClass].style.outSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
                 } else if (dataSeries[keyClass].valueAxis == 'z') {
-                  translateY = that.zA(d.y) - dataSeries[keyClass].style.symbolSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
+                  translateY = that.zA(d.y) - dataSeries[keyClass].style.outSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
                 }
                 return `translate(${translateX}px, ${translateY}px)`;
               })
@@ -2549,9 +2631,9 @@ class AreaChart extends SVGComponentBase {
                 let translateX = (that.xA(d.x) as number) + that.xA.bandwidth() / 2 + dataSeries[keyClass].dataTip.offset[0];
                 let translateY = 0;
                 if (dataSeries[keyClass].valueAxis == 'y') {
-                  translateY = that.yA(d.y) - dataSeries[keyClass].style.symbolSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
+                  translateY = that.yA(d.y) - dataSeries[keyClass].style.outSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
                 } else if (dataSeries[keyClass].valueAxis == 'z') {
-                  translateY = that.zA(d.y) - dataSeries[keyClass].style.symbolSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
+                  translateY = that.zA(d.y) - dataSeries[keyClass].style.outSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
                 }
                 return `translate(${translateX}px, ${translateY}px)`;
               })
