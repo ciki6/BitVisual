@@ -1,9 +1,9 @@
 import * as d3 from "d3";
 import _ from "lodash";
-import "../base/d3Extend";
-import SVGComponentBase from "../base/svgComponentBase";
+import "../../base/d3Extend";
+import SVGComponentBase from "../../base/svgComponentBase";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
-import OptionType from "../base/optionType";
+import OptionType from "../../base/optionType";
 import "./barChart.css";
 
 type DataPoint = {
@@ -567,13 +567,13 @@ class BarChart extends SVGComponentBase {
                     type: OptionType.boolean,
                   },
                   {
-                    name: "颜色",
-                    displayName: "color",
+                    name: "color",
+                    displayName: "颜色",
                     type: OptionType.color,
                   },
                   {
-                    name: "粗细",
-                    displayName: "stroke",
+                    name: "stroke",
+                    displayName: "粗细",
                     type: OptionType.int,
                   },
                 ],
@@ -588,23 +588,23 @@ class BarChart extends SVGComponentBase {
                     type: OptionType.boolean,
                   },
                   {
-                    name: "颜色",
-                    displayName: "color",
+                    name: "color",
+                    displayName: "颜色",
                     type: OptionType.color,
                   },
                   {
-                    name: "粗细",
-                    displayName: "stroke",
+                    name: "stroke",
+                    displayName: "粗细",
                     type: OptionType.int,
                   },
                   {
-                    name: "长短",
-                    displayName: "length",
+                    name: "length",
+                    displayName: "长短",
                     type: OptionType.int,
                   },
                   {
-                    name: "范围类型",
-                    displayName: "rangeType",
+                    name: "rangeType",
+                    displayName: "范围类型",
                     type: OptionType.radio,
                     options: [
                       {
@@ -618,8 +618,8 @@ class BarChart extends SVGComponentBase {
                     ],
                   },
                   {
-                    name: "范围值",
-                    displayName: "rangeValue",
+                    name: "rangeValue",
+                    displayName: "范围值",
                     type: OptionType.doubleArray,
                     placeholder: ["最小值", "最大值"],
                   },
@@ -635,8 +635,8 @@ class BarChart extends SVGComponentBase {
                     type: OptionType.boolean,
                   },
                   {
-                    name: "线样式",
-                    displayName: "style",
+                    name: "style",
+                    displayName: "线样式",
                     type: OptionType.radio,
                     options: [
                       {
@@ -650,13 +650,13 @@ class BarChart extends SVGComponentBase {
                     ],
                   },
                   {
-                    name: "颜色",
-                    displayName: "color",
+                    name: "color",
+                    displayName: "颜色",
                     type: OptionType.color,
                   },
                   {
-                    name: "粗细",
-                    displayName: "stroke",
+                    name: "stroke",
+                    displayName: "粗细",
                     type: OptionType.int,
                   },
                 ],
@@ -738,13 +738,13 @@ class BarChart extends SVGComponentBase {
                     type: OptionType.boolean,
                   },
                   {
-                    name: "颜色",
-                    displayName: "color",
+                    name: "color",
+                    displayName: "颜色",
                     type: OptionType.color,
                   },
                   {
-                    name: "粗细",
-                    displayName: "stroke",
+                    name: "stroke",
+                    displayName: "粗细",
                     type: OptionType.int,
                   },
                 ],
@@ -759,23 +759,23 @@ class BarChart extends SVGComponentBase {
                     type: OptionType.boolean,
                   },
                   {
-                    name: "颜色",
-                    displayName: "color",
+                    name: "color",
+                    displayName: "颜色",
                     type: OptionType.color,
                   },
                   {
-                    name: "粗细",
-                    displayName: "stroke",
+                    name: "stroke",
+                    displayName: "粗细",
                     type: OptionType.int,
                   },
                   {
-                    name: "长短",
-                    displayName: "length",
+                    name: "length",
+                    displayName: "长短",
                     type: OptionType.int,
                   },
                   {
-                    name: "范围类型",
-                    displayName: "rangeType",
+                    name: "rangeType",
+                    displayName: "范围类型",
                     type: OptionType.radio,
                     options: [
                       {
@@ -789,8 +789,8 @@ class BarChart extends SVGComponentBase {
                     ],
                   },
                   {
-                    name: "范围值",
-                    displayName: "rangeValue",
+                    name: "rangeValue",
+                    displayName: "范围值",
                     type: OptionType.doubleArray,
                     placeholder: ["最小值", "最大值"],
                   },
@@ -806,8 +806,8 @@ class BarChart extends SVGComponentBase {
                     type: OptionType.boolean,
                   },
                   {
-                    name: "线样式",
-                    displayName: "style",
+                    name: "style",
+                    displayName: "线样式",
                     type: OptionType.radio,
                     options: [
                       {
@@ -821,13 +821,13 @@ class BarChart extends SVGComponentBase {
                     ],
                   },
                   {
-                    name: "颜色",
-                    displayName: "color",
+                    name: "color",
+                    displayName: "颜色",
                     type: OptionType.color,
                   },
                   {
-                    name: "粗细",
-                    displayName: "stroke",
+                    name: "stroke",
+                    displayName: "粗细",
                     type: OptionType.int,
                   },
                 ],
@@ -909,13 +909,13 @@ class BarChart extends SVGComponentBase {
                     type: OptionType.boolean,
                   },
                   {
-                    name: "颜色",
-                    displayName: "color",
+                    name: "color",
+                    displayName: "颜色",
                     type: OptionType.color,
                   },
                   {
-                    name: "粗细",
-                    displayName: "stroke",
+                    name: "stroke",
+                    displayName: "粗细",
                     type: OptionType.int,
                   },
                 ],
@@ -930,23 +930,23 @@ class BarChart extends SVGComponentBase {
                     type: OptionType.boolean,
                   },
                   {
-                    name: "颜色",
-                    displayName: "color",
+                    name: "color",
+                    displayName: "颜色",
                     type: OptionType.color,
                   },
                   {
-                    name: "粗细",
-                    displayName: "stroke",
+                    name: "stroke",
+                    displayName: "粗细",
                     type: OptionType.int,
                   },
                   {
-                    name: "长短",
-                    displayName: "length",
+                    name: "length",
+                    displayName: "长短",
                     type: OptionType.int,
                   },
                   {
-                    name: "范围类型",
-                    displayName: "rangeType",
+                    name: "rangeType",
+                    displayName: "范围类型",
                     type: OptionType.radio,
                     options: [
                       {
@@ -960,8 +960,8 @@ class BarChart extends SVGComponentBase {
                     ],
                   },
                   {
-                    name: "范围值",
-                    displayName: "rangeValue",
+                    name: "rangeValue",
+                    displayName: "范围值",
                     type: OptionType.doubleArray,
                     placeholder: ["最小值", "最大值"],
                   },
@@ -977,8 +977,8 @@ class BarChart extends SVGComponentBase {
                     type: OptionType.boolean,
                   },
                   {
-                    name: "线样式",
-                    displayName: "style",
+                    name: "style",
+                    displayName: "线样式",
                     type: OptionType.radio,
                     options: [
                       {
@@ -992,13 +992,13 @@ class BarChart extends SVGComponentBase {
                     ],
                   },
                   {
-                    name: "颜色",
-                    displayName: "color",
+                    name: "color",
+                    displayName: "颜色",
                     type: OptionType.color,
                   },
                   {
-                    name: "粗细",
-                    displayName: "stroke",
+                    name: "stroke",
+                    displayName: "粗细",
                     type: OptionType.int,
                   },
                 ],
@@ -1056,7 +1056,7 @@ class BarChart extends SVGComponentBase {
             displayName: "辅助线",
             children: [
               {
-                name: "guideLine",
+                name: "guideLine_0",
                 displayName: `辅助线0`,
                 action: [
                   {
@@ -1207,8 +1207,7 @@ class BarChart extends SVGComponentBase {
                     name: "interval",
                     displayName: "显示间隔",
                     description: "数值与名称之间的间隔",
-                    type: OptionType.doubleArray,
-                    placeholder: ["长", "宽"],
+                    type: OptionType.int,
                     unit: "px",
                   },
                   {
@@ -1413,7 +1412,7 @@ class BarChart extends SVGComponentBase {
     this.guideLineProperty = {
       style: {
         lineType: "max",
-        axis: "y",
+        valueAxis: "y",
         value: "",
         lineStyle: "line",
         color: "red",
@@ -1488,8 +1487,8 @@ class BarChart extends SVGComponentBase {
             type: OptionType.string,
           },
           {
-            name: "线样式",
-            displayName: "lineStyle",
+            name: "lineStyle",
+            displayName: "线样式",
             type: OptionType.radio,
             options: [
               {
@@ -1503,13 +1502,13 @@ class BarChart extends SVGComponentBase {
             ],
           },
           {
-            name: "颜色",
-            displayName: "color",
+            name: "color",
+            displayName: "颜色",
             type: OptionType.color,
           },
           {
-            name: "粗细",
-            displayName: "stroke",
+            name: "stroke",
+            displayName: "粗细",
             type: OptionType.int,
           },
         ],
@@ -1544,11 +1543,25 @@ class BarChart extends SVGComponentBase {
   }
 
   protected handlePropertyChange(): void {
-    this.propertyManager.onPropertyChange((path: string, value: any) => {
+    this.propertyManager?.onPropertyChange((path: string, value: any) => {
       switch (path) {
-        case "global.padding":
-          this.chartContainer.style("transform", `translate(${value[2]}px,${value[0]}px)`);
+        case "prompt.isShow":
+          const prompItem = this.propertyManager?.getPropertyDictionaryByPath("prompt");
+          if (prompItem) {
+            prompItem.show = value;
+            d3.select(this.container)
+              .select(".barChart-prompt")
+              .style("display", value ? "block" : "none");
+          }
           break;
+        case "axis.axisX.isShow":
+          this.mainSVG.select(".axisX").style("display", value ? "block" : "none");
+          break;
+        case "axis.axisY.isShow":
+          this.mainSVG.select(".axisY").style("display", value ? "block" : "none");
+          break;
+        default:
+          this.draw();
       }
     });
   }
@@ -1659,9 +1672,18 @@ class BarChart extends SVGComponentBase {
 
     this.y = d3.scaleLinear().range([this.realHeight, 0]);
 
-    this.axisX = this.mainSVG.select(".axes").append("g").attr("class", "axisX").attr("transform", `translate(0,${this.realHeight})`);
+    this.axisX = this.mainSVG
+      .select(".axes")
+      .append("g")
+      .attr("class", "axisX")
+      .attr("transform", `translate(0,${this.realHeight})`)
+      .style("display", this.property.axis.axisX.isShow ? "block" : "none");
 
-    this.axisY = this.mainSVG.select(".axes").append("g").attr("class", "axisY");
+    this.axisY = this.mainSVG
+      .select(".axes")
+      .append("g")
+      .attr("class", "axisY")
+      .style("display", this.property.axis.axisY.isShow ? "block" : "none");
   }
 
   private renderBar(data: DataSets): void {
@@ -1701,6 +1723,27 @@ class BarChart extends SVGComponentBase {
     this.axisY.selectAll("text").setFontStyle(this.property.axis.axisY.axisLabel.font);
     this.axisY.select(".domain").style("stroke-width", this.property.axis.axisY.axisLine.stroke).style("stroke", this.property.axis.axisY.axisLine.color);
     this.axisY.selectAll(".tick").selectAll("line").style("stroke-width", this.property.axis.axisY.axisTick.stroke).style("stroke", this.property.axis.axisY.axisTick.color);
+
+    if (this.property.axis.axisX.gridLine.isShow) {
+      this.axisX
+        .selectAll(".tick")
+        .append("line")
+        .attr("class", "gridLine")
+        .attr("y2", -this.realHeight)
+        .style("stroke-width", this.property.axis.axisX.gridLine.stroke)
+        .style("stroke", this.property.axis.axisX.gridLine.color)
+        .style("stroke-dasharray", this.property.axis.axisX.gridLine.style === "dash" ? "5,5" : "none");
+    }
+    if (this.property.axis.axisY.gridLine.isShow) {
+      this.axisY
+        .selectAll(".tick")
+        .append("line")
+        .attr("class", "gridLine")
+        .attr("x2", this.realWidth)
+        .style("stroke-width", this.property.axis.axisY.gridLine.stroke)
+        .style("stroke", this.property.axis.axisY.gridLine.color)
+        .style("stroke-dasharray", this.property.axis.axisY.gridLine.style === "dash" ? "5,5" : "none");
+    }
 
     datasets.forEach((d) => {
       this.defs.select(`#barFillImage_${this.id}_${d}`).remove();

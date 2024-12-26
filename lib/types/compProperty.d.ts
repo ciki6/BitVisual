@@ -3,6 +3,7 @@ import OptionType from "lib/base/optionType";
 type BasicProperty = {
   code: string;
   displayName: string;
+  theme: string;
   type: string;
   className: string;
   frame: [number, number, number, number];

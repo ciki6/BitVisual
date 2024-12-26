@@ -1,4 +1,3 @@
-import $ from "jquery";
 import _ from "lodash";
 import * as d3 from "d3";
 
@@ -11,6 +10,8 @@ import SyncModule from "./compSync";
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
+type MergeArrayItem = { name?: string; [key: string]: any };
+
 abstract class ComponentBase {
   id: string;
   code: string;
@@ -19,9 +20,9 @@ abstract class ComponentBase {
   useDefaultOpt: boolean;
   propertyDictionary: PropertyDictionaryItem[];
   property: BaseProperty;
-  propertyManager: any;
+  propertyManager: PropertyManager | undefined;
   dataBind: any;
-  animation: any[];
+  animation: any;
   script: any;
   interact: any;
   resourceId: string | undefined;
@@ -106,20 +107,53 @@ abstract class ComponentBase {
   }
 
   protected initConf(option: ComponentOption): void {
-    this.property = $.extend(true, this.property, option.property);
-    if (typeof option.compDataBind === "string") {
-      try {
-        option.compDataBind = JSON.parse(option.compDataBind);
-      } catch (error) {
-        console.error("组件数据绑定类型无法json格式化");
-      }
-    }
-    this.dataBind = $.extend(true, this.dataBind, option.compDataBind);
-    this.animation = _.union(this.animation, typeof option.compAnimation === "string" ? JSON.parse(option.compAnimation) : option.compAnimation);
-    this.script = $.extend(true, this.script, typeof option.compScript === "string" ? JSON.parse(option.compScript) : option.compScript);
-    this.interact = $.extend(true, this.interact, typeof option.compInteract === "string" ? JSON.parse(option.compInteract) : option.compInteract);
+    // this.property = $.extend(true, this.property, option.property);
+
+    // if (typeof option.compDataBind === "string") {
+    //   try {
+    //     option.compDataBind = JSON.parse(option.compDataBind);
+    //   } catch (error) {
+    //     console.error("组件数据绑定类型无法json格式化");
+    //   }
+    // }
+    // this.property = this.deepMerge(option.property as any, this.property) as any;
+    // this.propertyDictionary = this.deepMerge(option.propertyDictionary as any, this.propertyDictionary) as any;
+    this.dataBind = this.deepMerge(option.compDataBind, this.dataBind);
+    this.animation = this.deepMerge(option.compAnimation, this.animation);
+    this.script = this.deepMerge(option.compScript, this.script);
+    this.interact = this.deepMerge(option.compInteract, this.interact);
+    // this.dataBind = $.extend(true, this.dataBind, option.compDataBind);
+    // this.animation = _.union(this.animation, typeof option.compAnimation === "string" ? JSON.parse(option.compAnimation) : option.compAnimation);
+    // this.script = $.extend(true, this.script, typeof option.compScript === "string" ? JSON.parse(option.compScript) : option.compScript);
+    // this.interact = $.extend(true, this.interact, typeof option.compInteract === "string" ? JSON.parse(option.compInteract) : option.compInteract);
     this.resourceId = option.resourceId;
+    this.propertyManager = new PropertyManager(this.deepMerge(option.property as any, this.property), this.deepMerge(option.propertyDictionary as any, this.propertyDictionary));
+    this.propertyDictionary = this.propertyManager.getPropertyDictionary();
+    this.property = this.propertyManager.getPropertyList();
     this.initConfHandler();
+  }
+
+  protected deepMerge<T extends object>(a: T, b: T): T {
+    if (a === undefined) return b;
+    return _.mergeWith({}, b, a, (bValue, aValue) => {
+      if (_.isArray(bValue) && _.isArray(aValue)) {
+        return this.mergeArray(aValue as MergeArrayItem[], bValue as MergeArrayItem[]);
+      }
+      if (_.isObject(bValue) && _.isObject(aValue)) {
+        return this.deepMerge(aValue, bValue);
+      }
+      return aValue !== undefined ? aValue : bValue;
+    });
+  }
+
+  protected mergeArray(aArray: MergeArrayItem[], bArray: MergeArrayItem[]): MergeArrayItem[] {
+    if (aArray.every(_.isObject) && bArray.every(_.isObject)) {
+      return bArray.map((bItem) => {
+        const aItem = aArray.find((item) => item.name === bItem.name);
+        return aItem ? this.deepMerge(aItem, bItem) : bItem;
+      });
+    }
+    return aArray.length ? aArray : bArray;
   }
 
   protected initConfHandler(): void {
@@ -132,6 +166,7 @@ abstract class ComponentBase {
     let property: BaseProperty = {
       basic: {
         code: this.code,
+        theme: "",
         displayName: "",
         type: "",
         className: "",
@@ -158,7 +193,6 @@ abstract class ComponentBase {
             displayName: "组件编码",
             description: "组件编码",
             type: OptionType.string,
-
             editable: false,
           },
           {
@@ -172,7 +206,6 @@ abstract class ComponentBase {
             displayName: "组件类型",
             description: "组件类型",
             type: OptionType.string,
-
             editable: false,
           },
           {
@@ -180,8 +213,14 @@ abstract class ComponentBase {
             displayName: "组件类名",
             description: "组件类名",
             type: OptionType.string,
-
             editable: false,
+          },
+          {
+            name: "theme",
+            displayName: "主题",
+            description: "主题",
+            type: OptionType.string,
+            editable: true,
           },
           {
             name: "frame",
@@ -299,15 +338,16 @@ abstract class ComponentBase {
   }
 
   protected getPropertyDictionary(path: string): PropertyDictionaryItem | undefined {
-    return this.propertyManager.getPropertyDictionaryByPath(path);
+    return this.propertyManager?.getPropertyDictionaryByPath(path);
   }
 
   public setProperty(path: string | Partial<BaseProperty>, value?: any): void {
-    this.propertyManager.set(path, value);
+    if (_.get(this.property, path) === value) return;
+    this.propertyManager?.set(path, value);
   }
 
   protected handlePropertyChange(): void {
-    this.propertyManager.onPropertyChange((path: string, value: any) => {
+    this.propertyManager?.onPropertyChange((path: string, value: any) => {
       switch (path) {
         case "basic.zIndex":
           d3.select(this.container).style("z-index", value);
@@ -351,6 +391,7 @@ abstract class ComponentBase {
   }
 
   protected draw(): void {
+    this.property = this.propertyManager?.getPropertyList() as BaseProperty;
     if (this.workMode !== 2) {
       this.beforeDrawScripts.forEach((s) => {
         const fn = new Function(s);

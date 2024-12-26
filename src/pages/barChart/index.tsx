@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropertyPanel from "@/components/PropertyPanel";
-import BarChart from "../../../lib/barChart/barChart";
+import BarChart from "../../../lib/barChart/";
 
 const BarChartTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
@@ -64,7 +64,7 @@ const BarChartTest: React.FC = () => {
 
   useEffect(() => {
     if (compContainerRef.current) {
-      compRef.current = new BarChart(
+      compRef.current = new BarChart.v1(
         "asd",
         "asd",
         compContainerRef.current as Element,
@@ -72,7 +72,7 @@ const BarChartTest: React.FC = () => {
         {
           property: {
             basic: {
-              frame: [0, 0, 1920, 1080],
+              frame: [10, 0, 1920, 1080],
             },
           },
         },

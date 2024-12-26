@@ -21,6 +21,7 @@ declare module "d3-selection" {
 class D3Extend {
   constructor() {
     d3.selection.prototype.setFontStyle = this.setFontStyle;
+    console.log(d3, "d3");
     this.extendAttr();
     this.extendStyle();
   }
@@ -33,7 +34,7 @@ class D3Extend {
 
       selection
         .style("font-family", family)
-        .style("font-size", size+'px')
+        .style("font-size", size + "px")
         .style("font-weight", bolder ? "bold" : "normal")
         .style("font-style", italic ? "italic" : "normal");
       if (isSVGElement) {

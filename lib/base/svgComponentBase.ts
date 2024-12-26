@@ -57,10 +57,10 @@ abstract class SVGComponentBase extends ComponentBase {
 
   protected handlePropertyChange() {
     super.handlePropertyChange();
-    this.propertyManager.onPropertyChange((path: string, value: any) => {
+    this.propertyManager?.onPropertyChange((path: string, value: any) => {
       switch (path) {
         case "svgBasic.isViewBox":
-          this.propertyManager.getPropertyDictionaryByPath("svgBasic.viewBox").show = value;
+          this.propertyManager!.getPropertyDictionaryByPath("svgBasic.viewBox")!.show = value;
           break;
         case "svgBasic.viewBox":
           if (this.property.svgBasic.isViewBox) {
