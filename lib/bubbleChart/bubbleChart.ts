@@ -6,14 +6,16 @@ import SVGComponentBase from "../base/svgComponentBase";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
 import OptionType from "../base/optionType";
 import { getSymbol, formatDate } from "../base/compUtil";
+import './bubbleChart.css'
 
 interface dataType {
   x: string;
   y: number;
+  weight: number
 }
 
 /**
- * 气泡图
+ * 基础气泡图
  * @class BubbleChart
  * @extends {SVGComponentBase}
  */
@@ -147,7 +149,7 @@ class BubbleChart extends SVGComponentBase {
             valueMargin: 5,
           },
           layout: {
-            position: [50, 0],
+            position: ['m', 't', 0, 0],
             direction: "h",
             margin: 20,
           },
@@ -1495,29 +1497,30 @@ class BubbleChart extends SVGComponentBase {
         .attr('y', padding[0])
     }
 
-    // if (this.property.global.legend.isShow) {
-    //[0,0](左上角) [50,0](上中间) [100,0](右上角) .style("justify-content", `center`)
-    //[0,50](左中间) [100,50](右中间)
-    //[0,100](左下角) [50,100](下中间) [100,100](右下角) .style("justify-content", `center`)
+    //l t->左上角 l m->左中间 l b->左下角
+    //m t->上中间 m m->正中间 m b->下中间
+    //r t->右上角 r m->右中间 m b->右下角
+    let legendposition = this.property.global.legend.layout.position;
     let style = '';
-    // if (this.property.global.legend.layout.position[0] == 0 && this.property.global.legend.layout.position[1] == 0) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); top: 5px; right: 0px; left: 0px; justify-content: flex-start;`;
-    // } else if (this.property.global.legend.layout.position[0] == 50 && this.property.global.legend.layout.position[1] == 0) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); top: 5px; right: 0px; left: 0px; justify-content: center;`;
-    // } else if (this.property.global.legend.layout.position[0] == 100 && this.property.global.legend.layout.position[1] == 0) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); top: 5px; right: 0px; left: 0px; justify-content: flex-end;`;
-    // } else if (this.property.global.legend.layout.position[0] == 0 && this.property.global.legend.layout.position[1] == 50) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); top: 0px; left: 10px; bottom: 0px; align-items: center;`;
-    // } else if (this.property.global.legend.layout.position[0] == 100 && this.property.global.legend.layout.position[1] == 50) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); top: 0px; bottom: 0px; align-items: center; right: 10px;`;
-    // } else if (this.property.global.legend.layout.position[0] == 0 && this.property.global.legend.layout.position[1] == 100) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); bottom: 5px; right: 0px; left: 0px; justify-content: flex-start;`;
-    // } else if (this.property.global.legend.layout.position[0] == 50 && this.property.global.legend.layout.position[1] == 100) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); bottom: 5px; right: 0px; left: 0px; justify-content: center;`;
-    // } else if (this.property.global.legend.layout.position[0] == 100 && this.property.global.legend.layout.position[1] == 100) {
-    //   style = `position: absolute; height: auto; display: flex; transform: translate3d(0px, 10px, 0px); bottom: 5px; right: 0px; left: 0px; justify-content: flex-end;`;
-    // }
-    style = `position: absolute; height: auto; display: flex; transform: translate3d(${this.property.global.legend.layout.position[0] / 100 * this.realWidth}px, ${this.property.global.legend.layout.position[1] / 100 * this.realHeight}px, 0px);justify-content: center;`;
+    if (legendposition[0] == 'l' && legendposition[1] == 't') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: flex-start; top: 0px; right: 0px; left: 0px; `;
+    } else if (legendposition[0] == 'm' && legendposition[1] == 't') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: center; top: 0px; right: 0px; left: 0px; `;
+    } else if (legendposition[0] == 'r' && legendposition[1] == 't') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: flex-end; top: 0px; right: 0px; left: 0px; `;
+    } else if (legendposition[0] == 'l' && legendposition[1] == 'm') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); align-items: center; top: 0px; left: 0px; bottom: 0px;`;
+    } else if (legendposition[0] == 'm' && legendposition[1] == 'm') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); align-items: center; justify-content: center; top: 0px; left: 0px; bottom: 0px; right: 0px;`;
+    } else if (legendposition[0] == 'r' && legendposition[1] == 'm') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); align-items: center; top: 0px; bottom: 0px; right: 0px;`;
+    } else if (legendposition[0] == 'l' && legendposition[1] == 'b') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: flex-start; bottom: 0px; right: 0px; left: 0px; `;
+    } else if (legendposition[0] == 'm' && legendposition[1] == 'b') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: center;bottom: 0px; right: 0px; left: 0px;`;
+    } else if (legendposition[0] == 'r' && legendposition[1] == 'b') {
+      style = `transform: translate3d(${legendposition[2]}px, ${legendposition[3]}px, 0px); justify-content: flex-end;bottom: 0px; right: 0px; left: 0px;`;
+    }
 
     this.mainSVG.append("g")
       .attr("class", "bubble-legend")
@@ -1528,6 +1531,7 @@ class BubbleChart extends SVGComponentBase {
       .attr("height", '100%')
       .style('pointer-events', 'none')
       .append("xhtml:div")
+      .attr("class", "bubble-legend-parent")
       .attr('style', style)
       .append("ul")
       .attr('class', 'legend')
@@ -1729,11 +1733,7 @@ class BubbleChart extends SVGComponentBase {
   private sortData(dataKey: string) {
     let tempMax = d3.max(this.defaultData[dataKey], (d: dataType) => d.y) as number;
     let tempMin = d3.min(this.defaultData[dataKey], (d: dataType) => d.y) as number;
-    this.defaultData[dataKey].forEach(element => {
-      element.s = dataKey;
-      element.max = tempMax;
-      element.min = tempMin;
-    });
+    this.defaultData[dataKey] = this.defaultData[dataKey].map((item: any) => ({ ...item, s: dataKey, max: tempMax, min: tempMin }));
     return this.defaultData[dataKey];
   }
 
@@ -2052,7 +2052,7 @@ class BubbleChart extends SVGComponentBase {
           .text((d: any) => `${d.y}${dataSeries[d.s].dataTip.suffix}`)
       }, (exit: any) => exit.remove());
 
-      bubblekeys.forEach(element => {
+    bubblekeys.forEach(element => {
       this.chartContainer.select('.graph').selectAll(`.${element}`).setFontStyle(dataSeries[element].dataTip.font);
     });
   }

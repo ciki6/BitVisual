@@ -12,7 +12,7 @@ interface DataItem {
     name: string;
     value: number;
     color: string;
-    percentage?: number | string;
+    percentage: number | string;
     index?: number;
 }
 
@@ -93,13 +93,11 @@ class PieChart extends SVGComponentBase {
     protected setupDefaultValues() {
         super.setupDefaultValues();
         this.defaultData = [
-            { name: "火电", value: 10 },
-            { name: "水电", value: 20 },
-            { name: "风电", value: 25 },
-            { name: "光伏", value: 40 },
-            { name: "核电", value: 40 },
-            { name: "新能源", value: 20 },
-            { name: "生物质", value: 30 },
+            { name: "风电", value: 42 },
+            { name: "光伏", value: 9 },
+            { name: "火电", value: 21 },
+            { name: "水电", value: 14 },
+            { name: "核电", value: 14 },
         ] as DataItem[];
     }
 
@@ -114,27 +112,43 @@ class PieChart extends SVGComponentBase {
                 padding: [10, 10, 10, 10],
                 bgImage: "",
                 pieStyle: {
-                    radius: 350,
-                    borderColor: "rgba(0,0,0,0)",
-                    borderWidth: 1,
-                    rotationAngle: 0,
-                    anticlockwise: 0,
-                    dataSort: "desc",
+                    pie: {
+                        radius: 350,
+                        // cornerRadius: 0,
+                        // padAngle: 0.02,
+                        borderColor: "rgba(0,0,0,0)",
+                        borderWidth: 0,
+                        rotationAngle: 0,
+                        anticlockwise: 0,
+                        dataSort: "desc",
+                    },
                     label: {
                         isShow: true,
                         style: {
                             font: {
                                 family: "微软雅黑",
                                 size: 40,
-                                color: "#be8a2f",
+                                color: "white",
                             },
                             showlLabelType: "percentage", //percentage value
-                            polylineColor: "black",
-                            polylineWidth: 2,
+                            polylineColor: "white",
+                            polylineWidth: 3,
                             polylineDistance: 80,
-                            labelOffsetY: 10, //标签Y轴偏移
-                            textOffsetX: 0, //百分比数值距离
-                            precision: 2,
+                            polylineDistance2: 100,
+                            showName: false,
+                            nameOffsetY: -10,
+                            nameOffsetX: 0,
+                            showValue: true,
+                            valueOffsetY: -100,
+                            valueOffsetX: 0,
+                            precision: 1,
+                        },
+                    },
+                    maskStyle: {
+                        isShow: true,
+                        style: {
+                            percentage: 85,
+                            opacity: 0.4,
                         },
                     },
                 },
@@ -143,33 +157,25 @@ class PieChart extends SVGComponentBase {
                     style: {
                         font: {
                             family: "微软雅黑",
-                            size: 30,
-                            color: "black",
+                            size: 45,
+                            color: "white",
                         },
-
-                        size: [60, 60],
+                        size: [40, 40],
                         type: "rect",
-                        showValue: true,
-                        unit: "(万千瓦时)",
+                        showValue: false,
+                        showPercentage: false,
+                        unit: "",
                     },
                     layout: {
-                        position: [150, 0], //top left
+                        position: [350, 1550], //top left
                         direction: "vertical", //horizontal vertical
-                        rectGap: 20, //图例之间
-                        itemGap: 10, //图例与文字之间
+                        rectGap: 25, //图例之间
+                        itemGap: 40, //图例与文字之间
                     },
                 },
             },
             series: {
-                color: [
-                    "#91cc75",
-                    "#ee6666",
-                    "#73c0de",
-                    "#3ba272",
-                    "#fc8452",
-                    "#9a60b4",
-                    "#ea7ccc",
-                ],
+                color: ["#09cfa7", "#2fbdfe", "#fef32c", "#e8734d", "#09eb48"],
             },
             prompt: {
                 isShow: false,
@@ -195,6 +201,7 @@ class PieChart extends SVGComponentBase {
                             size: 35,
                             color: "balck",
                         },
+                        type: "circle",
                         size: [20, 20],
                         paddingLeft: 20,
                         unit: "",
@@ -224,51 +231,57 @@ class PieChart extends SVGComponentBase {
                     },
                     {
                         name: "pieStyle",
-                        displayName: "饼图样式",
+                        displayName: "样式",
                         children: [
                             {
-                                name: "radius",
-                                displayName: "半径",
-                                type: OptionType.int,
-                                unit: "px",
-                            },
-                            {
-                                name: "borderColor",
-                                displayName: "边框颜色",
-                                type: OptionType.color,
-                            },
-                            {
-                                name: "borderWidth",
-                                displayName: "边框宽度",
-                                type: OptionType.double,
-                                unit: "px",
-                            },
-                            {
-                                name: "rotationAngle",
-                                displayName: "旋转角度",
-                                type: OptionType.range,
-                                unit: "度",
-                                options: {
-                                    min: 0,
-                                    max: 360,
-                                },
-                            },
-                            {
-                                name: "dataSort",
-                                displayName: "排列顺序",
-                                type: OptionType.select,
-                                options: [
+                                name: "pie",
+                                displayName: "饼图样式",
+                                children: [
                                     {
-                                        name: "正序",
-                                        value: "desc",
+                                        name: "radius",
+                                        displayName: "半径",
+                                        type: OptionType.int,
+                                        unit: "px",
                                     },
                                     {
-                                        name: "倒序",
-                                        value: "asc",
+                                        name: "borderColor",
+                                        displayName: "边框颜色",
+                                        type: OptionType.color,
                                     },
                                     {
-                                        name: "默认",
-                                        value: "default",
+                                        name: "borderWidth",
+                                        displayName: "边框宽度",
+                                        type: OptionType.double,
+                                        unit: "px",
+                                    },
+                                    {
+                                        name: "rotationAngle",
+                                        displayName: "旋转角度",
+                                        type: OptionType.range,
+                                        unit: "度",
+                                        options: {
+                                            min: 0,
+                                            max: 360,
+                                        },
+                                    },
+                                    {
+                                        name: "dataSort",
+                                        displayName: "排列顺序",
+                                        type: OptionType.select,
+                                        options: [
+                                            {
+                                                name: "正序",
+                                                value: "desc",
+                                            },
+                                            {
+                                                name: "倒序",
+                                                value: "asc",
+                                            },
+                                            {
+                                                name: "默认",
+                                                value: "default",
+                                            },
+                                        ],
                                     },
                                 ],
                             },
@@ -291,21 +304,6 @@ class PieChart extends SVGComponentBase {
                                                 type: OptionType.font,
                                             },
                                             {
-                                                name: "showlLabelType",
-                                                displayName: "类型",
-                                                type: OptionType.radio,
-                                                options: [
-                                                    {
-                                                        name: "百分比",
-                                                        value: "percentage",
-                                                    },
-                                                    {
-                                                        name: "数值",
-                                                        value: "value",
-                                                    },
-                                                ],
-                                            },
-                                            {
                                                 name: "polylineColor",
                                                 displayName: "折线颜色",
                                                 type: OptionType.color,
@@ -318,18 +316,62 @@ class PieChart extends SVGComponentBase {
                                             },
                                             {
                                                 name: "polylineDistance",
-                                                displayName: "折线长度",
+                                                displayName: "第一段折线长度",
                                                 type: OptionType.double,
                                                 unit: "px",
                                             },
                                             {
-                                                name: "labelOffsetY",
-                                                displayName: "标签Y轴偏移",
+                                                name: "polylineDistance2",
+                                                displayName: "第二段折线长度",
                                                 type: OptionType.double,
                                                 unit: "px",
                                             },
                                             {
-                                                name: "textOffsetX",
+                                                name: "showName",
+                                                displayName: "展示类名",
+                                                type: OptionType.boolean,
+                                            },
+                                            {
+                                                name: "nameOffsetY",
+                                                displayName: "类名Y轴偏移",
+                                                type: OptionType.double,
+                                                unit: "px",
+                                            },
+                                            {
+                                                name: "nameOffsetX",
+                                                displayName: "类名X轴偏移",
+                                                type: OptionType.double,
+                                                unit: "px",
+                                            },
+                                            {
+                                                name: "showValue",
+                                                displayName: "展示数值",
+                                                type: OptionType.boolean,
+                                            },
+                                            {
+                                                name: "showlLabelType",
+                                                displayName: "数值类型",
+                                                type: OptionType.radio,
+                                                options: [
+                                                    {
+                                                        name: "百分比",
+                                                        value: "percentage",
+                                                    },
+                                                    {
+                                                        name: "数值",
+                                                        value: "value",
+                                                    },
+                                                ],
+                                            },
+
+                                            {
+                                                name: "valueOffsetY",
+                                                displayName: "数值Y轴偏移",
+                                                type: OptionType.double,
+                                                unit: "px",
+                                            },
+                                            {
+                                                name: "valueOffsetX",
                                                 displayName: "数值X轴偏移",
                                                 type: OptionType.double,
                                                 unit: "px",
@@ -341,6 +383,42 @@ class PieChart extends SVGComponentBase {
                                                 options: {
                                                     min: 0,
                                                     max: 5,
+                                                },
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                            {
+                                name: "maskStyle",
+                                displayName: "遮罩物",
+                                children: [
+                                    {
+                                        name: "isShow",
+                                        displayName: "是否显示",
+                                        type: OptionType.boolean,
+                                    },
+                                    {
+                                        name: "style",
+                                        displayName: "样式",
+                                        children: [
+                                            {
+                                                name: "percentage",
+                                                displayName: "占比",
+                                                type: OptionType.range,
+                                                options: {
+                                                    min: 0,
+                                                    max: 100,
+                                                },
+                                                unit: "%",
+                                            },
+                                            {
+                                                name: "opacity",
+                                                displayName: "透明度",
+                                                type: OptionType.range,
+                                                options: {
+                                                    min: 0,
+                                                    max: 1,
                                                 },
                                             },
                                         ],
@@ -367,21 +445,6 @@ class PieChart extends SVGComponentBase {
                                         displayName: "文本样式",
                                         type: OptionType.font,
                                     },
-                                    // {
-                                    //     name: "type",
-                                    //     displayName: "类型",
-                                    //     type: OptionType.radio,
-                                    //     options: [
-                                    //         {
-                                    //             name: "矩形",
-                                    //             value: "rect",
-                                    //         },
-                                    //         {
-                                    //             name: "圆点",
-                                    //             value: "circle",
-                                    //         },
-                                    //     ],
-                                    // },
                                     {
                                         name: "size",
                                         displayName: "大小",
@@ -407,6 +470,11 @@ class PieChart extends SVGComponentBase {
                                     {
                                         name: "showValue",
                                         displayName: "显示数值",
+                                        type: OptionType.boolean,
+                                    },
+                                    {
+                                        name: "showPercentage",
+                                        displayName: "显示百分比",
                                         type: OptionType.boolean,
                                     },
                                     {
@@ -544,6 +612,21 @@ class PieChart extends SVGComponentBase {
                                         type: OptionType.font,
                                     },
                                     {
+                                        name: "type",
+                                        displayName: "图例类型",
+                                        type: OptionType.radio,
+                                        options: [
+                                            {
+                                                name: "正方形",
+                                                value: "rect",
+                                            },
+                                            {
+                                                name: "圆形",
+                                                value: "circle",
+                                            },
+                                        ],
+                                    },
+                                    {
                                         name: "size",
                                         displayName: "图例大小",
                                         type: OptionType.doubleArray,
@@ -585,14 +668,10 @@ class PieChart extends SVGComponentBase {
 
     protected draw() {
         super.draw();
-        this.handleData(this.defaultData);
         this.createSVGContainer();
+        this.handleData(this.defaultData);
         this.createTooltip();
         this.generateArc();
-        // if (this.property.global.legend.isShow) {
-        //     this.generateLegend();
-        // }
-
         this.hoverAnimate();
         this.autoCarousel();
     }
@@ -613,6 +692,7 @@ class PieChart extends SVGComponentBase {
     }
 
     private handleData(data: DataItem[], isChange = true) {
+        this.generateRadialGradientColor();
         const sum = this.arraySum(data);
         data.map((d: DataItem, i: number) => {
             d.percentage = d3.format(`.${this.property.global.pieStyle.label.style.precision}f`)(
@@ -620,16 +700,61 @@ class PieChart extends SVGComponentBase {
             );
             d.index = i;
             d.color = this.property.series.color[i];
-            this.hasChangeValue[d.name] = {
-                value: isChange ? d.value : 0,
-                percentage: isChange ? d.percentage : 0,
-            };
+            if (isChange) {
+                this.hasChangeValue[d.name] = {
+                    value: d.value,
+                    percentage: d.percentage,
+                };
+            }
         });
         this.hasChangeData = JSON.parse(JSON.stringify(data));
         data.map((d: DataItem) => {
             this.textWidth[d.name] = this.getTrueWidth(d.name);
         });
         return data;
+    }
+
+    private generateRadialGradientColor() {
+        if (this.pieContainer!.select(".radialGradient")) {
+            this.pieContainer!.select(".radialGradient").remove();
+        }
+        const defs = this.pieContainer!.append("defs").attr("class", "radialGradient");
+        this.property.series.color.forEach((d: string) => {
+            const gradient = defs
+                .append("radialGradient")
+                .attr("id", `gradient-${d}`)
+                .attr("gradientUnits", "userSpaceOnUse")
+                .attr("cx", 0)
+                .attr("cy", 0)
+                .attr("r", this.property.global.pieStyle.pie.radius);
+
+            gradient
+                .append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", d)
+                .attr("stop-opacity", this.property.global.pieStyle.maskStyle.style.opacity);
+
+            gradient
+                .append("stop")
+                .attr("offset", `${this.property.global.pieStyle.maskStyle.style.percentage}%`)
+                .attr("stop-color", d)
+                .attr("stop-opacity", this.property.global.pieStyle.maskStyle.style.opacity);
+
+            gradient
+                .append("stop")
+                .attr(
+                    "offset",
+                    `${this.property.global.pieStyle.maskStyle.style.percentage + 0.1}%`
+                )
+                .attr("stop-color", d)
+                .attr("stop-opacity", 1);
+
+            gradient
+                .append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", d)
+                .attr("stop-opacity", 1);
+        });
     }
 
     private createSVGContainer() {
@@ -687,7 +812,7 @@ class PieChart extends SVGComponentBase {
     }
 
     private generateArc() {
-        const radians = (Math.PI / 180) * this.property.global.pieStyle.rotationAngle;
+        const radians = (Math.PI / 180) * this.property.global.pieStyle.pie.rotationAngle;
         this.pie = d3
             .pie<any, DataItem>()
             .value((d) => d.value)
@@ -699,13 +824,14 @@ class PieChart extends SVGComponentBase {
         this.arcHighlight = d3
             .arc<any, PieArcDatum<DataItem>>()
             .innerRadius(0)
-            .outerRadius(this.property.global.pieStyle.radius * 1.2)
+            .outerRadius(this.property.global.pieStyle.pie.radius * 1.1)
             .cornerRadius(0);
         this.arc = d3
             .arc<any, PieArcDatum<DataItem>>()
             .innerRadius(0)
-            .outerRadius(this.property.global.pieStyle.radius)
-            .cornerRadius(0);
+            .outerRadius(this.property.global.pieStyle.pie.radius)
+            .cornerRadius(0)
+            .padAngle(0);
 
         this.pieData = this.pie(this.defaultData);
 
@@ -720,7 +846,8 @@ class PieChart extends SVGComponentBase {
             ? this.hasChangeCentroid[name]
             : this.centroid[name];
 
-        const offsetX = this.textWidth[name];
+        // const offsetX = this.textWidth[name];
+        const offsetX = this.property.global.pieStyle.label.style.polylineDistance2;
         const [cos, sin, arcEdgeX, arcEdgeY] = this.getAecEdgePoints(centerX, centerY, centerZ);
         const [pointX, pointY] = this.points[name]; //折点
         if (isChange) {
@@ -760,34 +887,41 @@ class PieChart extends SVGComponentBase {
         selection: Transition<SVGTextElement, PieArcDatum<DataItem>, BaseType, unknown>,
         isChange = false
     ) {
+        const that = this;
         selection
-            .attrTween("x", ((d: PieArcDatum<DataItem>) => {
+            .attrTween("x", function (d: PieArcDatum<DataItem>) {
                 const { name } = d.data;
-                const offsetX = this.textWidth[name];
+                // const textWidth = that.textWidth[name];
+                const offsetX = that.property.global.pieStyle.label.style.nameOffsetX;
                 if (isChange) {
-                    const from = this.hasChangeTextPoints[name];
-                    const to = this.hasChangePoints[name];
+                    const from = that.hasChangeTextPoints[name];
+                    const to = that.hasChangePoints[name];
                     const interpolate = d3.interpolate(from[0], to[0]);
                     if (to[0] > 0) {
+                        d3.select(this).attr("text-anchor", "start");
                         return (t: number) => {
-                            this.hasChangeTextPoints[name][0] = to[0] + 5;
-                            return interpolate(t) + 5 * t;
+                            that.hasChangeTextPoints[name][0] = to[0] + offsetX;
+                            return (interpolate(t) + offsetX * t) as unknown as string;
                         };
                     }
+                    d3.select(this).attr("text-anchor", "end");
                     return (t: number) => {
-                        this.hasChangeTextPoints[name][0] = to[0] - offsetX;
-                        return interpolate(t) - offsetX * t;
+                        that.hasChangeTextPoints[name][0] = to[0] - offsetX;
+                        return (interpolate(t) - offsetX * t) as unknown as string;
                     };
                 } else {
-                    const [x] = this.points[name];
+                    const [x] = that.points[name];
                     if (x > 0) {
-                        this.hasChangeTextPoints[name][0] = x + 5;
-                        return (t: number) => (x + 5) * t;
+                        d3.select(this).attr("text-anchor", "start");
+                        that.hasChangeTextPoints[name][0] = x + offsetX;
+                        return (t: number) => ((x + offsetX) * t) as unknown as string;
                     }
-                    this.hasChangeTextPoints[name][0] = x - offsetX;
-                    return (t: number) => (x - 1 * offsetX) * t;
+                    d3.select(this).attr("text-anchor", "end");
+                    that.hasChangeTextPoints[name][0] = x - offsetX;
+                    return (t: number) => ((x - offsetX) * t) as unknown as string;
+                    // return (t: number) => (x - (textWidth + offsetX)) * t;
                 }
-            }) as any)
+            })
             .attrTween("y", ((d: PieArcDatum<DataItem>) => {
                 const { name } = d.data;
                 if (isChange) {
@@ -795,15 +929,15 @@ class PieChart extends SVGComponentBase {
                     const to = this.hasChangePoints[name];
                     const interpolate = d3.interpolate(from[1], to[1]);
                     this.hasChangeTextPoints[name][1] =
-                        to[1] - this.property.global.pieStyle.label.style.labelOffsetY;
+                        to[1] + this.property.global.pieStyle.label.style.nameOffsetY;
                     return (t: number) =>
-                        interpolate(t) - this.property.global.pieStyle.label.style.labelOffsetY * t;
+                        interpolate(t) + this.property.global.pieStyle.label.style.nameOffsetY * t;
                 } else {
                     const [_, y] = this.points[name];
                     this.hasChangeTextPoints[name][1] =
-                        y - this.property.global.pieStyle.label.style.labelOffsetY;
+                        y + this.property.global.pieStyle.label.style.nameOffsetY;
                     return (t: number) =>
-                        (y - this.property.global.pieStyle.label.style.labelOffsetY) * t;
+                        (y + this.property.global.pieStyle.label.style.nameOffsetY) * t;
                 }
             }) as any);
     }
@@ -813,33 +947,28 @@ class PieChart extends SVGComponentBase {
         isChange = false
     ) {
         if (isChange) {
+            const that = this;
             selection
-                .attrTween("x", ((d: PieArcDatum<DataItem>) => {
+                .attrTween("x", function (d: PieArcDatum<DataItem>) {
                     const { name } = d.data;
-                    const offsetX = this.textWidth[name];
-                    const from = this.hasChangeValuePoints[name];
-                    const to = this.hasChangePoints[name];
+                    const offsetX = that.property.global.pieStyle.label.style.valueOffsetX;
+                    const from = that.hasChangeValuePoints[name];
+                    const to = that.hasChangePoints[name];
                     const interpolate = d3.interpolate(from[0], to[0]);
 
                     if (to[0] > 0) {
+                        d3.select(this).attr("text-anchor", "start");
                         return (t: number) => {
-                            this.hasChangeValuePoints[name][0] =
-                                to[0] - this.property.global.pieStyle.label.style.textOffsetX;
-                            return (
-                                interpolate(t) -
-                                this.property.global.pieStyle.label.style.textOffsetX * t
-                            );
+                            that.hasChangeValuePoints[name][0] = to[0] - offsetX;
+                            return (interpolate(t) - offsetX * t) as unknown as string;
                         };
                     }
+                    d3.select(this).attr("text-anchor", "end");
                     return (t: number) => {
-                        this.hasChangeValuePoints[name][0] =
-                            to[0] - offsetX + this.property.global.pieStyle.label.style.textOffsetX;
-                        return (
-                            interpolate(t) -
-                            (offsetX - this.property.global.pieStyle.label.style.textOffsetX) * t
-                        );
+                        that.hasChangeValuePoints[name][0] = to[0] + offsetX;
+                        return (interpolate(t) + offsetX * t) as unknown as string;
                     };
-                }) as any)
+                })
                 .attrTween("y", ((d: PieArcDatum<DataItem>) => {
                     const { name } = d.data;
                     const from = this.hasChangeValuePoints[name];
@@ -848,38 +977,39 @@ class PieChart extends SVGComponentBase {
                     this.hasChangeValuePoints[name][1] =
                         to[1] +
                         this.property.global.pieStyle.label.style.font.size +
-                        this.property.global.pieStyle.label.style.labelOffsetY / 2;
+                        this.property.global.pieStyle.label.style.valueOffsetY / 2;
                     return (t: number) =>
                         interpolate(t) +
                         this.property.global.pieStyle.label.style.font.size * t +
-                        (this.property.global.pieStyle.label.style.labelOffsetY / 2) * t;
+                        (this.property.global.pieStyle.label.style.valueOffsetY / 2) * t;
                 }) as any);
         } else {
+            const that = this;
             selection
-                .attr("x", ((d: PieArcDatum<DataItem>) => {
+                .attr("x", function (d: PieArcDatum<DataItem>) {
                     const { name } = d.data;
-                    const [x] = this.points[name];
-                    const offsetX = this.textWidth[name];
+                    const [x] = that.points[name];
+                    const offsetX = that.property.global.pieStyle.label.style.valueOffsetX;
                     if (x > 0) {
-                        this.hasChangeValuePoints[name][0] =
-                            x - this.property.global.pieStyle.label.style.textOffsetX;
-                        return x - this.property.global.pieStyle.label.style.textOffsetX;
+                        d3.select(this).attr("text-anchor", "start");
+                        that.hasChangeValuePoints[name][0] = x - offsetX;
+                        return x - offsetX;
                     }
-                    this.hasChangeValuePoints[name][0] =
-                        x - offsetX + this.property.global.pieStyle.label.style.textOffsetX;
-                    return x - offsetX + this.property.global.pieStyle.label.style.textOffsetX;
-                }) as any)
+                    d3.select(this).attr("text-anchor", "end");
+                    that.hasChangeValuePoints[name][0] = x + offsetX;
+                    return x + offsetX;
+                })
                 .attr("y", ((d: PieArcDatum<DataItem>) => {
                     const { name } = d.data;
                     const [_, y] = this.points[name];
                     this.hasChangeValuePoints[name][1] =
                         y +
                         this.property.global.pieStyle.label.style.font.size +
-                        this.property.global.pieStyle.label.style.labelOffsetY / 2;
+                        this.property.global.pieStyle.label.style.valueOffsetY / 2;
                     return (
                         y +
                         this.property.global.pieStyle.label.style.font.size +
-                        this.property.global.pieStyle.label.style.labelOffsetY / 2
+                        this.property.global.pieStyle.label.style.valueOffsetY / 2
                     );
                 }) as any);
         }
@@ -887,8 +1017,16 @@ class PieChart extends SVGComponentBase {
         selection.textTween(((d: PieArcDatum<DataItem>) => {
             const { name } = d.data;
             let interpolate: (t: number) => number;
-            const from = isChange ? (this.hasChangeValue[name].percentage as number) : 0;
+
+            if (!this.hasChangeValue[name]) {
+                this.hasChangeValue[name] = {
+                    percentage: 0,
+                    value: 0,
+                };
+            }
+
             if (this.property.global.pieStyle.label.style.showlLabelType == "percentage") {
+                const from = isChange ? (this.hasChangeValue[name].percentage as number) : 0;
                 interpolate = d3.interpolateNumber(from, d.data.percentage as number);
                 this.hasChangeValue[name].percentage = d.data.percentage!;
                 return (t: number) => {
@@ -899,6 +1037,7 @@ class PieChart extends SVGComponentBase {
                     );
                 };
             } else {
+                const from = isChange ? (this.hasChangeValue[name].value as number) : 0;
                 interpolate = d3.interpolateNumber(from, d.data.value);
                 this.hasChangeValue[name].value = d.data.value;
                 return (t: number) =>
@@ -1067,10 +1206,26 @@ class PieChart extends SVGComponentBase {
                 this.tooltip
                     .html(
                         `<div style="display:flex;align-items: center;justify-content: center;">
-                            <span style="display:inline-block;margin-right:8px;border-radius:50%;width:${this.property.prompt.tooltip.style.size[0]}px;height:${this.property.prompt.tooltip.style.size[1]}px;background-color:${color};"></span>
-                            <span style="font-size:${this.property.prompt.tooltip.style.name.size}px;color:${this.property.prompt.tooltip.style.name.color}">${name}</span>
-                            <span style="padding-left:${this.property.prompt.tooltip.style.paddingLeft}px;font-size:${this.property.prompt.tooltip.style.value.size}px;color:${this.property.prompt.tooltip.style.value.color}">${value}</span>
-                        <span style="font-size:${this.property.prompt.tooltip.style.value.size}px;color:${this.property.prompt.tooltip.style.value.color}">${this.property.prompt.tooltip.style.unit}</span>
+                            <span style="display:inline-block;margin-right:8px;border-radius:${
+                                this.property.prompt.tooltip.style.type == "circle" ? "50%" : "0%"
+                            };width:${this.property.prompt.tooltip.style.size[0]}px;height:${
+                            this.property.prompt.tooltip.style.size[1]
+                        }px;background-color:${color};"></span>
+                            <span style="font-size:${
+                                this.property.prompt.tooltip.style.name.size
+                            }px;color:${
+                            this.property.prompt.tooltip.style.name.color
+                        }">${name}</span>
+                            <span style="padding-left:${
+                                this.property.prompt.tooltip.style.paddingLeft
+                            }px;font-size:${
+                            this.property.prompt.tooltip.style.value.size
+                        }px;color:${this.property.prompt.tooltip.style.value.color}">${value}</span>
+                        <span style="font-size:${
+                            this.property.prompt.tooltip.style.value.size
+                        }px;color:${this.property.prompt.tooltip.style.value.color}">${
+                            this.property.prompt.tooltip.style.unit
+                        }</span>
                             </div>`
                     )
                     .style(
@@ -1139,10 +1294,28 @@ class PieChart extends SVGComponentBase {
                 this.tooltip
                     .html(
                         `<div style="display:flex;align-items: center;justify-content: center;">
-                            <span style="display:inline-block;margin-right:8px;border-radius:50%;width:${this.property.prompt.tooltip.style.size[0]}px;height:${this.property.prompt.tooltip.style.size[1]}px;background-color:${d.data.color};"></span>
-                            <span style="font-size:${this.property.prompt.tooltip.style.name.size}px;color:${this.property.prompt.tooltip.style.name.color}">${d.data.name}</span>
-                            <span style="padding-left:${this.property.prompt.tooltip.style.paddingLeft}px;font-size:${this.property.prompt.tooltip.style.value.size}px;color:${this.property.prompt.tooltip.style.value.color}">${d.data.value}</span>
-                            <span style="font-size:${this.property.prompt.tooltip.style.value.size}px;color:${this.property.prompt.tooltip.style.value.color}">${this.property.prompt.tooltip.style.unit}</span>
+                            <span style="display:inline-block;margin-right:8px;border-radius:${
+                                this.property.prompt.tooltip.style.type == "circle" ? "50%" : "0%"
+                            };width:${this.property.prompt.tooltip.style.size[0]}px;height:${
+                            this.property.prompt.tooltip.style.size[1]
+                        }px;background-color:${d.data.color};"></span>
+                            <span style="font-size:${
+                                this.property.prompt.tooltip.style.name.size
+                            }px;color:${this.property.prompt.tooltip.style.name.color}">${
+                            d.data.name
+                        }</span>
+                            <span style="padding-left:${
+                                this.property.prompt.tooltip.style.paddingLeft
+                            }px;font-size:${
+                            this.property.prompt.tooltip.style.value.size
+                        }px;color:${this.property.prompt.tooltip.style.value.color}">${
+                            d.data.value
+                        }</span>
+                            <span style="font-size:${
+                                this.property.prompt.tooltip.style.value.size
+                            }px;color:${this.property.prompt.tooltip.style.value.color}">${
+                            this.property.prompt.tooltip.style.unit
+                        }</span>
                             </div>`
                     )
                     .style("left", x + this.property.prompt.tooltip.background.offset[0] + "px")
@@ -1152,7 +1325,6 @@ class PieChart extends SVGComponentBase {
             }, this.property.prompt.carousel.durationTime * 1000);
         }
     }
-
     public update(data: PieArcDatum<DataItem>[] | DataItem[]) {
         this.intervalId && clearInterval(this.intervalId);
         this.intervalId = null;
@@ -1177,10 +1349,14 @@ class PieChart extends SVGComponentBase {
                         .append("path")
                         .attr("class", "arc-path")
                         .attr("d", this.arc)
-                        // .attr("fill", (d: PieArcDatum<DataItem>) => d.data.color)
-                        .attr("stroke", this.property.global.pieStyle.borderColor)
+                        .attr("stroke", this.property.global.pieStyle.pie.borderColor)
                         .attr("data-name", (d) => d.data.name)
-                        .style("stroke-width", `${this.property.global.pieStyle.borderWidth}px`)
+                        .style("stroke-width", `${this.property.global.pieStyle.pie.borderWidth}px`)
+                        .attr("fill", (d) =>
+                            this.property.global.pieStyle.maskStyle.isShow
+                                ? `url(#gradient-${d.data.color})`
+                                : d.data.color
+                        )
                         .transition()
                         .duration(this.property.animation.durationTime * 1000)
                         .attrTween("d", (d: PieArcDatum<DataItem>) => {
@@ -1188,12 +1364,6 @@ class PieChart extends SVGComponentBase {
                             return (t: number) => {
                                 d.startAngle = interpolate(t);
                                 return this.arc!(d) as string;
-                            };
-                        })
-                        .attrTween("fill", (d: PieArcDatum<DataItem>) => {
-                            const interpolate = d3.interpolateRgb("white", d.data.color);
-                            return (t: number) => {
-                                return interpolate(t);
                             };
                         })
                         .end()
@@ -1206,9 +1376,13 @@ class PieChart extends SVGComponentBase {
                         .each((d) => {
                             this.getPoints(d, true);
                         })
-                        .attr("fill", (d: PieArcDatum<DataItem>) => d.data.color)
-                        .attr("stroke", this.property.global.pieStyle.borderColor)
-                        .style("stroke-width", `${this.property.global.pieStyle.borderWidth}px`)
+                        .attr("fill", (d) =>
+                            this.property.global.pieStyle.maskStyle.isShow
+                                ? `url(#gradient-${d.data.color})`
+                                : d.data.color
+                        )
+                        .attr("stroke", this.property.global.pieStyle.pie.borderColor)
+                        .style("stroke-width", `${this.property.global.pieStyle.pie.borderWidth}px`)
                         .transition()
                         .duration(this.property.animation.durationTime * 1000)
                         .attrTween("d", (d: PieArcDatum<DataItem>) => {
@@ -1295,73 +1469,76 @@ class PieChart extends SVGComponentBase {
                     }
                 );
 
-            this.pieContainer!.select(".path-group")
-                .selectAll(".arc-text")
-                .data<PieArcDatum<DataItem>>(pieData, (d: any) => d.data.name)
-                .join(
-                    (enter) => {
-                        enter
-                            .append("text")
-                            .attr("class", "arc-text")
-                            .setFontStyle(this.property.global.pieStyle.label.style.font)
-                            .style("opacity", 0)
-                            .transition()
-                            .duration(this.property.animation.durationTime * 1000)
-                            .call((selection) => this.animateText(selection))
-                            .style("opacity", 1)
-                            .attr("fill", this.property.global.pieStyle.label.style.font.color)
-                            .text((d: any) => d.data.name);
-                    },
-                    (update) => {
-                        update
-                            .transition()
-                            .duration(this.property.animation.durationTime * 1000)
-                            .call((selection: any) => this.animateText(selection, true));
-                    },
-                    (exit) => {
-                        exit.transition()
-                            .duration(this.property.animation.durationTime * 1000)
-                            .style("opacity", 0)
-                            .remove();
-                    }
-                );
-
-            this.pieContainer!.select(".path-group")
-                .selectAll(".arc-value")
-                .data<PieArcDatum<DataItem>>(pieData, (d: any) => d.data.name)
-                .join(
-                    (enter) => {
-                        enter
-                            .append("text")
-                            .attr("class", "arc-value")
-                            .setFontStyle(this.property.global.pieStyle.label.style.font)
-                            .style("opacity", 0)
-                            .transition()
-                            .duration(this.property.animation.durationTime * 1000)
-                            .call((selection) => this.animateValue(selection))
-                            .style("opacity", 1);
-                    },
-                    (update) => {
-                        update
-                            .transition()
-                            .duration(this.property.animation.durationTime * 1000)
-                            .call((selection: any) => this.animateValue(selection, true));
-                    },
-                    (exit) => {
-                        exit.transition()
-                            .duration(this.property.animation.durationTime * 1000)
-                            .style("opacity", 0)
-                            .remove();
-                    }
-                );
-
-            if (this.property.global.legend.isShow && this.isInterfaceData) {
-                this.hasHiddenArcPath.clear();
-                this.generateLegend(pieData);
+            if (this.property.global.pieStyle.label.style.showName) {
+                this.pieContainer!.select(".path-group")
+                    .selectAll(".arc-text")
+                    .data<PieArcDatum<DataItem>>(pieData, (d: any) => d.data.name)
+                    .join(
+                        (enter) => {
+                            enter
+                                .append("text")
+                                .attr("class", "arc-text")
+                                .setFontStyle(this.property.global.pieStyle.label.style.font)
+                                .style("opacity", 0)
+                                .transition()
+                                .duration(this.property.animation.durationTime * 1000)
+                                .call((selection) => this.animateText(selection))
+                                .style("opacity", 1)
+                                .attr("fill", this.property.global.pieStyle.label.style.font.color)
+                                .text((d: any) => d.data.name);
+                        },
+                        (update) => {
+                            update
+                                .transition()
+                                .duration(this.property.animation.durationTime * 1000)
+                                .call((selection: any) => this.animateText(selection, true));
+                        },
+                        (exit) => {
+                            exit.transition()
+                                .duration(this.property.animation.durationTime * 1000)
+                                .style("opacity", 0)
+                                .remove();
+                        }
+                    );
             }
-            this.autoCarouselArc = null;
-            this.autoCarousel();
+
+            if (this.property.global.pieStyle.label.style.showValue) {
+                this.pieContainer!.select(".path-group")
+                    .selectAll(".arc-value")
+                    .data<PieArcDatum<DataItem>>(pieData, (d: any) => d.data.name)
+                    .join(
+                        (enter) => {
+                            enter
+                                .append("text")
+                                .attr("class", "arc-value")
+                                .setFontStyle(this.property.global.pieStyle.label.style.font)
+                                .style("opacity", 0)
+                                .transition()
+                                .duration(this.property.animation.durationTime * 1000)
+                                .call((selection) => this.animateValue(selection))
+                                .style("opacity", 1);
+                        },
+                        (update) => {
+                            update
+                                .transition()
+                                .duration(this.property.animation.durationTime * 1000)
+                                .call((selection: any) => this.animateValue(selection, true));
+                        },
+                        (exit) => {
+                            exit.transition()
+                                .duration(this.property.animation.durationTime * 1000)
+                                .style("opacity", 0)
+                                .remove();
+                        }
+                    );
+            }
         }
+        if (this.property.global.legend.isShow && this.isInterfaceData) {
+            this.hasHiddenArcPath.clear();
+            this.generateLegend(pieData);
+        }
+        this.autoCarouselArc = null;
+        this.autoCarousel();
     }
 
     private arraySum(array: DataItem[]) {
@@ -1388,7 +1565,7 @@ class PieChart extends SVGComponentBase {
             centerX,
             centerY,
             centerZ,
-            this.property.global.pieStyle.radius +
+            this.property.global.pieStyle.pie.radius +
                 this.property.global.pieStyle.label.style.polylineDistance
         );
 
@@ -1430,33 +1607,30 @@ class PieChart extends SVGComponentBase {
             sin = Math.abs(centerY / centerZ);
             arcEdgeX =
                 centerX >= 0
-                    ? cos * this.property.global.pieStyle.radius
-                    : -cos * this.property.global.pieStyle.radius;
-            arcEdgeY = -sin * this.property.global.pieStyle.radius;
+                    ? cos * this.property.global.pieStyle.pie.radius
+                    : -cos * this.property.global.pieStyle.pie.radius;
+            arcEdgeY = -sin * this.property.global.pieStyle.pie.radius;
         } else {
             cos = Math.abs(centerY / centerZ);
             sin = Math.abs(centerX / centerZ);
             arcEdgeX =
                 centerX > 0
-                    ? sin * this.property.global.pieStyle.radius
-                    : -sin * this.property.global.pieStyle.radius;
-            arcEdgeY = cos * this.property.global.pieStyle.radius;
+                    ? sin * this.property.global.pieStyle.pie.radius
+                    : -sin * this.property.global.pieStyle.pie.radius;
+            arcEdgeY = cos * this.property.global.pieStyle.pie.radius;
         }
         return [cos, sin, arcEdgeX, arcEdgeY];
     }
 
     private computedValue(data: DataItem) {
+        let name = data.name;
         if (this.property.global.legend.style.showValue) {
-            if (this.property.global.pieStyle.label.style.showlLabelType == "value") {
-                return (
-                    data.name + " " + data.percentage + " " + this.property.global.legend.style.unit
-                );
-            } else {
-                return data.name + " " + data.value + " " + this.property.global.legend.style.unit;
-            }
-        } else {
-            return data.name;
+            name = name + " " + data.value + " " + this.property.global.legend.style.unit;
         }
+        if (this.property.global.legend.style.showPercentage) {
+            name = name + " " + data.percentage + " " + this.property.global.legend.style.unit;
+        }
+        return name;
     }
 }
 

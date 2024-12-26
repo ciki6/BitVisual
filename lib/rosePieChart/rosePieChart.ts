@@ -1,8 +1,8 @@
 import * as d3 from "d3";
 import "../base/d3Extend";
-import "./ringChart.css";
+import "./rosePieChart.css";
 import SVGComponentBase from "../base/svgComponentBase";
-import type { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
+import type { ComponentProperty, PropertyDictionaryItem } from "lib/types/property";
 import OptionType from "../base/optionType";
 import type { Pie, Arc, PieArcDatum } from "d3-shape";
 import type { Selection, BaseType } from "d3-selection";
@@ -12,15 +12,16 @@ interface DataItem {
     name: string;
     value: number;
     color: string;
-    percentage: number | string;
+    percentage?: number | string;
     index?: number;
+    r: number;
 }
 
 type d3Data = BaseType & {
     __data__: PieArcDatum<DataItem>;
 };
 
-class RingChart extends SVGComponentBase {
+class RosePieChart extends SVGComponentBase {
     private width: number;
     private height: number;
     private textWidth: Record<string, number>;
@@ -49,8 +50,6 @@ class RingChart extends SVGComponentBase {
     private canClick: boolean;
     private legend: Selection<HTMLDivElement, unknown, null, undefined> | null;
     private isInterfaceData: boolean;
-    private ringGradient: Selection<SVGGElement, unknown, null, undefined> | null;
-    private ring: Selection<SVGPathElement, PieArcDatum<DataItem>, SVGGElement, unknown> | null;
 
     constructor(
         id: string,
@@ -89,8 +88,6 @@ class RingChart extends SVGComponentBase {
         this.canClick = true;
         this.isInterfaceData = true;
         this.legend = null;
-        this.ringGradient = null;
-        this.ring = null;
         this.draw();
     }
 
@@ -109,20 +106,19 @@ class RingChart extends SVGComponentBase {
         super.initProperty();
         const property: ComponentProperty = {
             basic: {
-                className: "RingChart",
+                className: "RosePieChart",
                 frame: [0, 0, 1920, 1080],
             },
             global: {
                 padding: [10, 10, 10, 10],
                 bgImage: "",
-                ringStyle: {
-                    pieStyle: {
-                        outerRadius: 350,
-                        innerRadius: 240,
-                        cornerRadius: 0,
-                        padAngle: 0.02,
+                pieStyle: {
+                    pie: {
+                        radius: 350,
+                        // cornerRadius: 0,
+                        // padAngle: 0.02,
                         borderColor: "rgba(0,0,0,0)",
-                        borderWidth: 1,
+                        borderWidth: 0,
                         rotationAngle: 0,
                         anticlockwise: 0,
                         dataSort: "desc",
@@ -147,26 +143,6 @@ class RingChart extends SVGComponentBase {
                             valueOffsetY: -100,
                             valueOffsetX: 0,
                             precision: 1,
-                        },
-                    },
-                    decorationStyle: {
-                        isShow: true,
-                        style: {
-                            outerRadius: 220, //外半径
-                            innerRadius: 200, //内半径
-                            padAngle: 0.1, //饼图扇区之间的间隙角度
-                            cornerRadius: 10, //圆角半径
-                            rotationDirection: "1",
-                            useGradientColors: true,
-                            opacity: 0.9,
-                            scrollSpeend: 3,
-                        },
-                    },
-                    maskStyle: {
-                        isShow: true,
-                        style: {
-                            percentage: 95,
-                            opacity: 0.3,
                         },
                     },
                 },
@@ -248,34 +224,16 @@ class RingChart extends SVGComponentBase {
                         type: OptionType.media,
                     },
                     {
-                        name: "ringStyle",
+                        name: "pieStyle",
                         displayName: "样式",
                         children: [
                             {
-                                name: "pieStyle",
-                                displayName: "环形图样式",
+                                name: "pie",
+                                displayName: "饼图样式",
                                 children: [
                                     {
-                                        name: "outerRadius",
-                                        displayName: "外半径",
-                                        type: OptionType.int,
-                                        unit: "px",
-                                    },
-                                    {
-                                        name: "innerRadius",
-                                        displayName: "内半径",
-                                        type: OptionType.int,
-                                        unit: "px",
-                                    },
-                                    {
-                                        name: "padAngle",
-                                        displayName: "间隙角度",
-                                        type: OptionType.double,
-                                        unit: "弧度",
-                                    },
-                                    {
-                                        name: "cornerRadius",
-                                        displayName: "圆角半径",
+                                        name: "radius",
+                                        displayName: "半径",
                                         type: OptionType.int,
                                         unit: "px",
                                     },
@@ -419,118 +377,6 @@ class RingChart extends SVGComponentBase {
                                                 options: {
                                                     min: 0,
                                                     max: 5,
-                                                },
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                            {
-                                name: "decorationStyle",
-                                displayName: "装饰物",
-                                children: [
-                                    {
-                                        name: "isShow",
-                                        displayName: "是否显示",
-                                        type: OptionType.boolean,
-                                    },
-                                    {
-                                        name: "style",
-                                        displayName: "样式",
-                                        children: [
-                                            {
-                                                name: "outerRadius",
-                                                displayName: "外半径",
-                                                type: OptionType.int,
-                                                unit: "px",
-                                            },
-                                            {
-                                                name: "innerRadius",
-                                                displayName: "内半径",
-                                                type: OptionType.int,
-                                                unit: "px",
-                                            },
-                                            {
-                                                name: "padAngle",
-                                                displayName: "间隙角度",
-                                                type: OptionType.double,
-                                                unit: "弧度",
-                                            },
-                                            {
-                                                name: "cornerRadius",
-                                                displayName: "圆角半径",
-                                                type: OptionType.int,
-                                                unit: "px",
-                                            },
-                                            {
-                                                name: "useGradientColors",
-                                                displayName: "渐变色",
-                                                type: OptionType.boolean,
-                                            },
-                                            {
-                                                name: "opacity",
-                                                displayName: "透明度",
-                                                type: OptionType.range,
-                                                options: {
-                                                    min: 0,
-                                                    max: 1,
-                                                },
-                                            },
-                                            {
-                                                name: "rotationDirection",
-                                                displayName: "旋转方向",
-                                                type: OptionType.radio,
-                                                options: [
-                                                    {
-                                                        name: "顺时针",
-                                                        value: "1",
-                                                    },
-                                                    {
-                                                        name: "逆时针",
-                                                        value: "-1",
-                                                    },
-                                                ],
-                                            },
-                                            {
-                                                name: "scrollSpeend",
-                                                displayName: "旋转速度",
-                                                type: OptionType.double,
-                                                unit: "秒",
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                            {
-                                name: "maskStyle",
-                                displayName: "遮罩物",
-                                children: [
-                                    {
-                                        name: "isShow",
-                                        displayName: "是否显示",
-                                        type: OptionType.boolean,
-                                    },
-                                    {
-                                        name: "style",
-                                        displayName: "样式",
-                                        children: [
-                                            {
-                                                name: "percentage",
-                                                displayName: "占比",
-                                                type: OptionType.range,
-                                                options: {
-                                                    min: 0,
-                                                    max: 100,
-                                                },
-                                                unit: "%",
-                                            },
-                                            {
-                                                name: "opacity",
-                                                displayName: "透明度",
-                                                type: OptionType.range,
-                                                options: {
-                                                    min: 0,
-                                                    max: 1,
                                                 },
                                             },
                                         ],
@@ -804,14 +650,15 @@ class RingChart extends SVGComponentBase {
     }
 
     private handleData(data: DataItem[], isChange = true) {
-        this.generateRadialGradientColor();
         const sum = this.arraySum(data);
+        const maxValue = Math.max(...data.map((d: DataItem) => d.value));
         data.map((d: DataItem, i: number) => {
-            d.percentage = d3.format(`.${this.property.global.ringStyle.label.style.precision}f`)(
+            d.percentage = d3.format(`.${this.property.global.pieStyle.label.style.precision}f`)(
                 (d.value / sum) * 100
             );
             d.index = i;
             d.color = this.property.series.color[i];
+            d.r = this.property.global.pieStyle.pie.radius * (d.value / maxValue);
             if (isChange) {
                 this.hasChangeValue[d.name] = {
                     value: d.value,
@@ -824,49 +671,6 @@ class RingChart extends SVGComponentBase {
             this.textWidth[d.name] = this.getTrueWidth(d.name);
         });
         return data;
-    }
-
-    private generateRadialGradientColor() {
-        if (this.pieContainer!.select(".radialGradient")) {
-            this.pieContainer!.select(".radialGradient").remove();
-        }
-        const defs = this.pieContainer!.append("defs").attr("class", "radialGradient");
-        this.property.series.color.forEach((d: string) => {
-            const gradient = defs
-                .append("radialGradient")
-                .attr("id", `gradient-${d}`)
-                .attr("gradientUnits", "userSpaceOnUse")
-                .attr("cx", 0)
-                .attr("cy", 0)
-                .attr("r", this.property.global.ringStyle.pieStyle.outerRadius);
-
-            gradient
-                .append("stop")
-                .attr("offset", "0%")
-                .attr("stop-color", d)
-                .attr("stop-opacity", this.property.global.ringStyle.maskStyle.style.opacity);
-
-            gradient
-                .append("stop")
-                .attr("offset", `${this.property.global.ringStyle.maskStyle.style.percentage}%`)
-                .attr("stop-color", d)
-                .attr("stop-opacity", this.property.global.ringStyle.maskStyle.style.opacity);
-
-            gradient
-                .append("stop")
-                .attr(
-                    "offset",
-                    `${this.property.global.ringStyle.maskStyle.style.percentage + 0.1}%`
-                )
-                .attr("stop-color", d)
-                .attr("stop-opacity", 1);
-
-            gradient
-                .append("stop")
-                .attr("offset", "100%")
-                .attr("stop-color", d)
-                .attr("stop-opacity", 1);
-        });
     }
 
     private createSVGContainer() {
@@ -892,16 +696,14 @@ class RingChart extends SVGComponentBase {
                 .attr("xlink:href", this.property.global.bgImage)
                 .attr("preserveAspectRatio", "none");
         }
-
-        this.ringGradient = this.pieContainer!.append("g").attr("class", "ring-gradient");
     }
 
     private createTooltip() {
-        d3.select(".ring-chart-tooltip").remove();
+        d3.select(".rose-pie-chart-tooltip").remove();
         this.tooltip = d3
             .select(this.mainSVG.node().parentNode)
             .append("div")
-            .attr("class", "ring-chart-tooltip")
+            .attr("class", "rose-pie-chart-tooltip")
             .style(
                 "background",
                 this.property.prompt.tooltip.background.backgroundImage == ""
@@ -912,7 +714,7 @@ class RingChart extends SVGComponentBase {
 
         this.pieContainer!.append("defs")
             .append("filter")
-            .attr("id", "ring-filter")
+            .attr("id", "rose-pie-filter")
             .attr("x", "-100%")
             .attr("y", "-100%")
             .attr("width", "300%")
@@ -926,26 +728,26 @@ class RingChart extends SVGComponentBase {
     }
 
     private generateArc() {
-        const radians = (Math.PI / 180) * this.property.global.ringStyle.pieStyle.rotationAngle;
+        const radians = (Math.PI / 180) * this.property.global.pieStyle.pie.rotationAngle;
         this.pie = d3
             .pie<any, DataItem>()
             .value((d) => d.value)
             .sort(null)
             .startAngle(0 + radians)
             .endAngle(Math.PI * 2 + radians)
-            .padAngle(this.property.global.ringStyle.pieStyle.padAngle);
-        // .padAngle(0);
+            .padAngle(0);
 
         this.arcHighlight = d3
             .arc<any, PieArcDatum<DataItem>>()
-            .innerRadius(this.property.global.ringStyle.pieStyle.innerRadius)
-            .outerRadius(this.property.global.ringStyle.pieStyle.outerRadius * 1.1)
-            .cornerRadius(this.property.global.ringStyle.pieStyle.cornerRadius);
+            .innerRadius(0)
+            .outerRadius(this.property.global.pieStyle.pie.radius * 1.1)
+            .cornerRadius(0);
         this.arc = d3
             .arc<any, PieArcDatum<DataItem>>()
-            .innerRadius(this.property.global.ringStyle.pieStyle.innerRadius)
-            .outerRadius(this.property.global.ringStyle.pieStyle.outerRadius)
-            .cornerRadius(this.property.global.ringStyle.pieStyle.cornerRadius);
+            .innerRadius(0)
+            .outerRadius((d) => d.data.r)
+            .cornerRadius(0)
+            .padAngle(0);
 
         this.pieData = this.pie(this.defaultData);
 
@@ -955,12 +757,14 @@ class RingChart extends SVGComponentBase {
     }
 
     private animatePolyline = (data: PieArcDatum<DataItem>, _: number, isChange = false) => {
-        const { name } = data.data;
+        const { name, r } = data.data;
         const [centerX, centerY, centerZ] = isChange
             ? this.hasChangeCentroid[name]
             : this.centroid[name];
-        const offsetX = this.property.global.ringStyle.label.style.polylineDistance2;
-        const [cos, sin, arcEdgeX, arcEdgeY] = this.getAecEdgePoints(centerX, centerY, centerZ);
+
+        // const offsetX = this.textWidth[name];
+        const offsetX = this.property.global.pieStyle.label.style.polylineDistance2;
+        const [cos, sin, arcEdgeX, arcEdgeY] = this.getAecEdgePoints(centerX, centerY, centerZ, r);
         const [pointX, pointY] = this.points[name]; //折点
         if (isChange) {
             const from = [pointX, pointY, ...this.topCentroid[name]];
@@ -1003,7 +807,8 @@ class RingChart extends SVGComponentBase {
         selection
             .attrTween("x", function (d: PieArcDatum<DataItem>) {
                 const { name } = d.data;
-                const offsetX = that.property.global.ringStyle.label.style.nameOffsetX;
+                // const textWidth = that.textWidth[name];
+                const offsetX = that.property.global.pieStyle.label.style.nameOffsetX;
                 if (isChange) {
                     const from = that.hasChangeTextPoints[name];
                     const to = that.hasChangePoints[name];
@@ -1030,6 +835,7 @@ class RingChart extends SVGComponentBase {
                     d3.select(this).attr("text-anchor", "end");
                     that.hasChangeTextPoints[name][0] = x - offsetX;
                     return (t: number) => ((x - offsetX) * t) as unknown as string;
+                    // return (t: number) => (x - (textWidth + offsetX)) * t;
                 }
             })
             .attrTween("y", ((d: PieArcDatum<DataItem>) => {
@@ -1039,15 +845,15 @@ class RingChart extends SVGComponentBase {
                     const to = this.hasChangePoints[name];
                     const interpolate = d3.interpolate(from[1], to[1]);
                     this.hasChangeTextPoints[name][1] =
-                        to[1] + this.property.global.ringStyle.label.style.nameOffsetY;
+                        to[1] + this.property.global.pieStyle.label.style.nameOffsetY;
                     return (t: number) =>
-                        interpolate(t) + this.property.global.ringStyle.label.style.nameOffsetY * t;
+                        interpolate(t) + this.property.global.pieStyle.label.style.nameOffsetY * t;
                 } else {
                     const [_, y] = this.points[name];
                     this.hasChangeTextPoints[name][1] =
-                        y + this.property.global.ringStyle.label.style.nameOffsetY;
+                        y + this.property.global.pieStyle.label.style.nameOffsetY;
                     return (t: number) =>
-                        (y + this.property.global.ringStyle.label.style.nameOffsetY) * t;
+                        (y + this.property.global.pieStyle.label.style.nameOffsetY) * t;
                 }
             }) as any);
     }
@@ -1061,7 +867,7 @@ class RingChart extends SVGComponentBase {
             selection
                 .attrTween("x", function (d: PieArcDatum<DataItem>) {
                     const { name } = d.data;
-                    const offsetX = that.property.global.ringStyle.label.style.valueOffsetX;
+                    const offsetX = that.property.global.pieStyle.label.style.valueOffsetX;
                     const from = that.hasChangeValuePoints[name];
                     const to = that.hasChangePoints[name];
                     const interpolate = d3.interpolate(from[0], to[0]);
@@ -1086,12 +892,12 @@ class RingChart extends SVGComponentBase {
                     const interpolate = d3.interpolate(from[1], to[1]);
                     this.hasChangeValuePoints[name][1] =
                         to[1] +
-                        this.property.global.ringStyle.label.style.font.size +
-                        this.property.global.ringStyle.label.style.valueOffsetY / 2;
+                        this.property.global.pieStyle.label.style.font.size +
+                        this.property.global.pieStyle.label.style.valueOffsetY / 2;
                     return (t: number) =>
                         interpolate(t) +
-                        this.property.global.ringStyle.label.style.font.size * t +
-                        (this.property.global.ringStyle.label.style.valueOffsetY / 2) * t;
+                        this.property.global.pieStyle.label.style.font.size * t +
+                        (this.property.global.pieStyle.label.style.valueOffsetY / 2) * t;
                 }) as any);
         } else {
             const that = this;
@@ -1099,7 +905,7 @@ class RingChart extends SVGComponentBase {
                 .attr("x", function (d: PieArcDatum<DataItem>) {
                     const { name } = d.data;
                     const [x] = that.points[name];
-                    const offsetX = that.property.global.ringStyle.label.style.valueOffsetX;
+                    const offsetX = that.property.global.pieStyle.label.style.valueOffsetX;
                     if (x > 0) {
                         d3.select(this).attr("text-anchor", "start");
                         that.hasChangeValuePoints[name][0] = x - offsetX;
@@ -1114,12 +920,12 @@ class RingChart extends SVGComponentBase {
                     const [_, y] = this.points[name];
                     this.hasChangeValuePoints[name][1] =
                         y +
-                        this.property.global.ringStyle.label.style.font.size +
-                        this.property.global.ringStyle.label.style.valueOffsetY / 2;
+                        this.property.global.pieStyle.label.style.font.size +
+                        this.property.global.pieStyle.label.style.valueOffsetY / 2;
                     return (
                         y +
-                        this.property.global.ringStyle.label.style.font.size +
-                        this.property.global.ringStyle.label.style.valueOffsetY / 2
+                        this.property.global.pieStyle.label.style.font.size +
+                        this.property.global.pieStyle.label.style.valueOffsetY / 2
                     );
                 }) as any);
         }
@@ -1135,13 +941,13 @@ class RingChart extends SVGComponentBase {
                 };
             }
 
-            if (this.property.global.ringStyle.label.style.showlLabelType == "percentage") {
+            if (this.property.global.pieStyle.label.style.showlLabelType == "percentage") {
                 const from = isChange ? (this.hasChangeValue[name].percentage as number) : 0;
                 interpolate = d3.interpolateNumber(from, d.data.percentage as number);
                 this.hasChangeValue[name].percentage = d.data.percentage!;
                 return (t: number) => {
                     return (
-                        d3.format(`.${this.property.global.ringStyle.label.style.precision}f`)(
+                        d3.format(`.${this.property.global.pieStyle.label.style.precision}f`)(
                             interpolate(t)
                         ) + "%"
                     );
@@ -1151,7 +957,7 @@ class RingChart extends SVGComponentBase {
                 interpolate = d3.interpolateNumber(from, d.data.value);
                 this.hasChangeValue[name].value = d.data.value;
                 return (t: number) =>
-                    d3.format(`.${this.property.global.ringStyle.label.style.precision}f`)(
+                    d3.format(`.${this.property.global.pieStyle.label.style.precision}f`)(
                         interpolate(t)
                     );
             }
@@ -1163,7 +969,7 @@ class RingChart extends SVGComponentBase {
         this.legend = d3
             .select(this.mainSVG.node().parentNode)
             .append("div")
-            .attr("class", "ring-chart-legend")
+            .attr("class", "rose-pie-chart-legend")
             .style("position", "absolute")
             .style("top", `${this.property.global.legend.layout.position[0]}px`)
             .style("left", `${this.property.global.legend.layout.position[1]}px`)
@@ -1247,8 +1053,8 @@ class RingChart extends SVGComponentBase {
                         Math.round(
                             (v.value / sum) *
                                 100 *
-                                Math.pow(10, this.property.global.ringStyle.label.style.precision)
-                        ) / Math.pow(10, this.property.global.ringStyle.label.style.precision);
+                                Math.pow(10, this.property.global.pieStyle.label.style.precision)
+                        ) / Math.pow(10, this.property.global.pieStyle.label.style.precision);
                 });
 
                 this.hasChangePieData = this.pie!(this.hasChangeData);
@@ -1277,7 +1083,7 @@ class RingChart extends SVGComponentBase {
                                 .transition()
                                 .duration(200)
                                 .attr("d", that.arcHighlight as any)
-                                .attr("filter", "url(#ring-filter)");
+                                .attr("filter", "url(#rose-pie-filter)");
                         }
                     });
             })
@@ -1306,7 +1112,7 @@ class RingChart extends SVGComponentBase {
                     .transition()
                     .duration(200)
                     .attr("d", this.arcHighlight as any)
-                    .attr("filter", "url(#ring-filter)");
+                    .attr("filter", "url(#rose-pie-filter)");
 
                 this.tooltip
                     .transition()
@@ -1384,7 +1190,7 @@ class RingChart extends SVGComponentBase {
                             .transition()
                             .duration(200)
                             .attr("d", that.arcHighlight as any)
-                            .attr("filter", "url(#ring-filter)");
+                            .attr("filter", "url(#rose-pie-filter)");
 
                         d3.select(that.autoCarouselArc)
                             .transition()
@@ -1435,57 +1241,6 @@ class RingChart extends SVGComponentBase {
             }, this.property.prompt.carousel.durationTime * 1000);
         }
     }
-
-    private generateRotateRing(data = this.pieData) {
-        d3.select(".rotate-ring-group").remove();
-        d3.select(".ring-gradient").html("");
-        const arc = d3
-            .arc<any, PieArcDatum<DataItem>>()
-            .innerRadius(this.property.global.ringStyle.decorationStyle.style.innerRadius)
-            .outerRadius(this.property.global.ringStyle.decorationStyle.style.outerRadius)
-            .cornerRadius(this.property.global.ringStyle.decorationStyle.style.cornerRadius)
-            .padAngle(this.property.global.ringStyle.decorationStyle.style.padAngle);
-
-        this.ring = this.pieContainer!.append("g")
-            .attr("class", "rotate-ring-group")
-            .selectAll("path")
-            .data(data!)
-            .enter()
-            .append("g")
-            .attr("class", "ring-group")
-            .attr("data-name", (d) => d.data.name)
-            .attr("data-index", (d) => d.index)
-            .append("path")
-            .attr("class", "ring-path")
-            .attr("d", arc)
-            .attr("fill", (d) => {
-                return this.property.global.ringStyle.decorationStyle.style.useGradientColors
-                    ? `url(#${this.creatGradientColor(d.data.name, d.data.color)})`
-                    : d.data.color;
-            })
-            .attr("opacity", this.property.global.ringStyle.decorationStyle.style.opacity);
-
-        let that = this;
-        this.ring
-            .transition()
-            .duration(this.property.global.ringStyle.decorationStyle.style.scrollSpeend * 1000)
-            .ease(d3.easeLinear)
-            .on("start", function repeat() {
-                d3.active(this)!
-                    .attrTween("transform", () => {
-                        return (t) =>
-                            `rotate(${
-                                t *
-                                360 *
-                                that.property.global.ringStyle.decorationStyle.style
-                                    .rotationDirection
-                            }, 0, 0)`;
-                    })
-                    .transition()
-                    .on("start", repeat);
-            });
-    }
-
     public update(data: PieArcDatum<DataItem>[] | DataItem[]) {
         this.intervalId && clearInterval(this.intervalId);
         this.intervalId = null;
@@ -1510,17 +1265,11 @@ class RingChart extends SVGComponentBase {
                         .append("path")
                         .attr("class", "arc-path")
                         .attr("d", this.arc)
-                        .attr("stroke", this.property.global.ringStyle.pieStyle.borderColor)
+                        // .attr("fill", (d: PieArcDatum<DataItem>) => d.data.color)
+                        .attr("stroke", this.property.global.pieStyle.pie.borderColor)
                         .attr("data-name", (d) => d.data.name)
-                        .style(
-                            "stroke-width",
-                            `${this.property.global.ringStyle.pieStyle.borderWidth}px`
-                        )
-                        .attr("fill", (d) =>
-                            this.property.global.ringStyle.maskStyle.isShow
-                                ? `url(#gradient-${d.data.color})`
-                                : d.data.color
-                        )
+                        .style("stroke-width", `${this.property.global.pieStyle.pie.borderWidth}px`)
+                        .attr("fill", (d) => d.data.color)
                         .transition()
                         .duration(this.property.animation.durationTime * 1000)
                         .attrTween("d", (d: PieArcDatum<DataItem>) => {
@@ -1540,16 +1289,9 @@ class RingChart extends SVGComponentBase {
                         .each((d) => {
                             this.getPoints(d, true);
                         })
-                        .attr("fill", (d) =>
-                            this.property.global.ringStyle.maskStyle.isShow
-                                ? `url(#gradient-${d.data.color})`
-                                : d.data.color
-                        )
-                        .attr("stroke", this.property.global.ringStyle.pieStyle.borderColor)
-                        .style(
-                            "stroke-width",
-                            `${this.property.global.ringStyle.pieStyle.borderWidth}px`
-                        )
+                        .attr("fill", (d) => d.data.color)
+                        .attr("stroke", this.property.global.pieStyle.pie.borderColor)
+                        .style("stroke-width", `${this.property.global.pieStyle.pie.borderWidth}px`)
                         .transition()
                         .duration(this.property.animation.durationTime * 1000)
                         .attrTween("d", (d: PieArcDatum<DataItem>) => {
@@ -1600,7 +1342,7 @@ class RingChart extends SVGComponentBase {
                 }
             );
 
-        if (this.property.global.ringStyle.label.isShow) {
+        if (this.property.global.pieStyle.label.isShow) {
             this.pieContainer!.select(".path-group")
                 .selectAll(".arc-polyline")
                 .data<PieArcDatum<DataItem>>(pieData, (d: any) => d.data.name)
@@ -1611,12 +1353,9 @@ class RingChart extends SVGComponentBase {
                             .attr("class", "arc-polyline")
                             .attr(
                                 "stroke-width",
-                                this.property.global.ringStyle.label.style.polylineWidth
+                                this.property.global.pieStyle.label.style.polylineWidth
                             )
-                            .attr(
-                                "stroke",
-                                this.property.global.ringStyle.label.style.polylineColor
-                            )
+                            .attr("stroke", this.property.global.pieStyle.label.style.polylineColor)
                             .attr("fill", "none")
                             .each((d) => {
                                 this.getPoints(d);
@@ -1639,7 +1378,7 @@ class RingChart extends SVGComponentBase {
                     }
                 );
 
-            if (this.property.global.ringStyle.label.style.showName) {
+            if (this.property.global.pieStyle.label.style.showName) {
                 this.pieContainer!.select(".path-group")
                     .selectAll(".arc-text")
                     .data<PieArcDatum<DataItem>>(pieData, (d: any) => d.data.name)
@@ -1648,13 +1387,13 @@ class RingChart extends SVGComponentBase {
                             enter
                                 .append("text")
                                 .attr("class", "arc-text")
-                                .setFontStyle(this.property.global.ringStyle.label.style.font)
+                                .setFontStyle(this.property.global.pieStyle.label.style.font)
                                 .style("opacity", 0)
                                 .transition()
                                 .duration(this.property.animation.durationTime * 1000)
                                 .call((selection) => this.animateText(selection))
                                 .style("opacity", 1)
-                                .attr("fill", this.property.global.ringStyle.label.style.font.color)
+                                .attr("fill", this.property.global.pieStyle.label.style.font.color)
                                 .text((d: any) => d.data.name);
                         },
                         (update) => {
@@ -1672,7 +1411,7 @@ class RingChart extends SVGComponentBase {
                     );
             }
 
-            if (this.property.global.ringStyle.label.style.showValue) {
+            if (this.property.global.pieStyle.label.style.showValue) {
                 this.pieContainer!.select(".path-group")
                     .selectAll(".arc-value")
                     .data<PieArcDatum<DataItem>>(pieData, (d: any) => d.data.name)
@@ -1681,7 +1420,7 @@ class RingChart extends SVGComponentBase {
                             enter
                                 .append("text")
                                 .attr("class", "arc-value")
-                                .setFontStyle(this.property.global.ringStyle.label.style.font)
+                                .setFontStyle(this.property.global.pieStyle.label.style.font)
                                 .style("opacity", 0)
                                 .transition()
                                 .duration(this.property.animation.durationTime * 1000)
@@ -1706,9 +1445,6 @@ class RingChart extends SVGComponentBase {
         if (this.property.global.legend.isShow && this.isInterfaceData) {
             this.hasHiddenArcPath.clear();
             this.generateLegend(pieData);
-            if (this.property.global.ringStyle.decorationStyle.isShow) {
-                this.generateRotateRing(pieData);
-            }
         }
         this.autoCarouselArc = null;
         this.autoCarousel();
@@ -1722,7 +1458,7 @@ class RingChart extends SVGComponentBase {
         this.mainSVG
             .append("text")
             .attr("class", "temp-text")
-            .style("font-size", `${this.property.global.ringStyle.label.style.font.size}px`)
+            .style("font-size", `${this.property.global.pieStyle.label.style.font.size}px`)
             .style("opacity", 0)
             .text(text);
         const textTrueWidth = this.mainSVG.select(".temp-text").node().getBBox().width;
@@ -1738,8 +1474,8 @@ class RingChart extends SVGComponentBase {
             centerX,
             centerY,
             centerZ,
-            this.property.global.ringStyle.pieStyle.outerRadius +
-                this.property.global.ringStyle.label.style.polylineDistance
+            this.property.global.pieStyle.pie.radius +
+                this.property.global.pieStyle.label.style.polylineDistance
         );
 
         if (isChange) {
@@ -1770,7 +1506,7 @@ class RingChart extends SVGComponentBase {
         return [x, y];
     }
 
-    private getAecEdgePoints(centerX: number, centerY: number, centerZ: number) {
+    private getAecEdgePoints(centerX: number, centerY: number, centerZ: number, r: number) {
         let cos = 0;
         let sin = 0;
         let arcEdgeX = 0;
@@ -1778,19 +1514,13 @@ class RingChart extends SVGComponentBase {
         if (centerY <= 0) {
             cos = Math.abs(centerX / centerZ);
             sin = Math.abs(centerY / centerZ);
-            arcEdgeX =
-                centerX >= 0
-                    ? cos * this.property.global.ringStyle.pieStyle.outerRadius
-                    : -cos * this.property.global.ringStyle.pieStyle.outerRadius;
-            arcEdgeY = -sin * this.property.global.ringStyle.pieStyle.outerRadius;
+            arcEdgeX = centerX >= 0 ? cos * r : -cos * r;
+            arcEdgeY = -sin * r;
         } else {
             cos = Math.abs(centerY / centerZ);
             sin = Math.abs(centerX / centerZ);
-            arcEdgeX =
-                centerX > 0
-                    ? sin * this.property.global.ringStyle.pieStyle.outerRadius
-                    : -sin * this.property.global.ringStyle.pieStyle.outerRadius;
-            arcEdgeY = cos * this.property.global.ringStyle.pieStyle.outerRadius;
+            arcEdgeX = centerX > 0 ? sin * r : -sin * r;
+            arcEdgeY = cos * r;
         }
         return [cos, sin, arcEdgeX, arcEdgeY];
     }
@@ -1805,31 +1535,6 @@ class RingChart extends SVGComponentBase {
         }
         return name;
     }
-
-    private creatGradientColor(name: string, color: string) {
-        const colorId = name + "ringGradient";
-        const gradient = this.ringGradient!.append("defs")
-            .append("linearGradient")
-            .attr("id", colorId)
-            .attr("x1", "0%")
-            .attr("y1", "0%")
-            .attr("x2", "100%")
-            .attr("y2", "0%");
-
-        gradient
-            .append("stop")
-            .attr("offset", "0%")
-            .attr("stop-color", color)
-            .attr("stop-opacity", this.property.global.ringStyle.decorationStyle.style.opacity);
-
-        gradient
-            .append("stop")
-            .attr("offset", "100%")
-            .attr("stop-color", color)
-            .attr("stop-opacity", 0);
-
-        return colorId;
-    }
 }
 
-export default RingChart;
+export default RosePieChart;
