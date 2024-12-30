@@ -1642,7 +1642,7 @@ class BarChart extends SVGComponentBase {
 
   private renderContainer(): void {
     if (this.property.global.bgImage !== "") {
-      this.mainSVG.append("image").attr("x", 0).attr("y", 0).attr("width", this.property.frame[2]).attr("height", this.property.frame[3]).attr("xlink:href", this.property.global.bgImage);
+      this.mainSVG.append("image").attr("x", 0).attr("y", 0).attr("width", this.property.basic.frame[2]).attr("height", this.property.basic.frame[3]).attr("xlink:href", this.property.global.bgImage);
     }
     if (this.mainSVG.select("defs").empty()) {
       this.defs = this.mainSVG.append("defs");
@@ -1689,7 +1689,7 @@ class BarChart extends SVGComponentBase {
   private renderBar(data: DataSets): void {
     const allKeys = Array.from(new Set(Object.values(data).flatMap((dataset: any) => dataset.map((d: any) => d.x))));
 
-    const datasets = Object.keys(data);
+    const datasets = Object.keys(this.property.series.dataSeries);
 
     const dataSeriesProps = this.property.series.dataSeries;
 
@@ -1747,7 +1747,9 @@ class BarChart extends SVGComponentBase {
 
     datasets.forEach((d) => {
       this.defs.select(`#barFillImage_${this.id}_${d}`).remove();
-      this.defs.append("pattern").attr("id", `barFillImage_${this.id}_${d}`).attr("patternUnits", "objectBoundingBox").attr("width", 1).attr("height", 1).append("image").attr("href", this.property.series.dataSeries[d].style.image).attr("x", 0).attr("y", 0).attr("width", 1).attr("height", 1);
+      if (this.property.series.dataSeries.hasOwnProperty(d)) {
+        this.defs.append("pattern").attr("id", `barFillImage_${this.id}_${d}`).attr("patternUnits", "objectBoundingBox").attr("width", 1).attr("height", 1).append("image").attr("href", this.property.series.dataSeries[d].style.image).attr("x", 0).attr("y", 0).attr("width", 1).attr("height", 1);
+      }
     });
 
     const bars = this.mainSVG.select(".graph").selectAll("g.layer").data(showKeys);

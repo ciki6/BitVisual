@@ -1,13 +1,13 @@
 import type { WisChartType } from "./types";
 import { ComponentOption } from "lib/types/compOption";
 import BarChart from "./barChart";
-import ChordDiagram from "./chordDiagram/chordDiagram";
+import ChordDiagram from "./chordDiagram/v1/chordDiagram";
 import ImageView from "./imageView/imageView";
 import LineChart from "./lineChart/lineChart";
 import AreaChart from "./areaChart/areaChart";
 import ScatterPlotChart from "./scatterPlotChart/scatterPlotChart";
-import BubbleChart from "./bubbleChart/bubbleChart";
-import BarGraph from "./barGraph/barGraph";
+import BubbleChart from "./bubbleChart";
+import BarGraph from "./barGraph";
 
 type CompParam = {
   className: string;
@@ -17,7 +17,6 @@ type CompParam = {
   workMode: number;
   option: ComponentOption;
   useDefaultOpt: boolean;
-  version: string;
 };
 
 const WisChart: WisChartType = {
@@ -33,6 +32,6 @@ const WisChart: WisChartType = {
 export default WisChart;
 
 export const compGenerator = (compParam: CompParam) => {
-  const fn = new Function(`new ${compParam.className}.${compParam.version}('${compParam.id}', '${compParam.code}', compParam.container, compParam.workMode, compParam.option, compParam.useDefaultOpt)`);
-  return fn();
+  const s = `new ${compParam.className}.${compParam.option.compVersion}('${compParam.id}', '${compParam.code}', compParam.container, compParam.workMode, compParam.option, compParam.useDefaultOpt)`;
+  return eval(s);
 };

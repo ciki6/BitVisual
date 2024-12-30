@@ -8,4 +8,6 @@ export interface ComponentOption {
   compInteract?: Record<string, any>;
   compData?: Record<string, any>;
   resourceId?: string;
+  compVersion?: string;
+  unionGroup?: string;
 }

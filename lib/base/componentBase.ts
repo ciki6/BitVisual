@@ -56,6 +56,8 @@ abstract class ComponentBase {
   public dataModule: { [key: string]: Function } = {};
   public syncModule: { [key: string]: Function } = {};
   public animeModule: { [key: string]: Function } = {};
+  version: string | undefined;
+  unionGroup: string | undefined;
 
   constructor(id: string, code: string, container: Element, workMode: number, option: ComponentOption = {}, useDefaultOpt: boolean = true) {
     this.id = id;
@@ -107,26 +109,13 @@ abstract class ComponentBase {
   }
 
   protected initConf(option: ComponentOption): void {
-    // this.property = $.extend(true, this.property, option.property);
-
-    // if (typeof option.compDataBind === "string") {
-    //   try {
-    //     option.compDataBind = JSON.parse(option.compDataBind);
-    //   } catch (error) {
-    //     console.error("组件数据绑定类型无法json格式化");
-    //   }
-    // }
-    // this.property = this.deepMerge(option.property as any, this.property) as any;
-    // this.propertyDictionary = this.deepMerge(option.propertyDictionary as any, this.propertyDictionary) as any;
     this.dataBind = this.deepMerge(option.compDataBind, this.dataBind);
     this.animation = this.deepMerge(option.compAnimation, this.animation);
     this.script = this.deepMerge(option.compScript, this.script);
     this.interact = this.deepMerge(option.compInteract, this.interact);
-    // this.dataBind = $.extend(true, this.dataBind, option.compDataBind);
-    // this.animation = _.union(this.animation, typeof option.compAnimation === "string" ? JSON.parse(option.compAnimation) : option.compAnimation);
-    // this.script = $.extend(true, this.script, typeof option.compScript === "string" ? JSON.parse(option.compScript) : option.compScript);
-    // this.interact = $.extend(true, this.interact, typeof option.compInteract === "string" ? JSON.parse(option.compInteract) : option.compInteract);
     this.resourceId = option.resourceId;
+    this.version = option.compVersion;
+    this.unionGroup = option.unionGroup;
     this.propertyManager = new PropertyManager(this.deepMerge(option.property as any, this.property), this.deepMerge(option.propertyDictionary as any, this.propertyDictionary));
     this.propertyDictionary = this.propertyManager.getPropertyDictionary();
     this.property = this.propertyManager.getPropertyList();

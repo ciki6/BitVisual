@@ -1,9 +1,9 @@
 import * as d3 from "d3";
 import _ from "lodash";
-import "../base/d3Extend";
-import SVGComponentBase from "../base/svgComponentBase";
+import "../../base/d3Extend";
+import SVGComponentBase from "../../base/svgComponentBase";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
-import OptionType from "../base/optionType";
+import OptionType from "../../base/optionType";
 import "./barGraph.css";
 
 type DataPoint = {
@@ -1544,7 +1544,7 @@ class BarGraph extends SVGComponentBase {
   }
 
   protected handlePropertyChange(): void {
-    this.propertyManager.onPropertyChange((path: string, value: any) => {
+    this.propertyManager!.onPropertyChange((path: string, value: any) => {
       switch (path) {
         case "global.padding":
           this.chartContainer.style("transform", `translate(${value[2]}px,${value[0]}px)`);

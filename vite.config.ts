@@ -65,5 +65,12 @@ export default defineConfig({
   },
   server: {
     open: "/",
+    proxy: {
+      "/ftp": {
+        target: "http://172.19.136.133:6818/ftp",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ftp/, ""),
+      },
+    },
   },
 });

@@ -1,11 +1,11 @@
 import * as d3 from "d3";
 import _ from "lodash";
 import $ from "jquery";
-import "../base/d3Extend";
-import SVGComponentBase from "../base/svgComponentBase";
+import "../../base/d3Extend";
+import SVGComponentBase from "../../base/svgComponentBase";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
-import OptionType from "../base/optionType";
-import { getSymbol, formatDate } from "../base/compUtil";
+import OptionType from "../../base/optionType";
+import { getSymbol, formatDate } from "../../base/compUtil";
 import './bubbleChart.css'
 
 interface dataType {

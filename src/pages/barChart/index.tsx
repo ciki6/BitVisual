@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropertyPanel from "@/components/PropertyPanel";
 import BarChart from "../../../lib/barChart/";
+import { compGenerator } from "../../../lib";
 
 const BarChartTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
@@ -64,20 +65,36 @@ const BarChartTest: React.FC = () => {
 
   useEffect(() => {
     if (compContainerRef.current) {
-      compRef.current = new BarChart.v1(
-        "asd",
-        "asd",
-        compContainerRef.current as Element,
-        0,
-        {
+      compRef.current = compGenerator({
+        className: "BarChart",
+        id: "asd",
+        code: "asd",
+        container: compContainerRef.current as HTMLDivElement,
+        workMode: 0,
+        option: {
+          compVersion: "v1",
           property: {
             basic: {
               frame: [10, 0, 1920, 1080],
             },
           },
         },
-        true
-      );
+        useDefaultOpt: true,
+      });
+      // compRef.current = new BarChart.v1(
+      //   "asd",
+      //   "asd",
+      //   compContainerRef.current as Element,
+      //   0,
+      //   {
+      //     property: {
+      //       basic: {
+      //         frame: [10, 0, 1920, 1080],
+      //       },
+      //     },
+      //   },
+      //   true
+      // );
       setPropertyDic(compRef.current.propertyManager.getPropertyDictionary());
       setProperty(compRef.current.propertyManager.getPropertyList());
       setDefaultData(JSON.stringify(compRef.current.defaultData));

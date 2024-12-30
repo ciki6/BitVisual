@@ -1,5 +1,5 @@
 import BarChart from "../barChart/barChart";
-import ChordDiagram from "../chordDiagram/chordDiagram";
+import ChordDiagram from "../chordDiagram/v1/chordDiagram";
 import ImageView from "../imageView/imageView";
 import LineChart from "../lineChart/lineChart";
 import AreaChart from "../areaChart/areaChart";

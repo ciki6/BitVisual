@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropertyPanel from "@/components/PropertyPanel";
-import ChordDiagram from "../../../lib/chordDiagram/chordDiagram";
+import ChordDiagram from "../../../lib/chordDiagram/v1/chordDiagram";
 
 const ChordDiagramTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
