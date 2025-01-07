@@ -215,7 +215,7 @@ abstract class ComponentBase {
             name: "frame",
             displayName: "组件大小",
             description: "组件位置以及大小",
-            type: OptionType.doubleArray,
+            type: OptionType.size,
             placeholder: ["x", "y", "宽", "高"],
           },
           {

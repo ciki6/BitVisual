@@ -1,5 +1,6 @@
 import type { WisChartType } from "./types";
 import { ComponentOption } from "lib/types/compOption";
+import "./index.css";
 import BarChart from "./barChart";
 import ChordDiagram from "./chordDiagram/v1/chordDiagram";
 import ImageView from "./imageView/imageView";

@@ -127,7 +127,7 @@ class PropertyManager {
   }
 
   public getPropertyDictionary(): PropertyDictionaryItem[] {
-    return this.propertyDic;
+    return this.propertyDic.length ? this.propertyDic : Object.values(this.propertyDic);
   }
 
   public getPropertyList(): BaseProperty {
@@ -136,7 +136,7 @@ class PropertyManager {
 
   public getPropertyDictionaryByPath(path: string): PropertyDictionaryItem | undefined {
     const keys = path.split(".");
-    let dicItems = this.propertyDic;
+    let dicItems = this.getPropertyDictionary();
     for (const key of keys) {
       const foundItem = dicItems.find((item) => item.name === key);
       if (!foundItem) {

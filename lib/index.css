@@ -1,0 +1,56 @@
+@font-face {
+  font-family: 思源黑体bold;
+  src: url("/fonts/思源黑体 CN-Bold.otf");
+}
+@font-face {
+  font-family: 思源黑体Extralight;
+  src: url("/fonts/思源黑体 CN-Extralight.otf");
+}
+@font-face {
+  font-family: 思源黑体Heavy;
+  src: url("/fonts/思源黑体 CN-Heavy.otf");
+}
+@font-face {
+  font-family: 思源黑体Light;
+  src: url("/fonts/思源黑体 CN-Light.otf");
+}
+@font-face {
+  font-family: 思源黑体Medium;
+  src: url("/fonts/思源黑体 CN-Medium.otf");
+}
+@font-face {
+  font-family: 思源黑体Normal;
+  src: url("/fonts/思源黑体 CN-Normal.otf");
+}
+@font-face {
+  font-family: 思源黑体Regular;
+  src: url("/fonts/思源黑体 CN-Regular.otf");
+}
+@font-face {
+  font-family: 思源宋体Bold;
+  src: url("/fonts/思源宋体NotoSerifCJKsc-Bold.otf");
+}
+@font-face {
+  font-family: 思源宋体Extralight;
+  src: url("/fonts/思源宋体NotoSerifCJKsc-Extralight.otf");
+}
+@font-face {
+  font-family: 思源宋体Black;
+  src: url("/fonts/思源宋体NotoSerifCJKsc-Black.otf");
+}
+@font-face {
+  font-family: 思源宋体Light;
+  src: url("/fonts/思源宋体NotoSerifCJKsc-Light.otf");
+}
+@font-face {
+  font-family: 思源宋体Medium;
+  src: url("/fonts/思源宋体NotoSerifCJKsc-Medium.otf");
+}
+@font-face {
+  font-family: 思源宋体SemiBold;
+  src: url("/fonts/思源宋体NotoSerifCJKsc-SemiBold.otf");
+}
+@font-face {
+  font-family: 思源宋体Regular;
+  src: url("/fonts/思源宋体NotoSerifCJKsc-Regular.otf");
+}

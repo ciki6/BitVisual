@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import PropertyPanel from "@/components/PropertyPanel";
 import BarChart from "../../../lib/barChart/";
 import { compGenerator } from "../../../lib";
+import OptionType from "../../../lib/base/optionType";
+import { PropertyDictionaryItem } from "lib/types/compProperty";
 
 const BarChartTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
@@ -78,23 +80,26 @@ const BarChartTest: React.FC = () => {
               frame: [10, 0, 1920, 1080],
             },
           },
+          propertyDictionary: [
+            {
+              name: "basic",
+              displayName: "基础属性巴扎黑",
+              description: "组件基础属性",
+              children: [
+                {
+                  name: "code",
+                  displayName: "组件编码",
+                  description: "组件编码",
+                  type: OptionType.string,
+                  editable: false,
+                },
+              ],
+            },
+          ],
         },
         useDefaultOpt: true,
       });
-      // compRef.current = new BarChart.v1(
-      //   "asd",
-      //   "asd",
-      //   compContainerRef.current as Element,
-      //   0,
-      //   {
-      //     property: {
-      //       basic: {
-      //         frame: [10, 0, 1920, 1080],
-      //       },
-      //     },
-      //   },
-      //   true
-      // );
+      console.log(compRef.current.propertyManager.getPropertyDictionary())
       setPropertyDic(compRef.current.propertyManager.getPropertyDictionary());
       setProperty(compRef.current.propertyManager.getPropertyList());
       setDefaultData(JSON.stringify(compRef.current.defaultData));
