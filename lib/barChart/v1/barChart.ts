@@ -1256,7 +1256,17 @@ class BarChart extends SVGComponentBase {
       valueAxis: "y",
       style: {
         fillType: "color",
-        color: ["blue", "red"],
+        color: [
+          {
+            angle: 135,
+            colorString: "linear-gradient(135deg,rgba(134,26,26,1)35%,rgba(134,26,26,0.61)78%)",
+            stops: [
+              { color: "rgba(134,26,26,1)", id: "dxqxqm95uu", offset: 0.35 },
+              { color: "rgba(134,26,26,0.61)", id: "mg4petxlfp", offset: 0.78 },
+            ],
+          },
+          "red",
+        ],
         image: "",
         opacity: 1,
       },

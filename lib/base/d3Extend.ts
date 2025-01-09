@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 
-interface FontStyle {
+type FontStyle = {
   family: string;
   size: string;
   color: string;
@@ -8,7 +8,19 @@ interface FontStyle {
   italic: boolean;
   underline: boolean;
   lineThrough: boolean;
-}
+};
+
+type ColorStop = {
+  color: string;
+  id: string;
+  offset: number;
+};
+
+type Color = {
+  angle: number;
+  colorString: string;
+  stops: ColorStop[];
+};
 
 declare module "d3-selection" {
   interface Selection<GElement extends d3.BaseType, Datum, PElement extends d3.BaseType, PDatum> {
@@ -21,7 +33,7 @@ declare module "d3-selection" {
 class D3Extend {
   constructor() {
     d3.selection.prototype.setFontStyle = this.setFontStyle;
-    console.log(d3, "d3");
+    d3.selection.prototype.setColor = this.setColor;
     this.extendAttr();
     this.extendStyle();
   }
@@ -81,6 +93,51 @@ class D3Extend {
         if (underline) textDecoration.push("underline");
         if (lineThrough) textDecoration.push("line-through");
         selection.style("text-decoration", textDecoration.join(" "));
+      }
+    });
+  };
+
+  private setColor = function (this: d3.Selection<d3.BaseType, unknown, null, undefined>, color: Color | string): d3.Selection<d3.BaseType, unknown, null, undefined> {
+    return this.each(function (_, i, group) {
+      const selection = d3.select(this);
+      const isSVGElement = this instanceof SVGElement;
+      if (typeof color === "string") {
+        if (isSVGElement) {
+          selection.attr("fill", color);
+        } else {
+          selection.style("color", color);
+        }
+      } else {
+        const gradientId = `gradient-${Math.random().toString(36).substr(2, 9)}`;
+        if (isSVGElement) {
+          const svgElement = this.ownerSVGElement;
+          if (!svgElement) return;
+          let defs = d3.select(svgElement).select("defs") as d3.Selection<SVGDefsElement, unknown, null, undefined>;
+          if (defs.empty()) {
+            defs = d3.select(svgElement).append("defs");
+          }
+          if (i === 0) {
+            defs.select(`#${gradientId}`).remove();
+
+            const linearGradient = defs
+              .append("linearGradient")
+              .attr("id", gradientId)
+              .attr("gradientUnits", "userSpaceOnUse")
+              .attr("x1", `${Math.cos((color.angle - 90) * (Math.PI / 180)) * 100}%`)
+              .attr("y1", `${Math.sin((color.angle - 90) * (Math.PI / 180)) * 100}%`)
+              .attr("x2", `${Math.cos((color.angle + 90) * (Math.PI / 180)) * 100}%`)
+              .attr("y2", `${Math.sin((color.angle + 90) * (Math.PI / 180)) * 100}%`);
+
+            color.stops.forEach((stop) => {
+              linearGradient.append("stop").attr("offset", `${stop.offset}%`).attr("stop-color", stop.color);
+            });
+          }
+          selection.attr("fill", `url(#${gradientId})`);
+        } else {
+          const gradientStops = color.stops.map((stop) => `${stop.color} ${stop.offset}%`).join(", ");
+          const cssGradient = `linear-gradient(${color.angle}deg, ${gradientStops})`;
+          selection.style("background", cssGradient);
+        }
       }
     });
   };
