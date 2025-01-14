@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropertyPanel from "@/components/PropertyPanel";
-import { compGenerator } from "../../../lib";
-import OptionType from "../../../lib/base/optionType";
+import <%= componentClassName %> from "../../../lib/<%= folder %>";
 
-const BarChartTest: React.FC = () => {
+const <%= componentClassName %>Test: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
   const compRef = useRef<any>(null);
   const [defaultData, setDefaultData] = useState<string>("");
@@ -28,7 +27,7 @@ const BarChartTest: React.FC = () => {
 
   const handleAction = (action: string, param: any) => {
     if (compRef.current) {
-      const evalStr = `compRef.current.${action}(${param.join(",")})`;
+      const evalStr = 'compRef.current.' + action + '(' + param.join(",") + ')';
       eval(evalStr);
       setPropertyDic(compRef.current.propertyManager.getPropertyDictionary());
       setProperty(compRef.current.propertyManager.getPropertyList());
@@ -63,40 +62,22 @@ const BarChartTest: React.FC = () => {
   };
 
   useEffect(() => {
-    if (compContainerRef.current) {
-      compRef.current = compGenerator({
-        className: "BarChart",
-        id: "asd",
-        code: "asd",
-        container: compContainerRef.current as HTMLDivElement,
-        workMode: 0,
-        option: {
-          compVersion: "v1",
+    if (compContainerRef.current && compContainerRef.current.childNodes.length < 1) {
+      compRef.current = new <%= componentClassName %>.v1(
+        "<%= componentClassName.toLowerCase() %>",
+        "<%= componentClassName.toLowerCase() %>",
+        compContainerRef.current as Element,
+        0,
+        {
+          compVersion:'v1',
           property: {
             basic: {
-              frame: [10, 0, 1920, 1080],
+              frame: [0, 0, 1920, 1080],
             },
           },
-          propertyDictionary: [
-            {
-              name: "basic",
-              displayName: "基础属性巴扎黑",
-              description: "组件基础属性",
-              children: [
-                {
-                  name: "code",
-                  displayName: "组件编码",
-                  description: "组件编码",
-                  type: OptionType.string,
-                  editable: false,
-                },
-              ],
-            },
-          ],
         },
-        useDefaultOpt: true,
-      });
-      console.log(compRef.current.propertyManager.getPropertyDictionary());
+        true
+      );
       setPropertyDic(compRef.current.propertyManager.getPropertyDictionary());
       setProperty(compRef.current.propertyManager.getPropertyList());
       setDefaultData(JSON.stringify(compRef.current.defaultData));
@@ -109,7 +90,7 @@ const BarChartTest: React.FC = () => {
 
   return (
     <div>
-      BarChart组件测试
+      <%= componentClassName %> 组件测试
       <div className="comp_prop">
         <div className="comp_container" ref={compContainerRef}></div>
         <div className="prop_container">
@@ -127,4 +108,4 @@ const BarChartTest: React.FC = () => {
   );
 };
 
-export default BarChartTest;
+export default <%= componentClassName %>Test;

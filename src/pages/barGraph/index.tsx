@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropertyPanel from "@/components/PropertyPanel";
-import BarGraph from "../../../lib/barGraph/barGraph";
+import BarGraph from "../../../lib/barGraph";
 
 const BarGraphTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
@@ -64,7 +64,7 @@ const BarGraphTest: React.FC = () => {
 
   useEffect(() => {
     if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
-      compRef.current = new BarGraph(
+      compRef.current = new BarGraph.v1(
         "bargraph",
         "bargraph",
         compContainerRef.current as Element,

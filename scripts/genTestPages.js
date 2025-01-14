@@ -1,153 +1,93 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import ejs from "ejs";
 
+// 获取当前脚本所在路径
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 定义目录路径
 const libDir = path.resolve(__dirname, "../lib");
 const pagesDir = path.resolve(__dirname, "../src/pages");
+const templatePath = path.resolve(__dirname, "componentTestTemplate.ejs");
 
-const otherFolder = ["base", "types", "barChart"];
+// 排除的文件夹
+const otherFolders = ["base", "types"];
 
-function createPageFolders() {
-  const libFolders = fs.readdirSync(libDir);
-  
-  libFolders.forEach((folder) => {
-    createPage(folder);
-  });
-}
-
-function createPage(folder) {
-  if (otherFolder.includes(folder)) return;
-  const libFolderPath = path.join(libDir, folder);
-  const componentClassName = folder.charAt(0).toUpperCase() + folder.slice(1);
-  if (fs.statSync(libFolderPath).isDirectory()) {
-    const pageFolderPath = path.join(pagesDir, folder);
-
-    if (!fs.existsSync(pageFolderPath)) {
-      fs.mkdirSync(pageFolderPath, { recursive: true });
-    }
-
-    const reactContent = `import React, { useEffect, useRef, useState } from "react";
-import PropertyPanel from "@/components/PropertyPanel";
-import ${componentClassName} from "../../../lib/${folder}/${folder}";
-
-const ${componentClassName}Test: React.FC = () => {
-  const compContainerRef = useRef<HTMLDivElement | null>(null);
-  const compRef = useRef<any>(null);
-  const [defaultData, setDefaultData] = useState<string>("");
-  const [propertyDic, setPropertyDic] = useState([]);
-  const [property, setProperty] = useState<any>({});
-  const [propertyTextAreaContent, setPropertyTextAreaContent] = useState<string>("");
-
-  const handlePropertyChange = (key: string, value: any) => {
-    const keys = key.split(".");
-    const updatedProperty = { ...property };
-    let temp = updatedProperty;
-
-    for (let i = 0; i < keys.length - 1; i++) {
-      temp = temp[keys[i]];
-    }
-    temp[keys[keys.length - 1]] = value;
-    setProperty(updatedProperty);
-    if (compRef.current) {
-      compRef.current.setProperty(key, value);
-    }
-  };
-
-  const handleAction = (action: string, param: any) => {
-    if (compRef.current) {
-      const evalStr = 'compRef.current.' + action + '(' + param.join(",") + ')';
-      eval(evalStr);
-      console.log(compRef.current.propertyManager.getPropertyList(), compRef.current.propertyManager.getPropertyDictionary());
-      setPropertyDic(compRef.current.propertyManager.getPropertyDictionary());
-      setProperty(compRef.current.propertyManager.getPropertyList());
-    }
-  };
-
-  const handleDataTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setDefaultData(e.target.value);
-  };
-
-  const handlePropertyTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setPropertyTextAreaContent(e.target.value);
-  };
-
-  const updateData = () => {
-    if (compRef.current) {
-      compRef.current.update(JSON.parse(defaultData));
-    }
-  };
-
-  const applyTextareaToPropertyGroup = () => {
-    try {
-      const updatedProperty = JSON.parse(propertyTextAreaContent);
-      setProperty(updatedProperty);
-
-      if (compRef.current) {
-        compRef.current.setProperty(updatedProperty);
-      }
-    } catch (error) {
-      console.error("Invalid JSON input", error);
-    }
-  };
-
-  useEffect(() => {
-    if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
-      compRef.current = new ${componentClassName}(
-        "${componentClassName.toLowerCase()}",
-        "${componentClassName.toLowerCase()}",
-        compContainerRef.current as Element,
-        0,
-        {
-          property: {
-            basic: {
-              frame: [0, 0, 1920, 1080],
-            },
-          },
-        },
-        true
-      );
-      setPropertyDic(compRef.current.propertyManager.getPropertyDictionary());
-      setProperty(compRef.current.propertyManager.getPropertyList());
-      setDefaultData(JSON.stringify(compRef.current.defaultData));
-    }
-  }, []);
-
-  useEffect(() => {
-    setPropertyTextAreaContent(JSON.stringify(property, null, 2));
-  }, [property]);
-
-  return (
-    <div>
-    ${componentClassName}组件测试
-      <div className="comp_prop">
-        <div className="comp_container" ref={compContainerRef}></div>
-        <div className="prop_container">
-          <PropertyPanel property={property} propertyDic={propertyDic} onChange={handlePropertyChange} onAction={handleAction} />
-        </div>
-      </div>
-      <div className="comp_data">
-        <textarea className="data_area" value={defaultData} onChange={handleDataTextareaChange}></textarea>
-        <button onClick={updateData}>update data</button>
-
-        <textarea className="data_area" value={propertyTextAreaContent} onChange={handlePropertyTextareaChange}></textarea>
-        <button onClick={applyTextareaToPropertyGroup}>Apply to PropertyGroup</button>
-      </div>
-    </div>
-  );
-};
-
-export default ${componentClassName}Test;
-`;
-    fs.writeFileSync(path.join(pageFolderPath, "index.tsx"), reactContent);
+/**
+ * 获取指定目录中的文件夹
+ */
+async function getFolders(directory) {
+  try {
+    const entries = await fs.readdir(directory, { withFileTypes: true });
+    return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  } catch (error) {
+    console.error(`Error reading directory ${directory}:`, error);
+    return [];
   }
 }
 
-const args = process.argv.slice(2);
-if (args.length === 0) {
-  createPageFolders();
-} else {
-  args.forEach((d) => createPage(d));
+/**
+ * 渲染 EJS 模板
+ */
+async function renderTemplate(data) {
+  try {
+    const template = await fs.readFile(templatePath, "utf-8");
+    return ejs.render(template, data);
+  } catch (error) {
+    console.error("Error rendering EJS template:", error);
+    throw error;
+  }
 }
+
+/**
+ * 创建页面文件夹及 React 组件
+ */
+async function createPageFolder(folder) {
+  if (otherFolders.includes(folder)) return;
+
+  const pageFolderPath = path.join(pagesDir, folder);
+  const componentClassName = folder.charAt(0).toUpperCase() + folder.slice(1);
+  const filePath = path.join(pageFolderPath, "index.tsx");
+
+  try {
+    // 如果页面文件夹和 index.tsx 文件都存在，则跳过
+    if (await fs.stat(filePath).catch(() => false)) {
+      console.log(`Page already exists, skipping: ${folder}`);
+      return;
+    }
+
+    // 创建页面文件夹（如果不存在）
+    await fs.mkdir(pageFolderPath, { recursive: true });
+
+    // 渲染模板
+    const reactContent = await renderTemplate({ folder, componentClassName });
+
+    // 写入 React 组件文件
+    await fs.writeFile(filePath, reactContent);
+    console.log(`Generated page for: ${folder}`);
+  } catch (error) {
+    console.error(`Error creating page for ${folder}:`, error);
+  }
+}
+
+/**
+ * 创建所有页面
+ */
+async function createPages() {
+  const libFolders = await getFolders(libDir);
+  await Promise.all(libFolders.map(createPageFolder));
+}
+
+/**
+ * 主入口，处理命令行参数
+ */
+(async () => {
+  const args = process.argv.slice(2);
+  if (args.length === 0) {
+    await createPages();
+  } else {
+    await Promise.all(args.map(createPageFolder));
+  }
+})();

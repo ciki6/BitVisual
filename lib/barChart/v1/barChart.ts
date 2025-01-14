@@ -1800,16 +1800,26 @@ class BarChart extends SVGComponentBase {
       .classed("bar", true)
       .attr("x", (d: any) => this.x1(d.key) as number)
       .attr("width", this.x1.bandwidth())
-      .attr("fill", (d: any) => this.barFill(d))
+      // .attr("fill", (d: any) => this.barFill(d))
       .attr("y", this.y(0))
       .attr("height", 0)
+      .each((d: any, i: number, nodes: Array<SVGRectElement>) => {
+        const color = this.barFill(d);
+        const node = nodes[i];
+        d3.select(node).setColor(color);
+      })
       .merge(rects)
       .transition()
       .duration(750)
       .attr("x", (d: any) => this.x1(d.key) as number)
       .attr("width", this.x1.bandwidth())
       .attr("y", (d: any) => this.y(d.value))
-      .attr("height", (d: any) => this.y(0) - this.y(d.value));
+      .attr("height", (d: any) => this.y(0) - this.y(d.value))
+      .each((d: any, i: number, nodes: Array<SVGRectElement>) => {
+        const color = this.barFill(d);
+        const node = nodes[i];
+        d3.select(node).setColor(color);
+      });
 
     rects.exit().transition().duration(750).attr("y", this.y(0)).attr("height", 0).remove();
   }
@@ -1817,11 +1827,7 @@ class BarChart extends SVGComponentBase {
   private barFill(d: any) {
     if (d.props.style.fillType === "color") {
       const colorList = d.props.style.color;
-      if (d.index >= colorList.length) {
-        return colorList[colorList.length - 1];
-      } else {
-        return colorList[d.index];
-      }
+      return colorList[d.index] || colorList[colorList.length - 1];
     }
     return `url(#barFillImage_${this.id}_${d.key})`;
   }
