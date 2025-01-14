@@ -25,6 +25,7 @@ type Color = {
 declare module "d3-selection" {
   interface Selection<GElement extends d3.BaseType, Datum, PElement extends d3.BaseType, PDatum> {
     setFontStyle(style: FontStyle): this;
+    setColor(color: Color | string): this;
     attr(attrs: Record<string, string | number | boolean> | string, value?: string | number | boolean): this;
     style(styles: Record<string, string | number | boolean> | string, value?: string | number | boolean, priority?: string): this;
   }
@@ -88,7 +89,6 @@ class D3Extend {
         }
       } else {
         selection.style("color", color);
-
         const textDecoration: string[] = [];
         if (underline) textDecoration.push("underline");
         if (lineThrough) textDecoration.push("line-through");
@@ -98,7 +98,7 @@ class D3Extend {
   };
 
   private setColor = function (this: d3.Selection<d3.BaseType, unknown, null, undefined>, color: Color | string): d3.Selection<d3.BaseType, unknown, null, undefined> {
-    return this.each(function (_, i, group) {
+    return this.each(function (_, i) {
       const selection = d3.select(this);
       const isSVGElement = this instanceof SVGElement;
       if (typeof color === "string") {
@@ -108,7 +108,12 @@ class D3Extend {
           selection.style("color", color);
         }
       } else {
-        const gradientId = `gradient-${Math.random().toString(36).substr(2, 9)}`;
+        const hashCode = (str: string) =>
+          str
+            .split("")
+            .reduce((acc, char) => (acc = acc * 31 + char.charCodeAt(0)), 0)
+            .toString(16);
+        const gradientId = `gradient-${hashCode(color.colorString)}`;
         if (isSVGElement) {
           const svgElement = this.ownerSVGElement;
           if (!svgElement) return;
@@ -116,20 +121,21 @@ class D3Extend {
           if (defs.empty()) {
             defs = d3.select(svgElement).append("defs");
           }
-          if (i === 0) {
-            defs.select(`#${gradientId}`).remove();
-
+          if (i === 0 && defs.select(`#${gradientId}`).empty()) {
             const linearGradient = defs
               .append("linearGradient")
               .attr("id", gradientId)
-              .attr("gradientUnits", "userSpaceOnUse")
-              .attr("x1", `${Math.cos((color.angle - 90) * (Math.PI / 180)) * 100}%`)
-              .attr("y1", `${Math.sin((color.angle - 90) * (Math.PI / 180)) * 100}%`)
-              .attr("x2", `${Math.cos((color.angle + 90) * (Math.PI / 180)) * 100}%`)
-              .attr("y2", `${Math.sin((color.angle + 90) * (Math.PI / 180)) * 100}%`);
+              .attr("gradientUnits", "objectBoundingBox")
+              .attr("x1", `${0.5 + Math.cos(color.angle * (Math.PI / 180)) / 2}`)
+              .attr("y1", `${0.5 - Math.sin(color.angle * (Math.PI / 180)) / 2}`)
+              .attr("x2", `${0.5 - Math.cos(color.angle * (Math.PI / 180)) / 2}`)
+              .attr("y2", `${0.5 + Math.sin(color.angle * (Math.PI / 180)) / 2}`);
 
             color.stops.forEach((stop) => {
-              linearGradient.append("stop").attr("offset", `${stop.offset}%`).attr("stop-color", stop.color);
+              linearGradient
+                .append("stop")
+                .attr("offset", `${stop.offset * 100}%`)
+                .attr("stop-color", stop.color);
             });
           }
           selection.attr("fill", `url(#${gradientId})`);
