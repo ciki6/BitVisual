@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 
-interface FontStyle {
+type FontStyle = {
   family: string;
   size: string;
   color: string;
@@ -8,11 +8,24 @@ interface FontStyle {
   italic: boolean;
   underline: boolean;
   lineThrough: boolean;
-}
+};
+
+type ColorStop = {
+  color: string;
+  id: string;
+  offset: number;
+};
+
+type Color = {
+  angle: number;
+  colorString: string;
+  stops: ColorStop[];
+};
 
 declare module "d3-selection" {
   interface Selection<GElement extends d3.BaseType, Datum, PElement extends d3.BaseType, PDatum> {
     setFontStyle(style: FontStyle): this;
+    setColor(color: Color | string): this;
     attr(attrs: Record<string, string | number | boolean> | string, value?: string | number | boolean): this;
     style(styles: Record<string, string | number | boolean> | string, value?: string | number | boolean, priority?: string): this;
   }
@@ -21,6 +34,7 @@ declare module "d3-selection" {
 class D3Extend {
   constructor() {
     d3.selection.prototype.setFontStyle = this.setFontStyle;
+    d3.selection.prototype.setColor = this.setColor;
     this.extendAttr();
     this.extendStyle();
   }
@@ -33,7 +47,7 @@ class D3Extend {
 
       selection
         .style("font-family", family)
-        .style("font-size", size+'px')
+        .style("font-size", size + "px")
         .style("font-weight", bolder ? "bold" : "normal")
         .style("font-style", italic ? "italic" : "normal");
       if (isSVGElement) {
@@ -75,11 +89,61 @@ class D3Extend {
         }
       } else {
         selection.style("color", color);
-
         const textDecoration: string[] = [];
         if (underline) textDecoration.push("underline");
         if (lineThrough) textDecoration.push("line-through");
         selection.style("text-decoration", textDecoration.join(" "));
+      }
+    });
+  };
+
+  private setColor = function (this: d3.Selection<d3.BaseType, unknown, null, undefined>, color: Color | string): d3.Selection<d3.BaseType, unknown, null, undefined> {
+    return this.each(function (_, i) {
+      const selection = d3.select(this);
+      const isSVGElement = this instanceof SVGElement;
+      if (typeof color === "string") {
+        if (isSVGElement) {
+          selection.attr("fill", color);
+        } else {
+          selection.style("color", color);
+        }
+      } else {
+        const hashCode = (str: string) =>
+          str
+            .split("")
+            .reduce((acc, char) => (acc = acc * 31 + char.charCodeAt(0)), 0)
+            .toString(16);
+        const gradientId = `gradient-${hashCode(color.colorString)}`;
+        if (isSVGElement) {
+          const svgElement = this.ownerSVGElement;
+          if (!svgElement) return;
+          let defs = d3.select(svgElement).select("defs") as d3.Selection<SVGDefsElement, unknown, null, undefined>;
+          if (defs.empty()) {
+            defs = d3.select(svgElement).append("defs");
+          }
+          if (i === 0 && defs.select(`#${gradientId}`).empty()) {
+            const linearGradient = defs
+              .append("linearGradient")
+              .attr("id", gradientId)
+              .attr("gradientUnits", "objectBoundingBox")
+              .attr("x1", `${0.5 + Math.cos(color.angle * (Math.PI / 180)) / 2}`)
+              .attr("y1", `${0.5 - Math.sin(color.angle * (Math.PI / 180)) / 2}`)
+              .attr("x2", `${0.5 - Math.cos(color.angle * (Math.PI / 180)) / 2}`)
+              .attr("y2", `${0.5 + Math.sin(color.angle * (Math.PI / 180)) / 2}`);
+
+            color.stops.forEach((stop) => {
+              linearGradient
+                .append("stop")
+                .attr("offset", `${stop.offset * 100}%`)
+                .attr("stop-color", stop.color);
+            });
+          }
+          selection.attr("fill", `url(#${gradientId})`);
+        } else {
+          const gradientStops = color.stops.map((stop) => `${stop.color} ${stop.offset}%`).join(", ");
+          const cssGradient = `linear-gradient(${color.angle}deg, ${gradientStops})`;
+          selection.style("background", cssGradient);
+        }
       }
     });
   };

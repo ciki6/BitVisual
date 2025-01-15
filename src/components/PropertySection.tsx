@@ -39,7 +39,7 @@ const PropertySection: React.FC<PropertySectionProps> = ({ item, formData, onCha
         {hasChildren && <strong>{item.displayName}</strong>}
         {item.action &&
           item.action.map((act: any, index: number) => (
-            <button type="button" key={index} style={{ backgroundColor: act.style, marginLeft: 10, color: "#fff" }} onClick={() => onAction(act.action, act.param)}>
+            <button type="button" key={index} style={{ backgroundColor: act.style, marginLeft: 10, color: "#fff" }} onClick={() => onAction(act.action, act.param[0] === "parentIndex" ? [index] : act.param)}>
               {act.text}
             </button>
           ))}

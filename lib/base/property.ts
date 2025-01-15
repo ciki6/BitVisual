@@ -53,56 +53,62 @@ class PropertyManager {
   }
 
   private setPropertyByPath(path: string, value: any) {
+    if (!path || typeof path !== "string") {
+      throw new Error("Invalid path. Path must be a non-empty string.");
+    }
     const keys = path.split(".");
     let obj: any = this.property;
-    while (keys.length > 1) {
-      const key = keys.shift();
-      if (key === undefined) {
+    keys.slice(0, -1).forEach((key) => {
+      if (obj[key] === undefined) {
         throw new Error(`Property ${key} does not exist on the object.`);
-      } else {
-        if (obj[key] === undefined) {
-          throw new Error(`Property ${key} does not exist on the object.`);
-        }
-        obj = obj[key];
       }
-    }
-    obj[keys[0]] = value;
-    console.log(this.property, "propertyManager");
+      obj = obj[key];
+    });
+    obj[keys[keys.length - 1]] = value;
   }
 
   private setPropertyByObject(newProperties: Partial<BaseProperty>) {
     const changedPaths: string[] = [];
+    this.compareAndUpdate(this.property, newProperties, changedPaths);
+    this.notifyChangedPaths(changedPaths);
+  }
 
-    const compareAndUpdate = (oldObj: any, newObj: any, path: string[] = []) => {
-      for (const key in newObj) {
-        if (newObj.hasOwnProperty(key)) {
-          const fullPath = [...path, key].join(".");
-          if (_.isObject(newObj[key]) && !_.isArray(newObj[key])) {
-            compareAndUpdate(oldObj[key], newObj[key], [...path, key]);
-          } else if (!_.isEqual(oldObj[key], newObj[key])) {
-            oldObj[key] = newObj[key];
-            changedPaths.push(fullPath);
-          }
-        }
-      }
-    };
+  public addProperty(property: any, propertyDic?: PropertyDictionaryItem[]) {
+    const changedPaths: string[] = [];
+    this.compareAndUpdate(this.property, property, changedPaths);
 
-    compareAndUpdate(this.property, newProperties);
+    if (propertyDic) {
+      this.propertyDic = [...this.propertyDic, ...propertyDic];
+    }
+    this.notifyChangedPaths(changedPaths);
+  }
 
+  private notifyChangedPaths(changedPaths: string[]) {
     for (const path of changedPaths) {
       const value = this.getProperty(path);
       this.triggerCallbacks(path, value);
     }
   }
 
-  public addProperty(property: any, propertyDic?: PropertyDictionaryItem[]) {
-    this.property = this.createProxy(_.merge({}, this.property, property));
-    if (propertyDic) {
-      this.propertyDic = [...this.propertyDic, ...propertyDic];
+  private compareAndUpdate(oldObj: any, newObj: any, changedPaths: string[], path: string[] = []) {
+    for (const key in newObj) {
+      if (newObj.hasOwnProperty(key)) {
+        const fullPath = [...path, key].join(".");
+        if (_.isObject(newObj[key]) && !_.isArray(newObj[key])) {
+          if (!oldObj[key] || !_.isObject(oldObj[key])) {
+            oldObj[key] = {};
+          }
+          this.compareAndUpdate(oldObj[key], newObj[key], changedPaths, [...path, key]);
+        } else if (!_.isEqual(oldObj[key], newObj[key])) {
+          oldObj[key] = newObj[key];
+          changedPaths.push(fullPath);
+        }
+      }
     }
   }
 
   public getProperty(path: string): any {
+    if (!path || typeof path !== "string") return undefined;
     const keys = path.split(".");
     let obj = this.property;
     for (const key of keys) {
@@ -115,11 +121,13 @@ class PropertyManager {
   }
 
   public onPropertyChange(callback: Callback) {
-    this.callbacks.push(callback);
+    if (!this.callbacks.includes(callback)) {
+      this.callbacks.push(callback);
+    }
   }
 
   public getPropertyDictionary(): PropertyDictionaryItem[] {
-    return this.propertyDic;
+    return this.propertyDic.length ? this.propertyDic : Object.values(this.propertyDic);
   }
 
   public getPropertyList(): BaseProperty {
@@ -128,7 +136,7 @@ class PropertyManager {
 
   public getPropertyDictionaryByPath(path: string): PropertyDictionaryItem | undefined {
     const keys = path.split(".");
-    let dicItems = this.propertyDic;
+    let dicItems = this.getPropertyDictionary();
     for (const key of keys) {
       const foundItem = dicItems.find((item) => item.name === key);
       if (!foundItem) {

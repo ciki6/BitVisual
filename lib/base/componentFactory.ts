@@ -21,9 +21,6 @@ export class ComponentFactory {
 
   _createComponent() {
     let executeString = `new ${this.className}(this.id, this.code, this.container, this.workMode, this.opts, this.useDefaultOpt)`;
-    if (this.opts.property.basic.type === "custom") {
-      executeString = "new CustomComponent(this.id, this.code, this.container, this.workMode, this.opts, this.useDefaultOpt)";
-    }
     return eval(executeString);
   }
 }

@@ -11,7 +11,8 @@ export default defineConfig({
     minify: "esbuild",
     copyPublicDir: true,
     rollupOptions: {
-      external: ["d3", "jquery", "lodash"],
+      // external: ["d3", "jquery", "lodash"],
+      external: [],
       output: {
         format: "es",
         inlineDynamicImports: false,
@@ -29,6 +30,9 @@ export default defineConfig({
             const parts = id.split("/");
             const name = parts[parts.length - 1].replace(".ts", "");
             return `${name}`;
+          }
+          if (id.includes("node_modules")) {
+            return "vendor";
           }
         },
       },
@@ -61,5 +65,12 @@ export default defineConfig({
   },
   server: {
     open: "/",
+    proxy: {
+      "/ftp": {
+        target: "http://172.19.136.133:6818/ftp",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ftp/, ""),
+      },
+    },
   },
 });
