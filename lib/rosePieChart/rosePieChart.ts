@@ -814,13 +814,13 @@ class RosePieChart extends SVGComponentBase {
                     const to = that.hasChangePoints[name];
                     const interpolate = d3.interpolate(from[0], to[0]);
                     if (to[0] > 0) {
-                        d3.select(this).attr("text-anchor", "start");
+                        this.setAttribute("text-anchor", "start");
                         return (t: number) => {
                             that.hasChangeTextPoints[name][0] = to[0] + offsetX;
                             return (interpolate(t) + offsetX * t) as unknown as string;
                         };
                     }
-                    d3.select(this).attr("text-anchor", "end");
+                    this.setAttribute("text-anchor", "end");
                     return (t: number) => {
                         that.hasChangeTextPoints[name][0] = to[0] - offsetX;
                         return (interpolate(t) - offsetX * t) as unknown as string;
@@ -828,11 +828,11 @@ class RosePieChart extends SVGComponentBase {
                 } else {
                     const [x] = that.points[name];
                     if (x > 0) {
-                        d3.select(this).attr("text-anchor", "start");
+                        this.setAttribute("text-anchor", "start");
                         that.hasChangeTextPoints[name][0] = x + offsetX;
                         return (t: number) => ((x + offsetX) * t) as unknown as string;
                     }
-                    d3.select(this).attr("text-anchor", "end");
+                    this.setAttribute("text-anchor", "end");
                     that.hasChangeTextPoints[name][0] = x - offsetX;
                     return (t: number) => ((x - offsetX) * t) as unknown as string;
                     // return (t: number) => (x - (textWidth + offsetX)) * t;
@@ -873,13 +873,13 @@ class RosePieChart extends SVGComponentBase {
                     const interpolate = d3.interpolate(from[0], to[0]);
 
                     if (to[0] > 0) {
-                        d3.select(this).attr("text-anchor", "start");
+                        this.setAttribute("text-anchor", "start");
                         return (t: number) => {
                             that.hasChangeValuePoints[name][0] = to[0] - offsetX;
                             return (interpolate(t) - offsetX * t) as unknown as string;
                         };
                     }
-                    d3.select(this).attr("text-anchor", "end");
+                    this.setAttribute("text-anchor", "end");
                     return (t: number) => {
                         that.hasChangeValuePoints[name][0] = to[0] + offsetX;
                         return (interpolate(t) + offsetX * t) as unknown as string;
@@ -907,11 +907,11 @@ class RosePieChart extends SVGComponentBase {
                     const [x] = that.points[name];
                     const offsetX = that.property.global.pieStyle.label.style.valueOffsetX;
                     if (x > 0) {
-                        d3.select(this).attr("text-anchor", "start");
+                        this.setAttribute("text-anchor", "start");
                         that.hasChangeValuePoints[name][0] = x - offsetX;
                         return x - offsetX;
                     }
-                    d3.select(this).attr("text-anchor", "end");
+                    this.setAttribute("text-anchor", "end");
                     that.hasChangeValuePoints[name][0] = x + offsetX;
                     return x + offsetX;
                 })
