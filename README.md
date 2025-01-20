@@ -4,7 +4,7 @@
 
 root  
 ├── lib //组件库代码  
-│   ├── base //组件基类及各个功能化模块，包括 OptionType 的定义以及 d3.js   
+│   ├── base //组件基类及各个功能化模块，包括 OptionType 的定义以及 d3.js  
 │   ├── types //组件所使用到的数据类型  
 │   ├── ...components //组件文件夹  
 │   └── index.ts //组件入口文件  
@@ -13,6 +13,7 @@ root
 │   └── images //组件所使用的图片  
 │   └── ...components //组件所引用的图片以组件文件夹进行分类  
 ├── scripts //开发过程中所需要的脚本  
+│   ├── componentTestTemplate.ejs //组件测试页面模板  
 │   └── genTestPages.js //自动生成组件测试页面脚本  
 ├── src //组件测试平台代码  
 │   ├── components //组件测试平台所需要的组件  
@@ -34,7 +35,7 @@ root
 ├── tsconfig.app.json  
 ├── tsconfig.json  
 ├── tsconfig.node.json  
-└── vite.config.ts  
+└── vite.config.ts
 
 ## 新增组件
 
