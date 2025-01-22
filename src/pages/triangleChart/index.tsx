@@ -93,7 +93,7 @@ const TriangleChartTest: React.FC = () => {
     <div>
     TriangleChart组件测试
       <div className="comp_prop">
-        <div className="comp_container" ref={compContainerRef}></div>
+        <div className="comp_container" ref={compContainerRef} style={{ backgroundColor: '#069186' }></div>
         <div className="prop_container">
           <PropertyPanel property={property} propertyDic={propertyDic} onChange={handlePropertyChange} onAction={handleAction} />
         </div>

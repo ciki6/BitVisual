@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropertyPanel from "@/components/PropertyPanel";
-import BubbleChart from "../../../lib/bubbleChart/bubbleChart";
+import { compGenerator } from "../../../lib";
+import OptionType from "../../../lib/base/optionType";
+// import BubbleChart from "../../../lib/bubbleChart/bubbleChart";
 
 const BubbleChartTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
@@ -63,21 +65,40 @@ const BubbleChartTest: React.FC = () => {
   };
 
   useEffect(() => {
-    if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
-      compRef.current = new BubbleChart(
-        "bubblechart",
-        "bubblechart",
-        compContainerRef.current as Element,
-        0,
-        {
+    if (compContainerRef.current && compContainerRef.current.childNodes.length < 1) {
+      compRef.current = compGenerator({
+        className: "BubbleChart",
+        id: "bubbleChart",
+        code: "bubbleChart",
+        container: compContainerRef.current as HTMLDivElement,
+        workMode: 0,
+        option: {
+          compVersion: "v1",
           property: {
             basic: {
-              frame: [0, 0, 1920, 1080],
+              frame: [10, 0, 1920, 1080],
             },
           },
+          propertyDictionary: [
+            {
+              name: "basic",
+              displayName: "基础属性巴扎黑",
+              description: "组件基础属性",
+              children: [
+                {
+                  name: "code",
+                  displayName: "组件编码",
+                  description: "组件编码",
+                  type: OptionType.string,
+                  editable: false,
+                },
+              ],
+            },
+          ],
         },
-        true
-      );
+        useDefaultOpt: true,
+      });
+      console.log(compRef.current.propertyManager.getPropertyDictionary());
       setPropertyDic(compRef.current.propertyManager.getPropertyDictionary());
       setProperty(compRef.current.propertyManager.getPropertyList());
       setDefaultData(JSON.stringify(compRef.current.defaultData));
@@ -90,9 +111,9 @@ const BubbleChartTest: React.FC = () => {
 
   return (
     <div>
-    BubbleChart组件测试
+      BubbleChart组件测试
       <div className="comp_prop">
-        <div className="comp_container" ref={compContainerRef} style={{backgroundColor:'#069186'}}></div>
+        <div className="comp_container" ref={compContainerRef} style={{ backgroundColor: '#069186' }}></div>
         <div className="prop_container">
           <PropertyPanel property={property} propertyDic={propertyDic} onChange={handlePropertyChange} onAction={handleAction} />
         </div>
