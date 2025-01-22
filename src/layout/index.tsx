@@ -7,17 +7,24 @@ const Layout: React.FC = () => {
   const [menus, setMenus] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
 
+  const staticMenus = [
+    {
+      title: "配置转换",
+      folder: "componentKit",
+      path: "componentKit/propertyKit",
+    },
+  ];
+
   useEffect(() => {
     const pages = import.meta.glob("../pages/**/*.tsx");
     const menuSet = new Set<string>();
     Object.keys(pages).forEach((filePath) => {
-      const segments = filePath.split("/");
-      menuSet.add(segments[2]);
+      if (!staticMenus.map((d) => d.folder).some((folder) => filePath.includes(folder))) {
+        const segments = filePath.split("/");
+        menuSet.add(segments[2]);
+      }
     });
-
     setMenus(menuSet);
-    console.log(pages, "pages");
-    console.log(menus, "menus");
   }, []);
 
   return (
@@ -29,6 +36,12 @@ const Layout: React.FC = () => {
           {[...menus].map((item, index) => (
             <div className="menu-item" key={index} onClick={() => navigate(`/${item}`)}>
               {item}
+            </div>
+          ))}
+          <div className="menu-title">其它工具</div>
+          {[...staticMenus].map((item, index) => (
+            <div className="menu-item" key={index} onClick={() => navigate(`/${item.path}`)}>
+              {item.title}
             </div>
           ))}
         </aside>

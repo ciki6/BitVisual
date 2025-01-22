@@ -4,6 +4,7 @@ import "../../base/d3Extend";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
 import SVGComponentBase from "../../base/svgComponentBase";
 import OptionType from "../../base/optionType";
+import { data } from "jquery";
 
 type DataSet = { group: string; name: string; value: number };
 
@@ -101,6 +102,43 @@ class RectTree extends SVGComponentBase {
             position: ["r", "t", 0, 0],
             direction: "h",
             margin: 10,
+          },
+        },
+      },
+      prompt: {
+        isShow: false,
+        carousel: {
+          isShow: false,
+          stopTime: 5,
+        },
+        suspend: {
+          background: {
+            bgImage: "",
+            opacity: 0.5,
+            size: [100, 100],
+            offset: [0, 0],
+          },
+          style: {
+            nameFont: {
+              family: "思源黑体Normal",
+              size: 50,
+              color: "#ffffff",
+              bolder: false,
+              italic: false,
+              underline: false,
+            },
+            legendType: "circle",
+            legendSize: [10, 10],
+            interval: 10,
+            dataFont: {
+              family: "思源黑体Normal",
+              size: 50,
+              color: "#ffffff",
+              bolder: false,
+              italic: false,
+              underline: false,
+            },
+            dataSuffix: "",
           },
         },
       },
