@@ -9,6 +9,7 @@ import AreaChart from "./areaChart/areaChart";
 import ScatterPlotChart from "./scatterPlotChart/scatterPlotChart";
 import BubbleChart from "./bubbleChart";
 import BarGraph from "./barGraph";
+import TriangleChart from "./triangleChart/triangleChart";
 
 type CompParam = {
   className: string;
@@ -29,6 +30,7 @@ const WisChart: WisChartType = {
   ScatterPlotChart,
   BubbleChart,
   BarGraph,
+  TriangleChart
 };
 export default WisChart;
 

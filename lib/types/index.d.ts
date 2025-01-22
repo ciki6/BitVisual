@@ -6,6 +6,7 @@ import AreaChart from "../areaChart/areaChart";
 import ScatterPlotChart from "../scatterPlotChart/scatterPlotChart";
 import BubbleChart from "../bubbleChart/bubbleChart";
 import BarGraph from "../barGraph/barGraph";
+import TriangleChart from "../triangleChart/triangleChart";
 
 export interface WisChartType {
   BarChart: typeof BarChart;
@@ -16,4 +17,5 @@ export interface WisChartType {
   ScatterPlotChart: typeof ScatterPlotChart;
   BubbleChart: typeof BubbleChart;
   BarGraph: typeof BarGraph;
+  TriangleChart: typeof TriangleChart;
 }
