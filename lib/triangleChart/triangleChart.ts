@@ -1,25 +1,27 @@
 import * as d3 from "d3";
-import _ from "lodash";
+import _, { Dictionary } from "lodash";
 import $ from "jquery";
 import "../base/d3Extend";
 import SVGComponentBase from "../base/svgComponentBase";
 import { ComponentProperty, PropertyDictionaryItem } from "lib/types/compProperty";
 import OptionType from "../base/optionType";
 import { getSymbol, formatDate } from "../base/compUtil";
-import "./lineChart.css";
+import "./triangleChart.css";
 
 interface dataType {
   x: string;
   y: number;
+  groupId: string
 }
 
 /**
- * 基础折线图
- * @class LineChart
+ * 三角形图
+ * @class TriangleChart
  * @extends {SVGComponentBase}
  */
-class LineChart extends SVGComponentBase {
+class TriangleChart extends SVGComponentBase {
   private xA: d3.ScaleBand<string>;
+  private xgroup: d3.ScaleBand<string>;
   private yA: d3.ScaleLinear<number, number>;
   private zA: d3.ScaleLinear<number, number>;
   dataSeriesProperty: any;
@@ -29,19 +31,23 @@ class LineChart extends SVGComponentBase {
   chartContainer: any;
   realWidth: number;
   realHeight: number;
-  animeRect: any;
   promptcontentbg: any;
   aniTimer: any;
   _id: any;
+  peak: any
+
 
   constructor(id: string, code: string, container: Element, workMode: number, option: Object, useDefaultOpt: boolean) {
     super(id, code, container, workMode, option, useDefaultOpt);
     this.realWidth = 1920;
     this.realHeight = 1080;
     this.xA = d3.scaleBand();
+    this.xgroup = d3.scaleBand();
     this.yA = d3.scaleLinear();
     this.zA = d3.scaleLinear();
     this._id = 'wiscom_' + this.id;
+    this.peak = {
+    }
     this.initAddedProperty();
 
     this.draw();
@@ -56,17 +62,17 @@ class LineChart extends SVGComponentBase {
     let dataSeriesDic = this.getPropertyDictionary('series.dataSeries');
     for (let i = 0; i < dataSeriesModels.length; i++) {
       // @ts-ignore
-      let lineName = dataSeriesModels[i].groupId;
+      let triangleName = dataSeriesModels[i].groupId;
       dataSeriesModelArr.push({
-        name: lineName,
-        displayName: `数据系列${lineName.split("_")[1]}`,
-        description: lineName,
+        name: triangleName,
+        displayName: `数据系列${triangleName.split("_")[1]}`,
+        description: triangleName,
         action: [
           {
             text: "删除组",
             style: "red",
             action: "deleteDataSeries",
-            param: [lineName.split("_")[1]],
+            param: [triangleName.split("_")[1]],
           },
         ],
         children: _.cloneDeep(this.dataSeriesPropertyDictionary),
@@ -115,25 +121,27 @@ class LineChart extends SVGComponentBase {
         { x: "2021", y: 11 },
         { x: "2022", y: 15 },
         { x: "2023", y: 22.3 },
-        { x: "2024", y: 25 }
+        { x: "2024", y: 25 },
+        // { x: "2025", y: 40 },
       ],
       'dataSeries_1': [
         { x: "2020", y: 18 },
         { x: "2021", y: 19 },
         { x: "2022", y: 29 },
         { x: "2023", y: 38 },
-        { x: "2024", y: 56 }
+        { x: "2024", y: 56 },
+        { x: "2025", y: 40 },
       ]
     } as any;
   }
 
-  private _addDataBind(lineName = '', isAdd = true) {
+  private _addDataBind(triangleName = '', isAdd = true) {
     if (isAdd) {
-      if (Object.keys(this.dataBind).indexOf(lineName) < 0) {
-        this.dataBind[lineName] = { x: { bindKey: '', isCustom: false }, y: { bindKey: '', isCustom: false } };
+      if (Object.keys(this.dataBind).indexOf(triangleName) < 0) {
+        this.dataBind[triangleName] = { x: { bindKey: '', isCustom: false }, y: { bindKey: '', isCustom: false } };
       }
     } else {
-      delete this.dataBind[lineName];
+      delete this.dataBind[triangleName];
     }
   }
 
@@ -141,11 +149,20 @@ class LineChart extends SVGComponentBase {
     super.initProperty();
     const property: ComponentProperty = {
       basic: {
-        className: "LineChart",
+        className: "TriangleChart",
       },
       global: {
         padding: [60, 60, 80, 40],
         bgImage: "",
+        graphic: {
+          carousel: false,
+          triangleStyle: {
+            datasetMarginPercent: 20,
+            barMarginPercent: 10,
+            cdz: 10,
+            barBg: "transparent",
+          },
+        },
         legend: {
           isShow: true,
           style: {
@@ -284,26 +301,19 @@ class LineChart extends SVGComponentBase {
         dataSeries: {
           'dataSeries_0': {
             groupId: 'dataSeries_0',
-            name: '折线1',
+            name: '数据1',
             valueAxis: "y",
             style: {
-              type: "solid",//solid ：实线 dashed ：虚线
+              fillType: 'color',//color texture
               color: '#0092ff',
-              smooth: false,
-              symbolType: 'circle',//circle line
-              outSize: 12,
-              outfill: 'rgba(0,146,255,0.5)',
-              innerSize: 5,
-              innerfill: '#001637',
-              lineWidth: 5,
+              filltexture: '',
+              fillopacity: 0.1,
             },
             highlight: {
               isShow: false,
               valueType: "max",//max min assign
               value: "",
               color: "#f84619",
-              outfill: 'rgba(248,70,25,0.5)',
-              innerfill: '#6f1600',
             },
             dataTip: {
               isShow: false,
@@ -323,29 +333,22 @@ class LineChart extends SVGComponentBase {
           },
           'dataSeries_1': {
             groupId: 'dataSeries_1',
-            name: '折线二',
+            name: '数据2',
             valueAxis: "y",
             style: {
-              type: "solid",//solid ：实线 dashed ：虚线
+              fillType: 'color',//color texture
               color: '#efe849',
-              smooth: false,
-              symbolType: 'circle',//circle line
-              outSize: 12,
-              outfill: 'rgba(239,232,73,0.5)',
-              innerSize: 5,
-              innerfill: '#373500',
-              lineWidth: 5,
+              filltexture: '',
+              fillopacity: 0.1,
             },
             highlight: {
               isShow: false,
               valueType: "max",//max min assign
               value: "",
               color: "#f84619",
-              outfill: 'rgba(248,70,25,0.5)',
-              innerfill: '#6f1600',
             },
             dataTip: {
-              isShow: false,
+              isShow: true,
               font: {
                 family: "微软雅黑",
                 size: "30",
@@ -390,9 +393,9 @@ class LineChart extends SVGComponentBase {
         },
       },
       prompt: {
-        isShow: false,
+        isShow: true,
         carousel: {
-          isShow: true,
+          isShow: false,
           stopTime: 5,
         },
         suspend: {
@@ -1308,23 +1311,16 @@ class LineChart extends SVGComponentBase {
         name: '',
         valueAxis: "y",
         style: {
-          type: "solid",//solid ：实线 dashed ：虚线
-          color: '#0092ff',
-          smooth: false,
-          symbolType: 'circle',//circle line
-          outSize: 12,
-          outfill: 'rgba(0,146,255,0.5)',
-          innerSize: 5,
-          innerfill: '#001637',
-          lineWidth: 5,
+          fillType: 'color',//color texture
+          color: 'rgba(0,146,255,0.2)',
+          filltexture: '',
+          fillopacity: 0.1,
         },
         highlight: {
           isShow: false,
           valueType: "max",//max min assign
           value: "",
           color: "#f84619",
-          outfill: 'rgba(248,70,25,0.5)',
-          innerfill: '#6f1600',
         },
         dataTip: {
           isShow: true,
@@ -1347,14 +1343,14 @@ class LineChart extends SVGComponentBase {
       this.dataSeriesPropertyDictionary = [
         {
           name: "groupId",
-          displayName: "折线编码",
+          displayName: "三角形编码",
           type: OptionType.string,
           editable: false,
           show: true,
         },
         {
           name: "name",
-          displayName: "折线名称",
+          displayName: "三角形名称",
           type: OptionType.string,
         },
         {
@@ -1377,69 +1373,34 @@ class LineChart extends SVGComponentBase {
           displayName: "样式",
           children: [
             {
-              name: "type",
-              displayName: "折线类型",
+              name: "fillType",
+              displayName: "区域填充样式",
               type: OptionType.radio,
               options: [
                 {
-                  name: "实线",
-                  value: "solid",
+                  name: "颜色",
+                  value: "color",
                 },
                 {
-                  name: "虚线",
-                  value: "dashed",
+                  name: "纹理",
+                  value: "texture",
                 },
               ],
             },
             {
               name: "color",
-              displayName: "折线颜色",
+              displayName: "三角形颜色",
               type: OptionType.color,
             },
             {
-              name: "smooth",
-              displayName: "是否平滑",
-              type: OptionType.boolean,
+              name: "filltexture",
+              displayName: "纹理图片",
+              type: OptionType.media
             },
             {
-              name: "symbolType",
-              displayName: "折点类型",
-              type: OptionType.radio,
-              options: [
-                {
-                  name: "线",
-                  value: "line",
-                },
-                {
-                  name: "圆形",
-                  value: "circle",
-                },
-              ],
-            },
-            {
-              name: "outSize",
-              displayName: "外圆大小",
-              type: OptionType.double,
-            },
-            {
-              name: "outfill",
-              displayName: "外圆颜色",
-              type: OptionType.color,
-            },
-            {
-              name: "innerSize",
-              displayName: "内圆大小",
-              type: OptionType.double,
-            },
-            {
-              name: "innerfill",
-              displayName: "内圆颜色",
-              type: OptionType.color,
-            },
-            {
-              name: "lineWidth",
-              displayName: "折线粗细",
-              type: OptionType.double,
+              name: "fillopacity",
+              displayName: "纹理透明度",
+              type: OptionType.color
             },
           ],
         },
@@ -1478,17 +1439,7 @@ class LineChart extends SVGComponentBase {
             },
             {
               name: "color",
-              displayName: "内圆描边颜色",
-              type: OptionType.color,
-            },
-            {
-              name: "outfill",
-              displayName: "外圆颜色",
-              type: OptionType.color,
-            },
-            {
-              name: "innerfill",
-              displayName: "内圆填充色",
+              displayName: "填颜色",
               type: OptionType.color,
             },
           ],
@@ -1719,8 +1670,7 @@ class LineChart extends SVGComponentBase {
     });
     this._addDataBind(dataSeriesName, true);
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this.renderTriangle();
     this.renderLegend();
     this._renderGuidLine();
     if (this.property.prompt.isShow) {
@@ -1744,8 +1694,7 @@ class LineChart extends SVGComponentBase {
 
     this._addDataBind(dataSeriesName, false);
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this.renderTriangle();
     this.renderLegend();
     this._renderGuidLine();
     if (this.property.prompt.isShow) {
@@ -1800,11 +1749,10 @@ class LineChart extends SVGComponentBase {
   }
 
   private render(): void {
-    this.renderDefs();
     this.renderContainer();
+    this._getMinMax();
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this.renderTriangle();
     this.renderLegend();
     this._renderGuidLine();
     this.promptAnime('');
@@ -1820,15 +1768,15 @@ class LineChart extends SVGComponentBase {
     this.realWidth = this.property.svgBasic.viewBox[2];
     this.realHeight = this.property.svgBasic.viewBox[3];
 
-    this.chartContainer = this.mainSVG.append("g").attr("class", "lineChart-container").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
+    this.chartContainer = this.mainSVG.append("g").attr("class", "triangleChart-container").style("transform", `translate(${padding[2]}px,${padding[0]}px)`);
     this.chartContainer.append("g").attr("class", "axis-bg");
-    this.chartContainer.append("g").attr("class", "graph").attr('clip-path', `url(#${this._id}_clippath)`);
+    this.chartContainer.append("g").attr("class", "graph");
     this.chartContainer.append("g").attr("class", "guide-line");
     if (prompt.isShow) {
       this.chartContainer.append('rect')
         .attr('class', `prompt-indicator prompt-sign`)
-        .style('pointer-events', 'none')
         .attr('fill', prompt.suspend.indicator.color)
+        .style('pointer-events', 'none')
         .attr('width', 0)
         .attr('height', this.realHeight - 2 * padding[0] - padding[1])
         .attr('x', padding[2])
@@ -1862,7 +1810,7 @@ class LineChart extends SVGComponentBase {
     // style = `transform: translate3d(${this.property.global.legend.layout.position[2] / 100 * this.realWidth}px, ${this.property.global.legend.layout.position[1] / 100 * this.realHeight}px, 0px);justify-content: center;`;
 
     this.mainSVG.append("g")
-      .attr("class", "line-legend")
+      .attr("class", "triangle-legend")
       .append("foreignObject")
       .attr("x", `0`)
       .attr("y", `0`)
@@ -1870,7 +1818,7 @@ class LineChart extends SVGComponentBase {
       .attr("height", '100%')
       .style('pointer-events', 'none')
       .append("xhtml:div")
-      .attr("class", "line-legend-parent")
+      .attr("class", "triangle-legend-parent")
       .attr('style', style)
       .append("ul")
       .attr('class', 'legend')
@@ -1885,7 +1833,7 @@ class LineChart extends SVGComponentBase {
         .style('transform', `translate(${padding[2]}px,${padding[0]}px)`)
         .attr("class", "prompt-sign")
         .append("foreignObject")
-        .attr("class", "line-prompt")
+        .attr("class", "triangle-prompt")
         .style('pointer-events', 'none')
         .style('transform', `translate(${padding[2] + prompt.suspend.background.offset[0]}px,${padding[0] + prompt.suspend.background.offset[1]}px)`)
         .attr("width", prompt.suspend.background.size[0])
@@ -1908,12 +1856,12 @@ class LineChart extends SVGComponentBase {
   private _renderPromptList() {
     let prompt = this.property.prompt;
     const dataSeries = this.property.series.dataSeries;
-    const linekeys = this.property.prompt.isShow ? Object.keys(this.property.series.dataSeries) : [];
+    const triangleKeys = this.property.prompt.isShow ? Object.keys(this.property.series.dataSeries) : [];
     let nameFont = `font-family:${prompt.suspend.style.nameFont.family};font-size:${prompt.suspend.style.nameFont.size}px;color:${prompt.suspend.style.nameFont.color};font-weight:${prompt.suspend.style.nameFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.nameFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.nameFont.underline ? 'underline' : 'none'};`;
 
     let dataFont = `font-family:${prompt.suspend.style.dataFont.family};font-size:${prompt.suspend.style.dataFont.size}px;color:${prompt.suspend.style.dataFont.color};font-weight:${prompt.suspend.style.dataFont.bolder ? 'bolder' : 'normal'};font-style:${prompt.suspend.style.dataFont.italic ? 'italic' : 'normal'};text-decoration:${prompt.suspend.style.dataFont.underline ? 'underline' : 'none'};`;
     this.promptcontentbg.selectAll(`.prompt-li`)
-      .data(linekeys)
+      .data(triangleKeys)
       .join((enter: any) => {
         let divDom = enter.append('div')
           .attr('class', `prompt-li`)
@@ -1947,9 +1895,9 @@ class LineChart extends SVGComponentBase {
     let prompt = this.property.prompt;
     if (!prompt.isShow) return;
     const padding = this.property.global.padding;
-    const linekeys = Object.keys(this.property.series.dataSeries);
+    const triangleKeys = Object.keys(this.property.series.dataSeries);
     let tempData = {} as any, values = [] as number[];
-    linekeys.forEach(element => {
+    triangleKeys.forEach(element => {
       tempData[element] = this.defaultData[element] || [];
       tempData[element].map(d => d.name = element);
       values = values.concat(tempData[element]);
@@ -1975,9 +1923,9 @@ class LineChart extends SVGComponentBase {
     let that = this;
     //提示框位置更新
     let showPromptIndex = function (aniIndex: number) {
-      for (let index = 0; index < linekeys.length; index++) {
+      for (let index = 0; index < triangleKeys.length; index++) {
         //@ts-ignore
-        that.promptcontentbg.select(`#${that._id}_${linekeys[index]}`).select('.pro-legend-value').text(promptData[aniIndex][linekeys[index]]);
+        that.promptcontentbg.select(`#${that._id}_${triangleKeys[index]}`).select('.pro-legend-value').text(promptData[aniIndex][triangleKeys[index]]);
       }
 
       that.promptcontentbg.select('.prompt-content-title').text(promptData[aniIndex]['xkey']);
@@ -1986,7 +1934,7 @@ class LineChart extends SVGComponentBase {
       if (translateX + prompt.suspend.background.size[0] > that.realWidth - padding[2]) {
         translateX = (that.xA(promptData[aniIndex]['xkey']) as number) + that.xA.bandwidth() / 2 - prompt.suspend.background.size[0] - prompt.suspend.background.offset[0];
       }
-      that.mainSVG.select('.line-prompt').style('transform', `translate3d(${translateX}px,${translateY}px,0px)`);
+      that.mainSVG.select('.triangle-prompt').style('transform', `translate3d(${translateX}px,${translateY}px,0px)`);
       that.chartContainer.select('.prompt-indicator').attr('x', (that.xA(promptData[aniIndex]['xkey']) as number) + that.xA.bandwidth() / 2 - indicatorWidth / 2);
     }
     showPromptIndex(prompAniIndex);
@@ -2004,68 +1952,38 @@ class LineChart extends SVGComponentBase {
   }
 
   /**
-   * 绘制裁剪框
-   * @private
-   * @memberof LineChart
-   */
-  private renderDefs() {
-    this.animeRect = this.mainSVG.append('defs')
-      .append('clipPath')
-      .attr('id', `${this._id}_clippath`)
-      .append('rect')
-      .style('transform', `translate(${this.property.global.padding[2]}px,0px)`)
-      .style('height', `${this.realHeight}px`)
-      .style('width', `0px`)
-  }
-
-  /**
    *初始化图例
    * @private
-   * @memberof LineChart
+   * @memberof TriangleChart
    */
   private renderLegend(): void {
-
     const legend = this.property.global.legend;
-    this.mainSVG.select('.line-legend').style('display', legend.isShow ? 'block' : 'none');
+    this.mainSVG.select('.triangle-legend').style('display', legend.isShow ? 'block' : 'none');
     if (legend.isShow) {
       const dataSeries = this.property.series.dataSeries;
-      const linekeys = legend.isShow ? Object.keys(this.property.series.dataSeries) : [];
+      const triangleKeys = legend.isShow ? Object.keys(this.property.series.dataSeries) : [];
       let divStyle = `font-family:${legend.style.font.family};font-size:${legend.style.font.size}px;color:${legend.style.font.color};font-weight:${legend.style.font.bolder ? 'bolder' : 'normal'};font-style:${legend.style.font.italic ? 'italic' : 'normal'};text-decoration:${legend.style.font.underline ? 'underline' : 'none'}`;
       this.mainSVG.select('.legend')
         .selectAll('.li_dom')
-        .data(linekeys)
+        .data(triangleKeys)
         .join((enter: any) => {
           let liDom = enter.append('li')
             .attr('class', `li_dom`)
             .attr('style', `display: flex; opacity: 1; align-items: center; cursor: pointer; gap: ${legend.style.valueMargin}px;position:relative`);
 
           liDom.append('span')
-            .attr('class', 'line')
-            .attr('style', (d: any) => `height: ${legend.style.width}px; background: ${dataSeries[d].style.color}; width: ${legend.style.size[0]}px; gap: ${legend.style.valueMargin}px; min-width: ${legend.style.size[0]}px; `);
-
-          liDom.append('span')
             .attr('class', 'outer')
-            .attr('style', (d: any) => `display:${dataSeries[d].style.symbolType == 'line' ? 'none' : 'block'};left:${(legend.style.size[0] - legend.style.size[1]) / 2}px;height: ${legend.style.size[1]}px; background: ${dataSeries[d].style.outfill}; width: ${legend.style.size[1]}px; gap: ${legend.style.valueMargin}px;position: absolute;border-radius: 50%;box-sizing: border-box;`);
-
-          liDom.append('span')
-            .attr('class', 'inner')
-            .attr('style', (d: any) => `display:${dataSeries[d].style.symbolType == 'line' ? 'none' : 'block'};left:${(legend.style.size[0] - (legend.style.size[1] - legend.style.width * 2)) / 2}px;height: ${legend.style.size[1] - legend.style.width * 2}px; background: ${dataSeries[d].style.innerfill}; width: ${legend.style.size[1] - legend.style.width * 2}px; gap: ${legend.style.valueMargin}px;position: absolute;border: ${legend.style.width}px solid ${dataSeries[d].style.color};border-radius: 50%;box-sizing: border-box;`);
+            .attr('style', (d: any) => `display:${dataSeries[d].style.symbolType == 'line' ? 'none' : 'block'};left:${(legend.style.size[0] - legend.style.size[1]) / 2}px;height: ${legend.style.size[1]}px; background: ${dataSeries[d].style.color}; width: ${legend.style.size[1]}px; gap: ${legend.style.valueMargin}px;border-radius: 0%;box-sizing: border-box;`);
 
           liDom.append('div')
             .attr('style', divStyle)
             .text((d: any) => dataSeries[d].name)
         }, (update: any) => {
           update.attr('class', `li_dom`).attr('style', `display: flex; opacity: 1; align-items: center; cursor: pointer; gap: ${legend.style.valueMargin}px;;position:relative`);
-
-          update.select('line').attr('style', (d: any) => `height: ${legend.style.size[1]}px; background: ${dataSeries[d].style.color}; width: ${legend.style.size[0]}px; gap: ${legend.style.valueMargin}px; min-width: ${legend.style.size[0]}px;`);
           update.select('outer').attr('style', (d: any) => `display:${dataSeries[d].style.symbolType == 'line' ? 'none' : 'block'};left:${(legend.style.size[0] - legend.style.size[1]) / 2}px;height: ${legend.style.size[1]}px; background: ${dataSeries[d].style.outfill}; width: ${legend.style.size[1]}px; gap: ${legend.style.valueMargin}px;position: absolute;border-radius: 50%;box-sizing: border-box;`);
-          update.select('inner').attr('style', (d: any) => `display:${dataSeries[d].style.symbolType == 'line' ? 'none' : 'block'};left:${(legend.style.size[0] - (legend.style.size[1] - legend.style.width * 2)) / 2}px;height: ${legend.style.size[1] - legend.style.width * 2}px; background: ${dataSeries[d].style.innerfill}; width: ${legend.style.size[1] - legend.style.width * 2}px; gap: ${legend.style.valueMargin}px;position: absolute;border: ${legend.style.width}px solid ${dataSeries[d].style.color};border-radius: 50%;box-sizing: border-box;`);
-
           update.select('div').attr('style', divStyle)
             .text((d: any) => dataSeries[d].name)
-        }, (exit: any) => {
-          exit.remove()
-        })
+        }, (exit: any) => exit.remove())
     }
   }
 
@@ -2073,10 +1991,10 @@ class LineChart extends SVGComponentBase {
    *绘制x y轴
    * @private
    * @returns {void}
-   * @memberof LineChart
+   * @memberof TriangleChart
    */
   private renderAxis(): void {
-    const linekeys = Object.keys(this.property.series.dataSeries);
+    const triangleKeys = Object.keys(this.property.series.dataSeries);
     let maxValue = 1, minValue = 0, maxValues = [] as number[], minValues = [] as number[];
     let zmaxValue = 1, zminValue = 0, zmaxValues = [] as number[], zminValues = [] as number[];
     if (this.property.axis.axisY.axisTick.rangeType == 'auto') {
@@ -2107,9 +2025,10 @@ class LineChart extends SVGComponentBase {
       zminValue = this.property.axis.axisZ.axisTick.rangeValue[0];
     }
 
-    if (linekeys.length < 1) return;
+
+    if (triangleKeys.length < 1) return;
     let tempData = {} as any;
-    linekeys.forEach(element => {
+    triangleKeys.forEach(element => {
       tempData[element] = this.defaultData[element] || [];
     });
     const xAxisValues = [...new Set(Object.values(tempData).flatMap((value: any) => value.map((d: any) => d.x)))];//解构赋值
@@ -2117,11 +2036,28 @@ class LineChart extends SVGComponentBase {
     const width = this.realWidth - padding[2] - padding[3];
     const height = this.realHeight - padding[0] - padding[1];
 
+    /**
+     * graphic: {
+          carousel: false,
+          triangleStyle: {
+            datasetMarginPercent: 20,
+            barMarginPercent: 10,
+            cdz: 10,
+            barBg: "#00000066",
+          },
+        },
+    */
     this.mainSVG.select(".axis-bg").selectAll(".axis").remove();
     this.xA = d3
       .scaleBand()
       .domain(xAxisValues)
       .range([padding[2], width])
+      .padding(this.property.global.graphic.triangleStyle.datasetMarginPercent / 100);
+
+    this.xgroup = d3.scaleBand()
+      .domain(triangleKeys)
+      .rangeRound([0, this.xA.bandwidth()])
+      .padding(this.property.global.graphic.triangleStyle.barMarginPercent / 100);
 
     let xAxisD = d3.axisBottom(this.xA).tickSize(this.property.axis.axisX.axisTick.length).tickPadding(this.property.axis.axisX.axisLabel.tickpadding);
     let xAxis = xAxisD;
@@ -2259,265 +2195,184 @@ class LineChart extends SVGComponentBase {
     }
   }
 
-  /**
-   * 初始化线条函数
-   * @private
-   * @memberof LineChart
-   */
-  private _getLine(): void {
-    // @ts-ignore
-    const dataSeries = this.property.series.dataSeries;
-    const linekeys = Object.keys(dataSeries);
-    for (let index = 0; index < linekeys.length; index++) {
-      let lineKey = linekeys[index];
-      if (dataSeries[lineKey].style.smooth) {
-        if (dataSeries[lineKey].valueAxis == 'y') {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.yA(d.y)).curve(d3.curveCatmullRom);
-        } else {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.zA(d.y)).curve(d3.curveCatmullRom);
-        }
-      } else {
-        if (dataSeries[lineKey].valueAxis == 'y') {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.yA(d.y));
-        } else {
-          // @ts-ignore
-          dataSeries[lineKey].line = !this.xA && !this.yA ? null : d3.line().x((d: any) => this.xA(d.x)).y((d: any) => this.zA(d.y));
-        }
-      }
-    }
+  sortData(data: any) {
+    const triangleKeys = Object.keys(this.property.series.dataSeries);
+    let sortD: any[] = [];
+    triangleKeys.map(key => {
+      data[key].map((d: any) => d.groupId = key);
+      // sortD.push(data[key]);
+      sortD = sortD.concat(data[key])
+    })
+    return sortD;
   }
 
   /**
    * 绘制曲线
    * @private
-   * @memberof LineChart
+   * @memberof TriangleChart
    */
-  private renderLine(): void {
+  private renderTriangle(): void {
     const data = this.defaultData;
+    const sortD = this.sortData(data);
     const dataSeries = this.property.series.dataSeries;
-    const linekeys = Object.keys(this.property.series.dataSeries);
+    const triangleKeys = Object.keys(this.property.series.dataSeries);
     let that = this;
-    // this.animeRect.style('width', `0px`)
-    this.animeRect
-      .transition().duration(100).style('width', `0px`)
-      .transition().duration(1000).style('width', `${this.realWidth}px`)
+
+    const padding = this.property.global.padding;
+    const height = this.realHeight - padding[0] - padding[1];
+
     this.chartContainer.select('.graph')
       .selectAll('.line-group')
-      .data(linekeys)
-      .join(
-        (enter: any) => {
-          enter
-            .append('g')
-            .attr('class', (d: any) => `line-group ${d}_line`)
-            .append("path")
-            .attr("transform", `translate(${that.xA.bandwidth() / 2}, 0)`)
-            .attr("d", (d: any) => dataSeries[d].line(data[d] || []))
-            .attr("stroke", (d: any) => dataSeries[d].style.color != '' ? dataSeries[d].style.color : 'red')
-            .attr("stroke-width", (d: any) => dataSeries[d].style.lineWidth)
-            .attr("stroke-dasharray", (d: any) => dataSeries[d].style.type == 'solid' ? '' : dataSeries[d].style.lineWidth)
-            .attr("fill", "none")
-        },
-        (update: any) => {
-          update.attr('class', (d: any) => `line-group ${d}_line`)
-            .select('path')
-            .attr("d", (d: any) => dataSeries[d].line(data[d] || []));
-        },
-        (exit: any) => exit.remove()
-      );
+      .data(d3.groups(sortD, (d: any) => d.x))
+      .join((enter: any) => {
+        enter.append('g')
+          .attr('class', `line-group`)
+          .attr("transform", ([x]: any) => `translate(${this.xA(x)},0)`)
+          .on('mouseover', (d: any) => {
+            let prompt = that.property.prompt;
+            if (prompt.isShow && !prompt.carousel.isShow) {
+              that.mainSVG.selectAll('.prompt-sign').style('display', 'block')
+              that.promptAnime(d.currentTarget.__data__[0]);
+            }
+          })
+          .on('mouseout', (d: any) => {
+            let prompt = that.property.prompt;
+            if (prompt.isShow && !prompt.carousel.isShow) {
+              that.mainSVG.selectAll('.prompt-sign').style('display', 'none')
+            }
+          })
+      }, (update: any) => {
+        update.attr("transform", ([x]: any) => `translate(${this.xA(x)},0)`)
+      }, (exit: any) => exit.remove());
 
-    // return
-    for (let index = 0; index < linekeys.length; index++) {
-      let keyClass = linekeys[index];
-      let dPth = '', tempMax = 0, tempMin = 0;
-      if (dataSeries[keyClass].highlight.isShow && (dataSeries[keyClass].highlight.valueType == 'min' || dataSeries[keyClass].highlight.valueType == 'max')) {
-        tempMax = d3.max(data[keyClass], (d: dataType) => d.y) as number;
-        tempMin = d3.min(data[keyClass], (d: dataType) => d.y) as number;
-      }
+    const barBgColor = this.property.global.graphic.triangleStyle.barBg;
+    this.chartContainer.select('.graph')
+      .selectAll('.line-group')
+      .selectAll('rect')
+      .data(([d,]: any) => [d])
+      .join((enter: any) => {
+        enter.append("rect")
+          .attr("class", "background")
+          .style('transform', `translateY(${padding[0]}px)`)
+          .attr("width", this.xA.bandwidth())
+          .attr("height", height - padding[0])
+          .attr("fill", barBgColor);
+      }, (update: any) => {
+        update.attr("width", this.xA.bandwidth());
+      }, (exit: any) => exit.remove());
 
-      if (dataSeries[keyClass].style.symbolType == 'circle') {
-        dPth = getSymbol('circle');
-      }
+    this.chartContainer.select('.graph')
+      .selectAll('.line-group')
+      .selectAll('path')
+      .data(([, d]: any) => d)
+      .join((enter: any) => {
+        enter.append('path')
+          .attr('d', `M0 ${height} L${this.xgroup.bandwidth()} ${height} L${this.xgroup.bandwidth() / 2} ${height}`)
+          .style("transform", (d: any) => `translateX(${this.xgroup(d.groupId)}px)`)
+          .attr("fill", (d: any) => {
+            if (dataSeries[d.groupId].highlight.isShow) {
+              if (dataSeries[d.groupId].highlight.valueType == 'min' && d.y == that.peak[d.groupId]['min']) {
+                return dataSeries[d.groupId].highlight.color;
+              } else if (dataSeries[d.groupId].highlight.valueType == 'max' && d.y == that.peak[d.groupId]['max']) {
+                return dataSeries[d.groupId].highlight.color;
+              } else if (dataSeries[d.groupId].highlight.valueType == 'assign' && d.x == dataSeries[d.groupId].highlight.value) {
+                return dataSeries[d.groupId].highlight.color;
+              } else {
+                return dataSeries[d.groupId].style.color;
+              }
+            }
+            return dataSeries[d.groupId].style.color
+          })
+          .transition()
+          .attr('d', (d: any) => {
+            let y = height;
+            if (dataSeries[d.groupId].valueAxis == 'y') {
+              y = that.yA(d.y);
+            } else if (dataSeries[d.groupId].valueAxis == 'z') {
+              y = that.zA(d.y);
+            }
+            return `M0 ${height} L${this.xgroup.bandwidth()} ${height} L${this.xgroup.bandwidth() / 2} ${y}`
+          })
+      }, (update: any) => {
+        update.transition()
+          .attr('d', (d: any) => {
+            let y = height;
+            if (dataSeries[d.groupId].valueAxis == 'y') {
+              y = that.yA(d.y);
+            } else if (dataSeries[d.groupId].valueAxis == 'z') {
+              y = that.zA(d.y);
+            }
+            return `M0 ${height} L${this.xgroup.bandwidth()} ${height} L${this.xgroup.bandwidth() / 2} ${y}`;
+          })
+          .style("transform", (d: any) => `translateX(${this.xgroup(d.groupId)}px)`)
+          .attr("fill", (d: any) => {
+            if (dataSeries[d.groupId].highlight.isShow) {
+              if (dataSeries[d.groupId].highlight.valueType == 'min' && d.y == that.peak[d.groupId]['min']) {
+                return dataSeries[d.groupId].highlight.color;
+              } else if (dataSeries[d.groupId].highlight.valueType == 'max' && d.y == that.peak[d.groupId]['max']) {
+                return dataSeries[d.groupId].highlight.color;
+              } else if (dataSeries[d.groupId].highlight.valueType == 'assign' && d.x == dataSeries[d.groupId].highlight.value) {
+                return dataSeries[d.groupId].highlight.color;
+              } else {
+                return dataSeries[d.groupId].style.color;
+              }
+            }
+            return dataSeries[d.groupId].style.color
+          })
+      }, (exit: any) => exit.remove());
 
-      this.chartContainer.select('.graph')
-        .select(`.${keyClass}_line`)
-        .selectAll(`.item`)
-        .data(data[keyClass] || [])
-        .join((enter: any) => {
-          let enterBg = enter.append("g")
-            .attr('class', `item`)
-          enterBg.append("path")
-            .attr('class', `outer`)
-            .attr("d", dPth)
-            .attr("fill", (d: any) => {
-              if (dataSeries[keyClass].highlight.isShow) {
-                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
-                  return dataSeries[keyClass].highlight.outfill;
-                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
-                  return dataSeries[keyClass].highlight.outfill;
-                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
-                  return dataSeries[keyClass].highlight.outfill;
-                } else {
-                  return dataSeries[keyClass].style.outfill;
-                }
-              }
-              return dataSeries[keyClass].style.outfill;
-            })
-            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.outSize})`)
+    this.chartContainer.select('.graph')
+      .selectAll('.line-group')
+      .selectAll('text')
+      .data(([, d]: any) => d)
+      .join((enter: any) => {
+        enter.append('text')
+          .style("transform", (d: any) => `translate(${(this.xgroup(d.groupId) as number) + this.xgroup.bandwidth() / 2}px,${this.yA(0)}px)`)
+          .style('text-anchor', "middle")
+          .style('opacity', (d: any) => dataSeries[d.groupId].dataTip.isShow ? 1 : 0)
+          .attr('class', (d: any) => `${this._id}_${d.groupId}`)
+          .transition()
+          .style("transform", (d: any) => {
+            let translateY = 0;
+            if (dataSeries[d.groupId].valueAxis == 'y') {
+              translateY = that.yA(d.y) + dataSeries[d.groupId].dataTip.offset[1];
+            } else if (dataSeries[d.groupId].valueAxis == 'z') {
+              translateY = that.zA(d.y) + dataSeries[d.groupId].dataTip.offset[1];
+            }
+            return `translate(${(this.xgroup(d.groupId) as number) + this.xgroup.bandwidth() / 2}px,${translateY}px)`
+          })
+          .text((d: any) => `${d.y}${dataSeries[d.groupId].dataTip.suffix}`)
+      }, (update: any) => {
+        update.transition()
+          .style("transform", (d: any) => {
+            let translateY = 0;
+            if (dataSeries[d.groupId].valueAxis == 'y') {
+              translateY = that.yA(d.y) + dataSeries[d.groupId].dataTip.offset[1];
+            } else if (dataSeries[d.groupId].valueAxis == 'z') {
+              translateY = that.zA(d.y) + dataSeries[d.groupId].dataTip.offset[1];
+            }
+            return `translate(${(this.xgroup(d.groupId) as number) + this.xgroup.bandwidth() / 2}px,${translateY}px)`
+          })
+          .style('opacity', (d: any) => dataSeries[d.groupId].dataTip.isShow ? 1 : 0)
+          .text((d: any) => `${d.y}${dataSeries[d.groupId].dataTip.suffix}`)
+      }, (exit: any) => exit.remove());
 
-          enterBg.append("path")
-            .attr('class', `inner`)
-            .attr("d", dPth)
-            .attr("stroke", (d: any) => {
-              if (dataSeries[keyClass].highlight.isShow) {
-                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
-                  return dataSeries[keyClass].highlight.color;
-                } else {
-                  return dataSeries[keyClass].style.color;
-                }
-              }
-              return dataSeries[keyClass].style.color;
-            })
-            .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.innerSize)
-            .attr("fill", (d: any) => {
-              if (dataSeries[keyClass].highlight.isShow) {
-                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
-                  return dataSeries[keyClass].highlight.innerfill;
-                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
-                  return dataSeries[keyClass].highlight.innerfill;
-                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
-                  return dataSeries[keyClass].highlight.innerfill;
-                } else {
-                  return dataSeries[keyClass].style.innerfill;
-                }
-              }
-              return dataSeries[keyClass].style.innerfill;
-            })
-            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.innerSize})`)
-            .on('mouseover', (d: any) => {
-              let prompt = that.property.prompt;
-              if (prompt.isShow && !prompt.carousel.isShow) {
-                that.mainSVG.selectAll('.prompt-sign').style('display', 'block')
-                that.promptAnime(d.currentTarget.__data__.x);
-              }
-            })
-            .on('mouseout', (d: any) => {
-              let prompt = that.property.prompt;
-              if (prompt.isShow && !prompt.carousel.isShow) {
-                that.mainSVG.selectAll('.prompt-sign').style('display', 'none')
-              }
-            });
-        }, (update: any) => {
-          update.select('.outer')
-            .attr("d", dPth)
-            .attr("fill", (d: any) => {
-              if (dataSeries[keyClass].highlight.isShow) {
-                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
-                  return dataSeries[keyClass].highlight.outfill;
-                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
-                  return dataSeries[keyClass].highlight.outfill;
-                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
-                  return dataSeries[keyClass].highlight.outfill;
-                } else {
-                  return dataSeries[keyClass].style.outfill;
-                }
-              }
-              return dataSeries[keyClass].style.outfill;
-            })
-            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.outSize})`)
-
-          update.select('.inner')
-            .attr("d", dPth)
-            .attr("stroke", (d: any) => {
-              if (dataSeries[keyClass].highlight.isShow) {
-                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
-                  return dataSeries[keyClass].highlight.color;
-                } else {
-                  return dataSeries[keyClass].style.color;
-                }
-              }
-              return dataSeries[keyClass].style.color;
-            })
-            .attr("stroke-width", dataSeries[keyClass].style.lineWidth / dataSeries[keyClass].style.innerSize)
-            .attr("fill", (d: any) => {
-              if (dataSeries[keyClass].highlight.isShow) {
-                if (dataSeries[keyClass].highlight.valueType == 'min' && d.y == tempMin) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'max' && d.y == tempMax) {
-                  return dataSeries[keyClass].highlight.color;
-                } else if (dataSeries[keyClass].highlight.valueType == 'assign' && d.x == dataSeries[keyClass].highlight.value) {
-                  return dataSeries[keyClass].highlight.color;
-                } else {
-                  return dataSeries[keyClass].style.innerfill;
-                }
-              }
-              return dataSeries[keyClass].style.innerfill;
-            })
-            .style("transform", (d: any) => `translate(${(that.xA(d.x) as number) + that.xA.bandwidth() / 2}px, ${dataSeries[keyClass].valueAxis == 'y' ? that.yA(d.y) : that.zA(d.y)}px) scale(${dataSeries[keyClass].style.innerSize})`)
-        }, (exit: any) => exit.remove());
-
-      if (dataSeries[keyClass].dataTip.isShow) {
-        this.chartContainer.select('.graph')
-          .select(`.${keyClass}_line`)
-          .selectAll(`text`)
-          .data(data[keyClass] || [])
-          .join((enter: any) => {
-            enter.append("text")
-              .attr("fill", dataSeries[keyClass].dataTip.color != '' ? dataSeries[keyClass].dataTip.color : 'red')
-              .style('text-anchor', "middle")
-              .style("transform", (d: any) => {
-                let translateX = (that.xA(d.x) as number) + that.xA.bandwidth() / 2 + dataSeries[keyClass].dataTip.offset[0];
-                let translateY = 0;
-                if (dataSeries[keyClass].valueAxis == 'y') {
-                  translateY = that.yA(d.y) - dataSeries[keyClass].style.outSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
-                } else if (dataSeries[keyClass].valueAxis == 'z') {
-                  translateY = that.zA(d.y) - dataSeries[keyClass].style.outSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
-                }
-                return `translate(${translateX}px, ${translateY}px)`;
-              })
-              .text((d: any) => `${d.y}${dataSeries[keyClass].dataTip.suffix}`)
-          }, (update: any) => {
-            update.attr("fill", dataSeries[keyClass].dataTip.color != '' ? dataSeries[keyClass].dataTip.color : 'red')
-              .style('text-anchor', "middle")
-              .style("transform", (d: any) => {
-                let translateX = (that.xA(d.x) as number) + that.xA.bandwidth() / 2 + dataSeries[keyClass].dataTip.offset[0];
-                let translateY = 0;
-                if (dataSeries[keyClass].valueAxis == 'y') {
-                  translateY = that.yA(d.y) - dataSeries[keyClass].style.outSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
-                } else if (dataSeries[keyClass].valueAxis == 'z') {
-                  translateY = that.zA(d.y) - dataSeries[keyClass].style.outSize - dataSeries[keyClass].style.lineWidth + dataSeries[keyClass].dataTip.offset[1];
-                }
-                return `translate(${translateX}px, ${translateY}px)`;
-              })
-              .text((d: any) => `${d.y}${dataSeries[keyClass].dataTip.suffix}`)
-          }, (exit: any) => exit.remove());
-
-        this.chartContainer.select('.graph').select(`.${keyClass}_line`).selectAll(`text`).setFontStyle(dataSeries[keyClass].dataTip.font);
-      }
-    }
+    triangleKeys.forEach(element => {
+      this.chartContainer.select('.graph').selectAll(`.${this._id}_${element}`).setFontStyle(dataSeries[element].dataTip.font)
+    });
   }
 
   /**
    * 绘制引导线
    * @private
-   * @memberof LineChart
+   * @memberof TriangleChart
    */
   private _renderGuidLine() {
 
-    const linekeys = Object.keys(this.property.series.dataSeries);
+    const triangleKeys = Object.keys(this.property.series.dataSeries);
 
     let tempData = {} as any, extremum = {} as any;
-    linekeys.forEach(element => {
+    triangleKeys.forEach(element => {
       tempData[element] = this.defaultData[element] || [];
       let values = tempData[element].map((d: any) => d.y);
       let dic = {} as any;
@@ -2673,13 +2528,23 @@ class LineChart extends SVGComponentBase {
     });
   }
 
+  private _getMinMax() {
+    const triangleKeys = Object.keys(this.property.series.dataSeries);
+    triangleKeys.forEach(key => {
+      let dic = {} as any;
+      dic['max'] = d3.max(this.defaultData[key], (d: dataType) => d.y) as number
+      dic['min'] = d3.min(this.defaultData[key], (d: dataType) => d.y) as number
+      this.peak[key] = dic;
+    });
+  }
+
   public update(data: any) {
     if (!data) return;
     // console.log("bar chart update", data);
     this.defaultData = data;
+    this._getMinMax();
     this.renderAxis();
-    this._getLine();
-    this.renderLine();
+    this.renderTriangle();
     // this.renderLegend();
     this._renderGuidLine();
   }
@@ -2695,4 +2560,4 @@ class LineChart extends SVGComponentBase {
   }
 }
 
-export default LineChart;
+export default TriangleChart;
