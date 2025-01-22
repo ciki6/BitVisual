@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropertyPanel from "@/components/PropertyPanel";
-import { compGenerator } from "../../../lib";
-import OptionType from "../../../lib/base/optionType";
-// import BubbleChart from "../../../lib/bubbleChart/bubbleChart";
+import TriangleChart from "../../../lib/triangleChart/triangleChart";
 
-const BubbleChartTest: React.FC = () => {
+const TriangleChartTest: React.FC = () => {
   const compContainerRef = useRef<HTMLDivElement | null>(null);
   const compRef = useRef<any>(null);
   const [defaultData, setDefaultData] = useState<string>("");
@@ -65,43 +63,25 @@ const BubbleChartTest: React.FC = () => {
   };
 
   useEffect(() => {
-    if (compContainerRef.current && compContainerRef.current.childNodes.length < 1) {
-      compRef.current = compGenerator({
-        className: "BubbleChart",
-        id: "bubbleChart",
-        code: "bubbleChart",
-        container: compContainerRef.current as HTMLDivElement,
-        workMode: 0,
-        option: {
-          compVersion: "v1",
+    if (compContainerRef.current  && compContainerRef.current.childNodes.length < 1) {
+      compRef.current = new TriangleChart(
+        "trianglechart",
+        "trianglechart",
+        compContainerRef.current as Element,
+        0,
+        {
           property: {
             basic: {
-              frame: [10, 0, 1920, 1080],
+              frame: [0, 0, 1920, 1080],
             },
           },
-          propertyDictionary: [
-            {
-              name: "basic",
-              displayName: "基础属性巴扎黑",
-              description: "组件基础属性",
-              children: [
-                {
-                  name: "code",
-                  displayName: "组件编码",
-                  description: "组件编码",
-                  type: OptionType.string,
-                  editable: false,
-                },
-              ],
-            },
-          ],
         },
-        useDefaultOpt: true,
-      });
-      console.log(compRef.current.propertyManager.getPropertyDictionary());
+        true
+      );
       setPropertyDic(compRef.current.propertyManager.getPropertyDictionary());
       setProperty(compRef.current.propertyManager.getPropertyList());
       setDefaultData(JSON.stringify(compRef.current.defaultData));
+      window.compRef = compRef;
     }
   }, []);
 
@@ -111,7 +91,7 @@ const BubbleChartTest: React.FC = () => {
 
   return (
     <div>
-      BubbleChart组件测试
+    TriangleChart组件测试
       <div className="comp_prop">
         <div className="comp_container" ref={compContainerRef} style={{ backgroundColor: '#069186' }}></div>
         <div className="prop_container">
@@ -129,4 +109,4 @@ const BubbleChartTest: React.FC = () => {
   );
 };
 
-export default BubbleChartTest;
+export default TriangleChartTest;

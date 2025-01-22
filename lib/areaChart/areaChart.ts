@@ -453,7 +453,7 @@ class AreaChart extends SVGComponentBase {
             dataSuffix: "",
           },
           indicator: {
-            widthPercent: 0.5,
+            widthPercent: 50,
             color: "rgba(0,0,0,0.2)",
           },
         },
@@ -1431,6 +1431,16 @@ class AreaChart extends SVGComponentBase {
               type: OptionType.color
             },
             {
+              name: "filltexture",
+              displayName: "纹理图片",
+              type: OptionType.media
+            },
+            {
+              name: "fillopacity",
+              displayName: "纹理透明度",
+              type: OptionType.color
+            },
+            {
               name: "type",
               displayName: "面积类型",
               type: OptionType.radio,
@@ -1881,6 +1891,7 @@ class AreaChart extends SVGComponentBase {
     if (prompt.isShow) {
       this.chartContainer.append('rect')
         .attr('class', `prompt-indicator prompt-sign`)
+        .style('pointer-events', 'none')
         .attr('fill', prompt.suspend.indicator.color)
         .attr('width', 0)
         .attr('height', this.realHeight - 2 * padding[0] - padding[1])
@@ -2019,7 +2030,7 @@ class AreaChart extends SVGComponentBase {
       }
       return dic;
     })
-    let indicatorWidth = prompt.suspend.indicator.widthPercent * this.xA.bandwidth();
+    let indicatorWidth = (prompt.suspend.indicator.widthPercent / 100) * this.xA.bandwidth();
     this.chartContainer.select('.prompt-indicator').attr('width', indicatorWidth);
     //提示框当前位置的下标
     let prompAniIndex = xAxisValues.indexOf(xValue) < 0 ? 0 : xAxisValues.indexOf(xValue);
@@ -2139,7 +2150,7 @@ class AreaChart extends SVGComponentBase {
             .attr('style', divStyle)
             .text((d: any) => dataSeries[d].name)
         }, (update: any) => {
-          update.attr('class', `li_dom`).attr('style', `display: flex; opacity: 1; align-items: center; cursor: pointer; gap: ${legend.style.valueMargin}px;`);
+          update.attr('class', `li_dom`).attr('style', `display: flex; opacity: 1; align-items: center; cursor: pointer; gap: ${legend.style.valueMargin}px;position:relative`);
 
           update.select('line').attr('style', (d: any) => `height: ${legend.style.size[1]}px; background: ${dataSeries[d].style.color}; width: ${legend.style.size[0]}px; gap: ${legend.style.valueMargin}px; min-width: ${legend.style.size[0]}px;`);
           update.select('outer').attr('style', (d: any) => `display:${dataSeries[d].style.symbolType == 'line' ? 'none' : 'block'};left:${(legend.style.size[0] - legend.style.size[1]) / 2}px;height: ${legend.style.size[1]}px; background: ${dataSeries[d].style.outfill}; width: ${legend.style.size[1]}px; gap: ${legend.style.valueMargin}px;position: absolute;border-radius: 50%;box-sizing: border-box;`);
